@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -23,6 +23,7 @@ const IMAGES = [
 
 const EASE = "cubic-bezier(0.4,0,0.2,1)";
 const DURATION = 650;
+const AUTOPLAY_MS = 4500;
 
 const GRAIN_SVG =
   "data:image/svg+xml;utf8," +
@@ -34,11 +35,31 @@ function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [loaded, setLoaded] = useState<boolean[]>(() => IMAGES.map(() => false));
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
-    IMAGES.forEach((i) => {
+    IMAGES.forEach((i, idx) => {
       const img = new Image();
+      img.onload = () =>
+        setLoaded((prev) => {
+          if (prev[idx]) return prev;
+          const next = [...prev];
+          next[idx] = true;
+          return next;
+        });
       img.src = i.src;
+      if (img.complete) {
+        setLoaded((prev) => {
+          if (prev[idx]) return prev;
+          const next = [...prev];
+          next[idx] = true;
+          return next;
+        });
+      }
     });
   }, []);
 
@@ -49,11 +70,67 @@ function Index() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const navigate = (dir: "next" | "prev") => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setActiveIndex((prev) => (dir === "next" ? (prev + 1) % 4 : (prev + 3) % 4));
-    window.setTimeout(() => setIsAnimating(false), DURATION);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const navigate = useCallback(
+    (dir: "next" | "prev") => {
+      if (isAnimating) return;
+      setIsAnimating(true);
+      setActiveIndex((prev) => (dir === "next" ? (prev + 1) % 4 : (prev + 3) % 4));
+      window.setTimeout(() => setIsAnimating(false), DURATION);
+    },
+    [isAnimating],
+  );
+
+  // Autoplay
+  useEffect(() => {
+    if (paused || reducedMotion) return;
+    const id = window.setInterval(() => navigate("next"), AUTOPLAY_MS);
+    return () => window.clearInterval(id);
+  }, [paused, reducedMotion, navigate]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        navigate("prev");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        navigate("next");
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setPaused(true);
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null || touchStartY.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      navigate(dx < 0 ? "next" : "prev");
+    }
+    window.setTimeout(() => setPaused(false), 1500);
+  };
+
+  const handleDiscover = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const el = document.getElementById("details");
+    if (el) el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   };
 
   const center = activeIndex;
@@ -62,10 +139,11 @@ function Index() {
   const back = (activeIndex + 2) % 4;
 
   const getRoleStyle = (i: number): React.CSSProperties => {
+    const dur = reducedMotion ? 0 : DURATION;
     const base: React.CSSProperties = {
       position: "absolute",
       aspectRatio: "0.6 / 1",
-      transition: `transform ${DURATION}ms ${EASE}, filter ${DURATION}ms ${EASE}, opacity ${DURATION}ms ${EASE}, left ${DURATION}ms ${EASE}, bottom ${DURATION}ms ${EASE}, height ${DURATION}ms ${EASE}`,
+      transition: `transform ${dur}ms ${EASE}, filter ${dur}ms ${EASE}, opacity ${dur}ms ${EASE}, left ${dur}ms ${EASE}, bottom ${dur}ms ${EASE}, height ${dur}ms ${EASE}`,
       willChange: "transform, filter, opacity",
     };
     if (i === center) {
@@ -122,11 +200,21 @@ function Index() {
       className="relative w-full overflow-hidden"
       style={{
         backgroundColor: IMAGES[activeIndex].bg,
-        transition: `background-color ${DURATION}ms ${EASE}`,
+        transition: `background-color ${reducedMotion ? 0 : DURATION}ms ${EASE}`,
         fontFamily: "Inter, sans-serif",
       }}
     >
-      <div className="relative w-full" style={{ height: "100vh", overflow: "hidden" }}>
+      <div
+        className="relative w-full"
+        style={{ height: "100vh", overflow: "hidden" }}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="TOONHUB figurine carousel"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         {/* Grain */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -173,16 +261,37 @@ function Index() {
         {/* Carousel */}
         <div className="absolute inset-0" style={{ zIndex: 3 }}>
           {IMAGES.map((img, i) => (
-            <div key={i} style={getRoleStyle(i)}>
+            <div
+              key={i}
+              style={getRoleStyle(i)}
+              aria-hidden={i !== activeIndex}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Figurine ${i + 1} of ${IMAGES.length}`}
+            >
+              {!loaded[i] && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: `linear-gradient(135deg, ${img.panel}, ${img.bg})`,
+                    borderRadius: 24,
+                    opacity: 0.6,
+                    animation: "pulse 1.4s ease-in-out infinite",
+                  }}
+                />
+              )}
               <img
                 src={img.src}
-                alt=""
+                alt={`TOONHUB figurine ${i + 1}`}
                 draggable={false}
                 style={{
                   width: "100%",
                   height: "100%",
                   objectFit: "contain",
                   objectPosition: "bottom center",
+                  opacity: loaded[i] ? 1 : 0,
+                  transition: "opacity 300ms ease",
                 }}
               />
             </div>
@@ -207,10 +316,10 @@ function Index() {
             The artwork is stunning, shipped fully prepared. The finish is a vision, the 3D craft is flawless. Many thanks! Wishing you the win. Order now.
           </p>
           <div className="flex gap-3">
-            <NavButton onClick={() => navigate("prev")} aria-label="Previous">
+            <NavButton onClick={() => navigate("prev")} aria-label="Previous figurine" aria-controls="toonhub-carousel">
               <ArrowLeft size={26} strokeWidth={2.25} color="#fff" />
             </NavButton>
-            <NavButton onClick={() => navigate("next")} aria-label="Next">
+            <NavButton onClick={() => navigate("next")} aria-label="Next figurine" aria-controls="toonhub-carousel">
               <ArrowRight size={26} strokeWidth={2.25} color="#fff" />
             </NavButton>
           </div>
@@ -219,7 +328,9 @@ function Index() {
         {/* Bottom-right discover */}
         <div className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10" style={{ zIndex: 60 }}>
           <a
-            href="#"
+            href="#details"
+            onClick={handleDiscover}
+            aria-label="Scroll to figurine details"
             className="flex items-center group"
             style={{
               fontFamily: "Anton, sans-serif",
@@ -241,6 +352,55 @@ function Index() {
           </a>
         </div>
       </div>
+
+      {/* Details section — DISCOVER IT target */}
+      <section
+        id="details"
+        className="w-full bg-white text-neutral-900 px-6 py-20 sm:px-12 sm:py-28"
+        style={{ fontFamily: "Inter, sans-serif" }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 mb-4">
+            About the collection
+          </p>
+          <h2
+            style={{
+              fontFamily: "Anton, sans-serif",
+              fontSize: "clamp(40px, 8vw, 110px)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.02em",
+              textTransform: "uppercase",
+              margin: 0,
+            }}
+          >
+            Figurines, crafted in 3D.
+          </h2>
+          <div className="mt-10 grid gap-10 sm:grid-cols-3">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Hand-tuned shapes</h3>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                Every figurine is sculpted, lit, and posed by hand before being rendered at studio quality.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Print-ready</h3>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                Models ship as watertight meshes optimized for resin and FDM printers up to 200mm.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Ships worldwide</h3>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                Each order is packed in custom foam and tracked door-to-door from our studio.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @keyframes pulse { 0%,100% { opacity: 0.45 } 50% { opacity: 0.75 } }
+      `}</style>
     </div>
   );
 }
