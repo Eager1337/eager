@@ -54,23 +54,54 @@ const PROJECTS: Project[] = [
 ];
 
 const TOC = [
-  { id: 0, label: "Cover" },
-  { id: 1, label: "About" },
-  { id: 2, label: "Services" },
-  { id: 3, label: "Process" },
-  { id: 4, label: "Featured Projects" },
-  { id: 5, label: "Testimonials" },
-  { id: 6, label: "Contact" },
+  { id: 0, label: "Cover", slug: "cover" },
+  { id: 1, label: "About", slug: "about" },
+  { id: 2, label: "Services", slug: "services" },
+  { id: 3, label: "Process", slug: "process" },
+  { id: 4, label: "Featured Projects", slug: "projects" },
+  { id: 5, label: "Testimonials", slug: "testimonials" },
+  { id: 6, label: "Contact", slug: "contact" },
 ];
 
 const DURATION = 700;
+
+function track(event: string, payload: Record<string, unknown> = {}) {
+  try {
+    const data = { event, ts: Date.now(), ...payload };
+    // dataLayer / gtag if present
+    const w = window as unknown as {
+      dataLayer?: unknown[];
+      gtag?: (...args: unknown[]) => void;
+      plausible?: (e: string, opts?: { props?: Record<string, unknown> }) => void;
+    };
+    w.dataLayer?.push(data);
+    w.gtag?.("event", event, payload);
+    w.plausible?.(event, { props: payload });
+    // local log for debugging / inspection
+    const key = "toonhub:analytics";
+    const arr = JSON.parse(localStorage.getItem(key) || "[]");
+    arr.push(data);
+    localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+  } catch {
+    /* noop */
+  }
+}
+
+function slugToId(slug: string | null): number | null {
+  if (!slug) return null;
+  const m = TOC.find((t) => t.slug === slug);
+  return m ? m.id : null;
+}
 
 function PortfolioBook() {
   const [page, setPage] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [flipping, setFlipping] = useState<"next" | "prev" | null>(null);
   const [modal, setModal] = useState<Project | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const lastPage = useRef(0);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const lastFocused = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -80,15 +111,31 @@ function PortfolioBook() {
     return () => mq.removeEventListener("change", u);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const u = () => setIsMobile(mq.matches);
+    u();
+    mq.addEventListener("change", u);
+    return () => mq.removeEventListener("change", u);
+  }, []);
+
   const total = TOC.length;
+  const effectiveDuration = reducedMotion ? 0 : isMobile ? 420 : DURATION;
 
   const goTo = useCallback(
-    (next: number) => {
+    (next: number, opts: { updateHash?: boolean } = {}) => {
       if (flipping) return;
       const clamped = Math.max(0, Math.min(total - 1, next));
       if (clamped === page) return;
       const dir = clamped > page ? "next" : "prev";
       lastPage.current = page;
+      const slug = TOC[clamped].slug;
+      if (opts.updateHash !== false) {
+        try {
+          history.replaceState(null, "", `#${slug}`);
+        } catch { /* noop */ }
+      }
+      track("portfolio_page_view", { page: clamped, slug });
       if (reducedMotion) {
         setPage(clamped);
         return;
@@ -97,18 +144,33 @@ function PortfolioBook() {
       window.setTimeout(() => {
         setPage(clamped);
         setFlipping(null);
-      }, DURATION);
+      }, effectiveDuration);
     },
-    [flipping, page, reducedMotion, total],
+    [flipping, page, reducedMotion, total, effectiveDuration],
   );
 
   const next = useCallback(() => goTo(page + 1), [goTo, page]);
   const prev = useCallback(() => goTo(page - 1), [goTo, page]);
 
+  // Hash deep-link: initial + on hashchange
+  useEffect(() => {
+    const apply = () => {
+      const slug = window.location.hash.replace(/^#/, "");
+      const id = slugToId(slug);
+      if (id !== null && id !== page) {
+        goTo(id, { updateHash: false });
+      }
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (modal) {
-        if (e.key === "Escape") setModal(null);
+        if (e.key === "Escape") closeModal();
         return;
       }
       if (e.key === "ArrowRight") { e.preventDefault(); next(); }
@@ -118,14 +180,84 @@ function PortfolioBook() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [next, prev, goTo, total, modal]);
 
-  const currentContent = useMemo(() => renderPage(page, setModal), [page]);
-  const prevContent = useMemo(() => renderPage(lastPage.current, setModal), [page]);
+  const openModal = useCallback((p: Project) => {
+    lastFocused.current = (document.activeElement as HTMLElement) ?? null;
+    track("learn_more_click", { project: p.title });
+    track("modal_open", { project: p.title });
+    setModal(p);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModal((m) => {
+      if (m) track("modal_close", { project: m.title });
+      return null;
+    });
+    requestAnimationFrame(() => lastFocused.current?.focus?.());
+  }, []);
+
+  // Focus trap when modal open
+  useEffect(() => {
+    if (!modal) return;
+    const node = modalRef.current;
+    if (!node) return;
+    const focusables = () =>
+      Array.from(
+        node.querySelectorAll<HTMLElement>(
+          'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
+        )
+      );
+    const first = focusables()[0];
+    first?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const els = focusables();
+      if (!els.length) return;
+      const firstEl = els[0];
+      const lastEl = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
+    };
+    node.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      node.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [modal]);
+
+  // Swipe on book
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = touchStart.current;
+    if (!s) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next(); else prev();
+    }
+    touchStart.current = null;
+  };
+
+  const currentContent = useMemo(() => renderPage(page, openModal), [page, openModal]);
+  const prevContent = useMemo(() => renderPage(lastPage.current, openModal), [page, openModal]);
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-10"
+      className="min-h-dvh w-full flex flex-col items-center justify-center px-3 sm:px-4 py-6 sm:py-10"
       style={{
         background: "radial-gradient(circle at 20% 10%, #1f2937, #0b0f17 60%)",
         fontFamily: "Inter, sans-serif",
@@ -138,7 +270,7 @@ function PortfolioBook() {
         </div>
         <a
           href="/"
-          className="text-xs uppercase tracking-[0.2em] opacity-70 hover:opacity-100 transition-opacity"
+          className="text-xs uppercase tracking-[0.2em] opacity-70 hover:opacity-100 transition-opacity min-h-11 inline-flex items-center px-3 -mx-3"
         >
           ← Back to home
         </a>
@@ -148,13 +280,13 @@ function PortfolioBook() {
         {/* TOC */}
         <nav aria-label="Table of contents" className="md:sticky md:top-6 self-start">
           <p className="text-[10px] uppercase tracking-[0.25em] opacity-60 mb-3">Contents</p>
-          <ul className="space-y-1">
+          <ul className="flex md:block gap-2 md:gap-0 overflow-x-auto md:overflow-visible -mx-1 px-1 md:mx-0 md:px-0 md:space-y-1">
             {TOC.map((item) => (
-              <li key={item.id}>
+              <li key={item.id} className="shrink-0">
                 <button
                   onClick={() => goTo(item.id)}
                   aria-current={page === item.id ? "page" : undefined}
-                  className="w-full text-left text-sm px-3 py-2 rounded-md transition-colors"
+                  className="w-full text-left text-sm px-3 py-2 rounded-md transition-colors min-h-11 whitespace-nowrap"
                   style={{
                     background: page === item.id ? "rgba(255,255,255,0.08)" : "transparent",
                     color: page === item.id ? "#fff" : "rgba(255,255,255,0.65)",
@@ -175,12 +307,15 @@ function PortfolioBook() {
             style={{
               width: "100%",
               maxWidth: 720,
-              aspectRatio: "3 / 4",
+              aspectRatio: isMobile ? "4 / 5" : "3 / 4",
               transformStyle: "preserve-3d",
+              touchAction: "pan-y",
             }}
             role="region"
             aria-roledescription="book"
             aria-label={`Page ${page + 1} of ${total}: ${TOC[page].label}`}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
           >
             {/* Spine shadow */}
             <div
@@ -219,7 +354,7 @@ function PortfolioBook() {
                 className="absolute inset-0 rounded-md overflow-hidden shadow-2xl"
                 style={{
                   transformOrigin: flipping === "next" ? "left center" : "right center",
-                  animation: `${flipping === "next" ? "flipNext" : "flipPrev"} ${DURATION}ms cubic-bezier(0.4,0,0.2,1) forwards`,
+                  animation: `${flipping === "next" ? "flipNext" : "flipPrev"} ${effectiveDuration}ms cubic-bezier(0.4,0,0.2,1) forwards`,
                   background: lastPage.current === 0 ? coverGradient() : pageBackground(),
                   zIndex: 20,
                   backfaceVisibility: "hidden",
@@ -230,14 +365,14 @@ function PortfolioBook() {
             )}
 
             {/* Controls */}
-            <div className="absolute inset-x-0 -bottom-16 flex items-center justify-between px-2">
+            <div className="absolute inset-x-0 -bottom-16 flex items-center justify-between gap-2 px-2">
               <button
                 onClick={prev}
                 disabled={page === 0}
                 aria-label="Previous page"
-                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition"
+                className="flex items-center gap-2 px-4 py-3 min-h-11 min-w-11 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition text-sm"
               >
-                <ArrowLeft size={16} /> Prev
+                <ArrowLeft size={18} /> <span className="hidden sm:inline">Prev</span>
               </button>
               <span className="text-xs uppercase tracking-[0.2em] opacity-60">
                 {String(page + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -246,9 +381,9 @@ function PortfolioBook() {
                 onClick={next}
                 disabled={page === total - 1}
                 aria-label="Next page"
-                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition"
+                className="flex items-center gap-2 px-4 py-3 min-h-11 min-w-11 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition text-sm"
               >
-                Next <ArrowRight size={16} />
+                <span className="hidden sm:inline">Next</span> <ArrowRight size={18} />
               </button>
             </div>
           </div>
@@ -260,25 +395,27 @@ function PortfolioBook() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={`${modal.title} details`}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          aria-labelledby="project-modal-title"
+          aria-describedby="project-modal-desc"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           style={{ background: "rgba(0,0,0,0.7)", animation: reducedMotion ? undefined : "fadeIn 200ms ease" }}
-          onClick={() => setModal(null)}
+          onClick={closeModal}
+          ref={modalRef}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-2xl p-8 text-neutral-900"
+            className="relative w-full max-w-xl rounded-t-2xl sm:rounded-2xl p-6 sm:p-8 text-neutral-900 max-h-[92dvh] overflow-y-auto"
             style={{ background: "#fff", animation: reducedMotion ? undefined : "popIn 220ms cubic-bezier(0.4,0,0.2,1)" }}
           >
             <button
-              onClick={() => setModal(null)}
-              aria-label="Close"
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-neutral-100"
+              onClick={closeModal}
+              aria-label="Close project details"
+              className="absolute top-3 right-3 p-3 min-h-11 min-w-11 rounded-full hover:bg-neutral-100 inline-flex items-center justify-center"
             >
               <X size={18} />
             </button>
-            <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Featured project</p>
-            <h3 style={{ fontFamily: "Anton, sans-serif", fontSize: 40, lineHeight: 1, letterSpacing: "-0.02em" }} className="mt-2 uppercase">
+            <p id="project-modal-desc" className="text-xs uppercase tracking-[0.2em] text-neutral-500">Featured project</p>
+            <h3 id="project-modal-title" style={{ fontFamily: "Anton, sans-serif", lineHeight: 1, letterSpacing: "-0.02em" }} className="mt-2 uppercase text-3xl sm:text-4xl pr-12">
               {modal.title}
             </h3>
             <p className="text-sm text-neutral-600 mt-1">{modal.tagline}</p>
