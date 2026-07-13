@@ -1,633 +1,640 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, X, BookOpen, Mail, GraduationCap, Code2, Sparkles } from "lucide-react";
+import { SmartImage } from "../lib/assets";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import {
+  ArrowUpRight,
+  ArrowLeft,
+  ArrowRight,
+  Github,
+  Linkedin,
+  Mail,
+  Phone,
+  MapPin,
+  Code2,
+  Video,
+  Server,
+  Layers,
+  Search,
+  PenTool,
+  Hammer,
+  TestTube2,
+  Rocket,
+  LifeBuoy,
+  FileText,
+  Check,
+} from "lucide-react";
+import { downloadCvPdf, downloadRateCardPdf } from "../lib/pdf-exports";
+import portraitRed from "../assets/portrait-red.jpg.asset.json";
+import portraitBlackSit from "../assets/portrait-black-sitting.jpg.asset.json";
+import portraitBlackStand from "../assets/portrait-black-standing.jpg.asset.json";
+import { useContent } from "../lib/content-store";
+
+const PORTRAITS = [portraitRed, portraitBlackStand, portraitBlackSit];
 
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
     meta: [
-      { title: "EagerBeaver — Portfolio Book" },
-      { name: "description", content: "Senior Software Engineer portfolio: about, services, process, testimonials, and featured projects." },
-      { property: "og:title", content: "EagerBeaver — Portfolio Book" },
-      { property: "og:description", content: "An interactive portfolio book by EagerBeaver, Senior Software Engineer." },
+      { title: "Alusine G. Dumbuya, Eager Beaver · Full-Stack Developer & Video Editor" },
+      {
+        name: "description",
+        content:
+          "Portfolio of Alusine G. Dumbuya (Eager Beaver), full-stack developer, systems builder and video editor studying at Limkokwing University, Sierra Leone.",
+      },
+      { property: "og:title", content: "Alusine G. Dumbuya, Eager Beaver" },
+      {
+        property: "og:description",
+        content: "Full-stack developer, systems builder and video editor. Sierra Leone.",
+      },
+      { property: "og:image", content: portraitRed.url },
+      { property: "og:type", content: "profile" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: portraitRed.url },
     ],
   }),
-  component: PortfolioBook,
+  component: PortfolioPage,
 });
 
-type Project = {
-  title: string;
-  tagline: string;
-  problem: string;
-  solution: string;
-  stack: string[];
-};
+const EMAIL = "ebeaver091@gmail.com";
+const PHONE = "+232 33 695 803";
+const GITHUB = "https://github.com/Eager1337?tab=repositories";
+const LINKEDIN = "https://www.linkedin.com/in/eager-beaver-03ab9040b";
 
-const PROJECTS: Project[] = [
+const SERVICES = [
   {
-    title: "DataCore",
-    tagline: "Real-time analytics for ops teams",
-    problem: "Ops teams were stitching together CSVs and dashboards, losing hours every week reconciling numbers across tools.",
-    solution: "A streaming analytics layer with a unified schema, sub-second queries, and shareable, embeddable charts.",
-    stack: ["TypeScript", "Next.js", "ClickHouse", "Kafka", "Tailwind"],
+    icon: Code2,
+    title: "Web & App Development",
+    body: "Production-ready websites and mobile-first web apps in React, TypeScript and modern tooling.",
   },
   {
-    title: "Taskora",
-    tagline: "Async-first project management",
-    problem: "Remote teams burned out on meetings used to keep delivery on track.",
-    solution: "Threaded tasks, automatic stand-ups, and AI summaries that replace status meetings with quick reads.",
-    stack: ["React", "Node", "Postgres", "Prisma", "OpenAI"],
+    icon: Server,
+    title: "Backend & APIs",
+    body: "Type-safe REST and server functions, auth, databases and integrations that scale.",
   },
   {
-    title: "Deck",
-    tagline: "AI pitch deck generator",
-    problem: "Founders spent days designing decks instead of refining their story.",
-    solution: "Prompt-to-deck pipeline that drafts narrative, layout and visuals, then exports clean PPTX and PDF.",
-    stack: ["TanStack Start", "Cloudflare Workers", "Supabase", "Lovable AI"],
+    icon: Layers,
+    title: "Systems Building",
+    body: "Architecting end-to-end systems, from data model to deployment, that ship and stay shipped.",
   },
   {
-    title: "Limkokwing Connect",
-    tagline: "Campus student portal",
-    problem: "Students juggled scattered portals for results, fees, and timetables.",
-    solution: "One mobile-first portal with offline support, push reminders, and SSO across faculty services.",
-    stack: ["React Native", "tRPC", "Postgres", "Redis"],
+    icon: Video,
+    title: "Video Editing",
+    body: "Story-driven edits, motion typography and color, for brands, creators and short-form social.",
   },
 ];
 
-const TOC = [
-  { id: 0, label: "Cover", slug: "cover" },
-  { id: 1, label: "About", slug: "about" },
-  { id: 2, label: "Services", slug: "services" },
-  { id: 3, label: "Process", slug: "process" },
-  { id: 4, label: "Featured Projects", slug: "projects" },
-  { id: 5, label: "Testimonials", slug: "testimonials" },
-  { id: 6, label: "Contact", slug: "contact" },
+const STACK = [
+  "HTML5",
+  "CSS3",
+  "JavaScript",
+  "React",
+  "TypeScript",
+  "Next.js",
+  "TanStack",
+  "Node.js",
+  "PostgreSQL",
+  "Supabase",
+  "Tailwind CSS",
+  "Framer Motion",
+  "Premiere Pro",
+  "After Effects",
+  "DaVinci Resolve",
 ];
 
-const DURATION = 700;
+const PROCESS = [
+  {
+    icon: Search,
+    k: "01",
+    t: "Discovery & Brief",
+    d: "I sit with the problem before I touch a file. Goals, users, constraints, budget, deadline, success metric, all written down and confirmed with you before scope is locked.",
+  },
+  {
+    icon: PenTool,
+    k: "02",
+    t: "Architecture & Design",
+    d: "Wireframes, data model, API contracts and a component inventory. You approve the flow and the visual direction before a single production line is written.",
+  },
+  {
+    icon: Hammer,
+    k: "03",
+    t: "Build in Vertical Slices",
+    d: "I ship one working slice at a time, frontend, backend, database, deployed, so you can click a real thing every few days instead of waiting for a big reveal.",
+  },
+  {
+    icon: TestTube2,
+    k: "04",
+    t: "Test, Review, Harden",
+    d: "Type-safe code, real device testing, accessibility pass, Lighthouse, and a security review before anything is called done. Bugs get fixed at the root, not patched.",
+  },
+  {
+    icon: Rocket,
+    k: "05",
+    t: "Launch & Handoff",
+    d: "CI/CD pipeline, environment variables documented, a written runbook and a walkthrough call. You own the codebase, no lock-in, no black boxes.",
+  },
+  {
+    icon: LifeBuoy,
+    k: "06",
+    t: "Iterate & Support",
+    d: "30-day post-launch window included. After that we can move to a retainer for features, monitoring and monthly reports, or you're free to fly solo.",
+  },
+];
 
-function track(event: string, payload: Record<string, unknown> = {}) {
-  try {
-    const data = { event, ts: Date.now(), ...payload };
-    // dataLayer / gtag if present
-    const w = window as unknown as {
-      dataLayer?: unknown[];
-      gtag?: (...args: unknown[]) => void;
-      plausible?: (e: string, opts?: { props?: Record<string, unknown> }) => void;
-    };
-    w.dataLayer?.push(data);
-    w.gtag?.("event", event, payload);
-    w.plausible?.(event, { props: payload });
-    // local log for debugging / inspection
-    const key = "toonhub:analytics";
-    const arr = JSON.parse(localStorage.getItem(key) || "[]");
-    arr.push(data);
-    localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
-  } catch {
-    /* noop */
-  }
-}
-
-function slugToId(slug: string | null): number | null {
-  if (!slug) return null;
-  const m = TOC.find((t) => t.slug === slug);
-  return m ? m.id : null;
-}
-
-function PortfolioBook() {
-  const [page, setPage] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [flipping, setFlipping] = useState<"next" | "prev" | null>(null);
-  const [modal, setModal] = useState<Project | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const lastPage = useRef(0);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-  const lastFocused = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const u = () => setReducedMotion(mq.matches);
-    u();
-    mq.addEventListener("change", u);
-    return () => mq.removeEventListener("change", u);
-  }, []);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const u = () => setIsMobile(mq.matches);
-    u();
-    mq.addEventListener("change", u);
-    return () => mq.removeEventListener("change", u);
-  }, []);
-
-  const total = TOC.length;
-  const effectiveDuration = reducedMotion ? 0 : isMobile ? 420 : DURATION;
-
-  const goTo = useCallback(
-    (next: number, opts: { updateHash?: boolean } = {}) => {
-      if (flipping) return;
-      const clamped = Math.max(0, Math.min(total - 1, next));
-      if (clamped === page) return;
-      const dir = clamped > page ? "next" : "prev";
-      lastPage.current = page;
-      const slug = TOC[clamped].slug;
-      if (opts.updateHash !== false) {
-        try {
-          history.replaceState(null, "", `#${slug}`);
-        } catch { /* noop */ }
-      }
-      track("portfolio_page_view", { page: clamped, slug });
-      if (reducedMotion) {
-        setPage(clamped);
-        return;
-      }
-      setFlipping(dir);
-      window.setTimeout(() => {
-        setPage(clamped);
-        setFlipping(null);
-      }, effectiveDuration);
-    },
-    [flipping, page, reducedMotion, total, effectiveDuration],
-  );
-
-  const next = useCallback(() => goTo(page + 1), [goTo, page]);
-  const prev = useCallback(() => goTo(page - 1), [goTo, page]);
-
-  // Hash deep-link: initial + on hashchange
-  useEffect(() => {
-    const apply = () => {
-      const slug = window.location.hash.replace(/^#/, "");
-      const id = slugToId(slug);
-      if (id !== null && id !== page) {
-        goTo(id, { updateHash: false });
-      }
-    };
-    apply();
-    window.addEventListener("hashchange", apply);
-    return () => window.removeEventListener("hashchange", apply);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (modal) {
-        if (e.key === "Escape") closeModal();
-        return;
-      }
-      if (e.key === "ArrowRight") { e.preventDefault(); next(); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
-      else if (e.key === "Home") { e.preventDefault(); goTo(0); }
-      else if (e.key === "End") { e.preventDefault(); goTo(total - 1); }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [next, prev, goTo, total, modal]);
-
-  const openModal = useCallback((p: Project) => {
-    lastFocused.current = (document.activeElement as HTMLElement) ?? null;
-    track("learn_more_click", { project: p.title });
-    track("modal_open", { project: p.title });
-    setModal(p);
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setModal((m) => {
-      if (m) track("modal_close", { project: m.title });
-      return null;
-    });
-    requestAnimationFrame(() => lastFocused.current?.focus?.());
-  }, []);
-
-  // Focus trap when modal open
-  useEffect(() => {
-    if (!modal) return;
-    const node = modalRef.current;
-    if (!node) return;
-    const focusables = () =>
-      Array.from(
-        node.querySelectorAll<HTMLElement>(
-          'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
-        )
-      );
-    const first = focusables()[0];
-    first?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      const els = focusables();
-      if (!els.length) return;
-      const firstEl = els[0];
-      const lastEl = els[els.length - 1];
-      if (e.shiftKey && document.activeElement === firstEl) {
-        e.preventDefault();
-        lastEl.focus();
-      } else if (!e.shiftKey && document.activeElement === lastEl) {
-        e.preventDefault();
-        firstEl.focus();
-      }
-    };
-    node.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      node.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [modal]);
-
-  // Swipe on book
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    touchStart.current = { x: t.clientX, y: t.clientY };
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const s = touchStart.current;
-    if (!s) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - s.x;
-    const dy = t.clientY - s.y;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) next(); else prev();
-    }
-    touchStart.current = null;
-  };
-
-  const currentContent = useMemo(() => renderPage(page, openModal), [page, openModal]);
-  const prevContent = useMemo(() => renderPage(lastPage.current, openModal), [page, openModal]);
+function PortfolioPage() {
+  const [pIdx, setPIdx] = useState(0);
+  const { pricing } = useContent();
+  const nextP = () => setPIdx((i) => (i + 1) % PORTRAITS.length);
+  const prevP = () => setPIdx((i) => (i - 1 + PORTRAITS.length) % PORTRAITS.length);
+  const current = PORTRAITS[pIdx];
 
   return (
-    <div
-      className="min-h-dvh w-full flex flex-col items-center justify-center px-3 sm:px-4 py-6 sm:py-10"
-      style={{
-        background: "radial-gradient(circle at 20% 10%, #1f2937, #0b0f17 60%)",
-        fontFamily: "Inter, sans-serif",
-        color: "#f8fafc",
-      }}
-    >
-      <header className="w-full max-w-5xl mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm uppercase tracking-[0.2em] opacity-80">
-          <BookOpen size={16} /> Portfolio Book
-        </div>
-        <a
-          href="/"
-          className="text-xs uppercase tracking-[0.2em] opacity-70 hover:opacity-100 transition-opacity min-h-11 inline-flex items-center px-3 -mx-3"
-        >
-          ← Back to home
-        </a>
+    <div className="min-h-screen bg-[#0C0C0C] text-[#F1FAEE] font-[Inter,sans-serif] antialiased selection:bg-[#E63946] selection:text-white">
+      {/* Top nav */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0C0C0C]/70 border-b border-white/5">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8 py-4">
+          <Link to="/portfolio" className="font-[Anton,sans-serif] text-xl tracking-wider">
+            EAGER<span className="text-[#E63946]">.</span>BEAVER
+          </Link>
+          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            <a href="#work" className="text-[#A8A8A8] hover:text-white transition-colors">
+              Work
+            </a>
+            <a
+              href="#services"
+              className="text-[#A8A8A8] hover:text-white transition-colors hidden sm:inline"
+            >
+              Services
+            </a>
+            <a
+              href="#process"
+              className="text-[#A8A8A8] hover:text-white transition-colors hidden sm:inline"
+            >
+              Process
+            </a>
+            <a href="#contact" className="text-[#A8A8A8] hover:text-white transition-colors">
+              Contact
+            </a>
+            <Link
+              to="/"
+              className="rounded-full border border-white/20 px-3 py-1.5 hover:border-white hover:bg-white hover:text-black transition-colors"
+            >
+              Explore site
+            </Link>
+          </div>
+        </nav>
       </header>
 
-      <div className="w-full max-w-5xl grid gap-6 md:grid-cols-[200px_1fr]">
-        {/* TOC */}
-        <nav aria-label="Table of contents" className="md:sticky md:top-6 self-start">
-          <p className="text-[10px] uppercase tracking-[0.25em] opacity-60 mb-3">Contents</p>
-          <ul className="flex md:block gap-2 md:gap-0 overflow-x-auto md:overflow-visible -mx-1 px-1 md:mx-0 md:px-0 md:space-y-1">
-            {TOC.map((item) => (
-              <li key={item.id} className="shrink-0">
-                <button
-                  onClick={() => goTo(item.id)}
-                  aria-current={page === item.id ? "page" : undefined}
-                  className="w-full text-left text-sm px-3 py-2 rounded-md transition-colors min-h-11 whitespace-nowrap"
-                  style={{
-                    background: page === item.id ? "rgba(255,255,255,0.08)" : "transparent",
-                    color: page === item.id ? "#fff" : "rgba(255,255,255,0.65)",
-                  }}
-                >
-                  <span className="opacity-50 mr-2 tabular-nums">{String(item.id).padStart(2, "0")}</span>
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      {/* Hero */}
+      <section className="relative pt-32 sm:pt-40 pb-20 px-5 sm:px-8">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[#E63946] mb-6">
+              Portfolio · Sierra Leone
+            </p>
+            <h1 className="font-[Anton,sans-serif] uppercase leading-[0.85] tracking-tight text-[clamp(3rem,9vw,8rem)]">
+              Alusine G.
+              <br />
+              <span className="text-[#E63946]">Dumbuya</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base sm:text-lg text-[#A8A8A8] leading-relaxed">
+              Also known as <span className="text-white font-semibold">Eager Beaver</span>, a
+              full-stack developer, systems builder and video editor studying at{" "}
+              <span className="text-white">Limkokwing University, Sierra Leone</span>. I build
+              websites, apps and backends end-to-end, and I cut video that earns attention.
+            </p>
 
-        {/* Book */}
-        <div className="relative" style={{ perspective: "2400px" }}>
-          <div
-            className="relative mx-auto"
-            style={{
-              width: "100%",
-              maxWidth: 720,
-              aspectRatio: isMobile ? "4 / 5" : "3 / 4",
-              transformStyle: "preserve-3d",
-              touchAction: "pan-y",
-            }}
-            role="region"
-            aria-roledescription="book"
-            aria-label={`Page ${page + 1} of ${total}: ${TOC[page].label}`}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-          >
-            {/* Spine shadow */}
-            <div
-              aria-hidden
-              className="absolute inset-y-0 left-0 w-3 rounded-l-md"
-              style={{ background: "linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0))", zIndex: 30 }}
-            />
-            {/* Edge stack */}
-            <div
-              aria-hidden
-              className="absolute -bottom-2 left-2 right-2 h-2 rounded-b-md"
-              style={{ background: "rgba(255,255,255,0.08)", filter: "blur(1px)" }}
-            />
-            <div
-              aria-hidden
-              className="absolute -bottom-3 left-4 right-4 h-2 rounded-b-md"
-              style={{ background: "rgba(255,255,255,0.05)", filter: "blur(2px)" }}
-            />
-
-            {/* Static (current) page */}
-            <div
-              key={`static-${page}`}
-              className="absolute inset-0 rounded-md overflow-hidden shadow-2xl"
-              style={{
-                background: page === 0 ? coverGradient() : pageBackground(),
-                animation: reducedMotion ? undefined : "fadeIn 400ms ease",
-              }}
-            >
-              {currentContent}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href={`mailto:${EMAIL}`}
+                className="inline-flex items-center gap-2 rounded-full bg-[#E63946] px-5 py-3 text-sm font-semibold text-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                Hire me <ArrowUpRight className="w-4 h-4" />
+              </a>
+              <button
+                onClick={downloadCvPdf}
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                <FileText className="w-4 h-4" /> Download CV
+              </button>
+              <button
+                onClick={downloadRateCardPdf}
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                <FileText className="w-4 h-4" /> Rate card
+              </button>
+              <a
+                href={GITHUB}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                <Github className="w-4 h-4" /> See my code
+              </a>
+              <a
+                href={LINKEDIN}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                <Linkedin className="w-4 h-4" /> LinkedIn
+              </a>
             </div>
 
-            {/* Flipping overlay */}
-            {flipping && !reducedMotion && (
-              <div
-                aria-hidden
-                className="absolute inset-0 rounded-md overflow-hidden shadow-2xl"
-                style={{
-                  transformOrigin: flipping === "next" ? "left center" : "right center",
-                  animation: `${flipping === "next" ? "flipNext" : "flipPrev"} ${effectiveDuration}ms cubic-bezier(0.4,0,0.2,1) forwards`,
-                  background: lastPage.current === 0 ? coverGradient() : pageBackground(),
-                  zIndex: 20,
-                  backfaceVisibility: "hidden",
-                }}
-              >
-                {prevContent}
-              </div>
-            )}
-
-            {/* Controls */}
-            <div className="absolute inset-x-0 -bottom-16 flex items-center justify-between gap-2 px-2">
-              <button
-                onClick={prev}
-                disabled={page === 0}
-                aria-label="Previous page"
-                className="flex items-center gap-2 px-4 py-3 min-h-11 min-w-11 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition text-sm"
-              >
-                <ArrowLeft size={18} /> <span className="hidden sm:inline">Prev</span>
-              </button>
-              <span className="text-xs uppercase tracking-[0.2em] opacity-60">
-                {String(page + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-              </span>
-              <button
-                onClick={next}
-                disabled={page === total - 1}
-                aria-label="Next page"
-                className="flex items-center gap-2 px-4 py-3 min-h-11 min-w-11 rounded-full border border-white/20 disabled:opacity-30 hover:bg-white/10 transition text-sm"
-              >
-                <span className="hidden sm:inline">Next</span> <ArrowRight size={18} />
-              </button>
-            </div>
+            <dl className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-lg">
+              {[
+                { k: "4+", v: "Disciplines" },
+                { k: "100%", v: "Self-shipped" },
+                { k: "24/7", v: "Eager" },
+              ].map((s) => (
+                <div key={s.v}>
+                  <dt className="font-[Anton,sans-serif] text-3xl sm:text-5xl text-white">{s.k}</dt>
+                  <dd className="mt-1 text-xs uppercase tracking-widest text-[#A8A8A8]">{s.v}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
-        </div>
-      </div>
 
-      {/* Modal */}
-      {modal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="project-modal-title"
-          aria-describedby="project-modal-desc"
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ background: "rgba(0,0,0,0.7)", animation: reducedMotion ? undefined : "fadeIn 200ms ease" }}
-          onClick={closeModal}
-          ref={modalRef}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-t-2xl sm:rounded-2xl p-6 sm:p-8 text-neutral-900 max-h-[92dvh] overflow-y-auto"
-            style={{ background: "#fff", animation: reducedMotion ? undefined : "popIn 220ms cubic-bezier(0.4,0,0.2,1)" }}
-          >
-            <button
-              onClick={closeModal}
-              aria-label="Close project details"
-              className="absolute top-3 right-3 p-3 min-h-11 min-w-11 rounded-full hover:bg-neutral-100 inline-flex items-center justify-center"
-            >
-              <X size={18} />
-            </button>
-            <p id="project-modal-desc" className="text-xs uppercase tracking-[0.2em] text-neutral-500">Featured project</p>
-            <h3 id="project-modal-title" style={{ fontFamily: "Anton, sans-serif", lineHeight: 1, letterSpacing: "-0.02em" }} className="mt-2 uppercase text-3xl sm:text-4xl pr-12">
-              {modal.title}
-            </h3>
-            <p className="text-sm text-neutral-600 mt-1">{modal.tagline}</p>
-
-            <div className="mt-6 space-y-4">
-              <Block label="Problem" text={modal.problem} />
-              <Block label="Solution" text={modal.solution} />
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 mb-2">Stack</p>
-                <div className="flex flex-wrap gap-2">
-                  {modal.stack.map((s) => (
-                    <span key={s} className="text-xs px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-700">
-                      {s}
-                    </span>
-                  ))}
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="relative">
+              <div
+                className="absolute -inset-4 bg-[#E63946]/30 blur-3xl rounded-full"
+                aria-hidden
+              />
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#1A1410]">
+                <SmartImage
+                  key={current.url}
+                  src={current.url}
+                  alt="Alusine G. Dumbuya, Eager Beaver"
+                  className="w-full h-auto block animate-in fade-in duration-500"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-transparent to-transparent" />
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <button
+                    onClick={prevP}
+                    aria-label="Previous portrait"
+                    className="rounded-full bg-black/50 hover:bg-[#E63946] text-white p-2.5 backdrop-blur transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex gap-1.5">
+                    {PORTRAITS.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all ${i === pIdx ? "w-6 bg-[#E63946]" : "w-1.5 bg-white/40"}`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={nextP}
+                    aria-label="Next portrait"
+                    className="rounded-full bg-black/50 hover:bg-[#E63946] text-white p-2.5 backdrop-blur transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-[#A8A8A8]">
+                      Currently
+                    </p>
+                    <p className="font-[Anton,sans-serif] text-xl text-white">Available for work</p>
+                  </div>
+                  <span className="flex h-3 w-3 rounded-full bg-[#E63946] animate-pulse" />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </section>
 
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.96) } to { opacity: 1; transform: scale(1) } }
-        @keyframes flipNext {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(-180deg); }
-        }
-        @keyframes flipPrev {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(180deg); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function Block({ label, text }: { label: string; text: string }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 mb-1">{label}</p>
-      <p className="text-sm text-neutral-800 leading-relaxed">{text}</p>
-    </div>
-  );
-}
-
-function coverGradient() {
-  return "linear-gradient(135deg, #f4845f 0%, #e94e77 50%, #6b46c1 100%)";
-}
-function pageBackground() {
-  return "linear-gradient(180deg, #fdfaf3 0%, #f3ecdc 100%)";
-}
-
-function PageShell({ title, children, dark = false }: { title?: string; children: React.ReactNode; dark?: boolean }) {
-  return (
-    <div className={`h-full w-full p-8 sm:p-12 overflow-auto ${dark ? "text-white" : "text-neutral-900"}`}>
-      {title && (
-        <>
-          <p className={`text-[10px] uppercase tracking-[0.3em] ${dark ? "opacity-70" : "text-neutral-500"}`}>Chapter</p>
-          <h2
-            style={{ fontFamily: "Anton, sans-serif", fontSize: "clamp(36px, 6vw, 64px)", lineHeight: 0.95, letterSpacing: "-0.02em" }}
-            className="mt-1 uppercase"
-          >
-            {title}
-          </h2>
-          <div className={`h-px my-6 ${dark ? "bg-white/20" : "bg-neutral-300"}`} />
-        </>
-      )}
-      {children}
-    </div>
-  );
-}
-
-function renderPage(i: number, openModal: (p: Project) => void) {
-  switch (i) {
-    case 0:
-      return (
-        <div className="h-full w-full flex flex-col justify-between p-10 sm:p-14 text-white">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] opacity-90">
-            <Sparkles size={14} /> EagerBeaver · 2026
-          </div>
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] opacity-80">Portfolio</p>
-            <h1
-              style={{ fontFamily: "Anton, sans-serif", fontSize: "clamp(56px, 10vw, 120px)", lineHeight: 0.9, letterSpacing: "-0.02em" }}
-              className="mt-3 uppercase"
-            >
-              The Book of<br /> EagerBeaver
-            </h1>
-            <p className="mt-6 max-w-md text-white/85">
-              Senior Software Engineer crafting durable products from idea to ship.
+      {/* Process */}
+      <section id="process" className="px-5 sm:px-8 py-20 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex items-end justify-between gap-8 mb-12 flex-wrap">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">How I work</p>
+              <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+                Six steps. Zero
+                <br />
+                <span className="text-[#E63946]">surprises.</span>
+              </h2>
+            </div>
+            <p className="max-w-md text-sm text-[#A8A8A8] leading-relaxed">
+              Every project I take on runs through the same disciplined pipeline, so you always
+              know what's happening, what's next, and what "done" looks like. No vibes, no vanishing
+              acts.
             </p>
           </div>
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] opacity-80">
-            <GraduationCap size={14} /> Limkokwing University
-          </div>
-        </div>
-      );
-    case 1:
-      return (
-        <PageShell title="About">
-          <p className="text-base leading-relaxed text-neutral-800">
-            I'm <strong>EagerBeaver</strong>, a Senior Software Engineer studying at Limkokwing University.
-            I build full-stack products with a bias for clean systems, fast UX, and durable architecture.
-          </p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2 text-sm text-neutral-700">
-            <li className="p-4 rounded-lg bg-white/60 border border-neutral-200">6+ yrs shipping web products</li>
-            <li className="p-4 rounded-lg bg-white/60 border border-neutral-200">TypeScript · React · Node · Postgres</li>
-            <li className="p-4 rounded-lg bg-white/60 border border-neutral-200">Edge-first, serverless, realtime</li>
-            <li className="p-4 rounded-lg bg-white/60 border border-neutral-200">Design-engineering mindset</li>
-          </ul>
-        </PageShell>
-      );
-    case 2:
-      return (
-        <PageShell title="Services">
-          <div className="grid gap-4">
-            {[
-              { t: "Product Engineering", d: "End-to-end builds — discovery, architecture, ship." },
-              { t: "Web Apps & Dashboards", d: "React, TanStack, Next.js. Fast, accessible, typed." },
-              { t: "APIs & Data", d: "Postgres, Prisma, tRPC, event streams." },
-              { t: "AI Integrations", d: "LLM features that actually ship to production." },
-            ].map((s) => (
-              <div key={s.t} className="p-5 rounded-xl border border-neutral-200 bg-white/70">
-                <div className="flex items-center gap-2">
-                  <Code2 size={16} className="text-neutral-500" />
-                  <h3 className="font-semibold">{s.t}</h3>
-                </div>
-                <p className="text-sm text-neutral-600 mt-1">{s.d}</p>
-              </div>
-            ))}
-          </div>
-        </PageShell>
-      );
-    case 3:
-      return (
-        <PageShell title="Process">
-          <ol className="space-y-5">
-            {[
-              ["Discover", "Audit goals, users, constraints. Define what 'done' looks like."],
-              ["Design", "Wireframe flows, pick a stack, derisk the hard parts first."],
-              ["Build", "Small PRs, instrumented from day one, daily demos."],
-              ["Launch", "Ship behind flags, watch metrics, iterate weekly."],
-            ].map(([t, d], idx) => (
-              <li key={t} className="flex gap-4">
-                <div className="shrink-0 w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-semibold">
-                  {idx + 1}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{t}</h3>
-                  <p className="text-sm text-neutral-600">{d}</p>
+
+          <ol className="relative border-l border-white/10 ml-3 sm:ml-6">
+            {PROCESS.map(({ icon: Icon, k, t, d }, i) => (
+              <li key={k} className="pl-8 sm:pl-12 pb-10 last:pb-0 relative">
+                <span className="absolute -left-[13px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-[#E63946] text-[10px] font-bold text-white">
+                  {i + 1}
+                </span>
+                <div className="flex items-start gap-4 sm:gap-6">
+                  <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#1A1410]">
+                    <Icon className="w-6 h-6 text-[#E63946]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-baseline gap-3 flex-wrap">
+                      <span className="font-[Anton,sans-serif] text-3xl sm:text-4xl text-white/30">
+                        {k}
+                      </span>
+                      <h3 className="font-[Anton,sans-serif] uppercase text-xl sm:text-2xl tracking-wide">
+                        {t}
+                      </h3>
+                    </div>
+                    <p className="mt-2 text-sm text-[#A8A8A8] leading-relaxed max-w-2xl">{d}</p>
+                  </div>
                 </div>
               </li>
             ))}
           </ol>
-        </PageShell>
-      );
-    case 4:
-      return (
-        <PageShell title="Featured Projects">
-          <div className="grid gap-4">
-            {PROJECTS.map((p) => (
-              <div key={p.title} className="p-5 rounded-xl border border-neutral-200 bg-white/70 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-semibold">{p.title}</h3>
-                  <p className="text-sm text-neutral-600">{p.tagline}</p>
-                </div>
-                <button
-                  onClick={() => openModal(p)}
-                  className="shrink-0 text-xs uppercase tracking-[0.2em] px-3 py-2 rounded-full bg-neutral-900 text-white hover:bg-neutral-700 transition"
-                >
-                  Learn more
-                </button>
+
+          <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden">
+            {[
+              { k: "Fixed", v: "Scope + price agreed upfront" },
+              { k: "Weekly", v: "Demo call every Friday" },
+              { k: "Owned", v: "You keep the code, always" },
+              { k: "30 days", v: "Free post-launch support" },
+            ].map((s) => (
+              <div key={s.k} className="bg-[#0C0C0C] p-5 sm:p-6">
+                <p className="font-[Anton,sans-serif] uppercase text-2xl text-white">{s.k}</p>
+                <p className="mt-1 text-xs text-[#A8A8A8]">{s.v}</p>
               </div>
             ))}
           </div>
-        </PageShell>
-      );
-    case 5:
-      return (
-        <PageShell title="Testimonials">
-          <div className="space-y-5">
-            {[
-              { q: "EagerBeaver shipped what three contractors couldn't. Clean code, calm comms.", a: "— CTO, Fintech Startup" },
-              { q: "He turned our messy data into a product. Our team finally trusts the dashboards.", a: "— Head of Ops, Logistics Co." },
-              { q: "Rare blend of design taste and engineering rigor.", a: "— Design Director, Agency" },
-            ].map((t) => (
-              <figure key={t.a} className="p-5 rounded-xl border border-neutral-200 bg-white/70">
-                <blockquote className="text-neutral-800">"{t.q}"</blockquote>
-                <figcaption className="text-xs text-neutral-500 mt-2 uppercase tracking-[0.2em]">{t.a}</figcaption>
-              </figure>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="px-5 sm:px-8 py-20 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex items-end justify-between gap-8 mb-12">
+            <h2 className="font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+              What I<br />
+              <span className="text-[#E63946]">do.</span>
+            </h2>
+            <p className="hidden sm:block max-w-sm text-sm text-[#A8A8A8]">
+              One brain, four crafts. Brief me on the outcome, I'll handle the stack.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden">
+            {SERVICES.map(({ icon: Icon, title, body }) => (
+              <div
+                key={title}
+                className="bg-[#0C0C0C] p-6 sm:p-8 group hover:bg-[#1A1410] transition-colors"
+              >
+                <Icon className="w-8 h-8 text-[#E63946] mb-6" />
+                <h3 className="font-[Anton,sans-serif] uppercase text-2xl tracking-wide">
+                  {title}
+                </h3>
+                <p className="mt-3 text-sm text-[#A8A8A8] leading-relaxed">{body}</p>
+              </div>
             ))}
           </div>
-        </PageShell>
-      );
-    case 6:
-      return (
-        <PageShell title="Contact">
-          <p className="text-neutral-700">Let's build something durable.</p>
-          <a
-            href="mailto:ebeaver091@gmail.com"
-            className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-neutral-900 text-white hover:bg-neutral-700 transition"
-          >
-            <Mail size={16} /> ebeaver091@gmail.com
-          </a>
-          <p className="text-xs text-neutral-500 mt-8 uppercase tracking-[0.2em]">
-            Limkokwing University · Open to senior roles
+        </div>
+      </section>
+
+      {/* Stack */}
+      <section id="work" className="px-5 sm:px-8 py-20 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">Featured work</p>
+          <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+            Hero showcases.
+          </h2>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                to: "/work/aurai",
+                title: "Aurai",
+                tag: "Ambient AI",
+                grad: "from-fuchsia-500/30 to-cyan-500/20",
+              },
+              {
+                to: "/work/aeon",
+                title: "Aeon",
+                tag: "Cinematic launch",
+                grad: "from-indigo-500/30 to-sky-500/10",
+              },
+              {
+                to: "/halo",
+                title: "USD Halo",
+                tag: "Premium fintech",
+                grad: "from-sky-400/30 to-indigo-500/10",
+              },
+              {
+                to: "/work/ios",
+                title: "iOS trio",
+                tag: "Mobile templates",
+                grad: "from-emerald-500/30 to-teal-500/10",
+              },
+              {
+                to: "/work/datacore",
+                title: "Datacore",
+                tag: "Linear-style",
+                grad: "from-violet-500/30 to-orange-500/10",
+              },
+              {
+                to: "/work/taskora",
+                title: "Taskora",
+                tag: "SaaS dashboard",
+                grad: "from-white/15 to-white/0",
+              },
+              {
+                to: "/work/deck",
+                title: "Mux deck",
+                tag: "HLS slide deck",
+                grad: "from-rose-500/30 to-amber-500/10",
+              },
+            ].map((p) => (
+              <Link
+                key={p.to}
+                to={p.to}
+                className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${p.grad} p-6 h-56 flex flex-col justify-between hover:border-white/30 transition-colors`}
+              >
+                <span className="text-xs uppercase tracking-[0.25em] text-white/70">{p.tag}</span>
+                <div className="flex items-end justify-between">
+                  <h3 className="font-[Anton,sans-serif] uppercase text-3xl tracking-wide">
+                    {p.title}
+                  </h3>
+                  <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white transition" />
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <p className="mt-16 text-xs uppercase tracking-[0.3em] text-[#E63946]">Toolbox</p>
+          <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+            The stack I ship with.
+          </h2>
+          <div className="mt-8 flex flex-wrap gap-2">
+            {STACK.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-white/15 px-4 py-2 text-sm text-[#F1FAEE] hover:border-[#E63946] hover:text-white transition-colors"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-12 rounded-2xl border border-white/10 p-6 sm:p-10 bg-gradient-to-br from-[#1A1410] to-[#0C0C0C]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div>
+                <h3 className="font-[Anton,sans-serif] uppercase text-2xl sm:text-4xl">
+                  Live projects on GitHub
+                </h3>
+                <p className="mt-2 text-sm text-[#A8A8A8] max-w-md">
+                  Browse every repository I've shipped, open source, experiments and client work.
+                </p>
+              </div>
+              <a
+                href={GITHUB}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0C0C0C] hover:bg-[#E63946] hover:text-white transition-colors w-fit"
+              >
+                <Github className="w-4 h-4" /> @Eager1337 <ArrowUpRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="px-5 sm:px-8 py-20 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">Investment</p>
+          <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+            Pricing, upfront.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm text-[#A8A8A8]">
+            Fixed-scope packages. No hourly billing games. Everything includes design, development,
+            deployment on Lovable Cloud and 30-day post-launch support.
           </p>
-        </PageShell>
-      );
-    default:
-      return null;
-  }
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {pricing.map((t) => (
+              <div
+                key={t.name}
+                className={`rounded-2xl border p-6 sm:p-7 ${t.best ? "border-[#E63946] bg-[#1A1410]" : "border-white/10 bg-[#0C0C0C]"}`}
+              >
+                {t.best && (
+                  <div className="mb-3 inline-block rounded-full bg-[#E63946] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                    Most popular
+                  </div>
+                )}
+                <h3 className="font-[Anton,sans-serif] uppercase text-2xl">{t.name}</h3>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="font-[Anton,sans-serif] text-4xl text-white">{t.price}</span>
+                  <span className="text-xs text-[#A8A8A8]">· {t.weeks}</span>
+                </div>
+                <ul className="mt-5 space-y-2 text-sm text-[#F1FAEE]">
+                  {t.inc.map((i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#E63946] shrink-0 mt-0.5" />
+                      <span>{i}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`mailto:${EMAIL}?subject=${encodeURIComponent(t.name + " enquiry")}`}
+                  className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${t.best ? "bg-[#E63946] text-white hover:bg-white hover:text-[#0C0C0C]" : "border border-white/20 hover:border-white hover:bg-white hover:text-[#0C0C0C]"}`}
+                >
+                  Start this package <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              onClick={downloadRateCardPdf}
+              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0C0C0C] hover:bg-[#E63946] hover:text-white transition-colors"
+            >
+              <FileText className="w-4 h-4" /> Download full rate card
+            </button>
+            <button
+              onClick={downloadCvPdf}
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+            >
+              <FileText className="w-4 h-4" /> Download CV (PDF)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="px-5 sm:px-8 py-24 border-t border-white/5">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-7">
+            <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">Let's build</p>
+            <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-5xl sm:text-7xl leading-[0.9]">
+              Got a good
+              <br />
+              opportunity?
+            </h2>
+            <p className="mt-6 max-w-lg text-[#A8A8A8]">
+              Internships, freelance gigs, full-time roles or a project you need shipped fast, I'd
+              love to hear about it.
+            </p>
+          </div>
+          <div className="lg:col-span-5 space-y-3">
+            <ContactRow icon={Mail} label="Email" value={EMAIL} href={`mailto:${EMAIL}`} />
+            <ContactRow icon={Phone} label="Phone" value={PHONE} href={`tel:+23233695803`} />
+            <ContactRow
+              icon={Linkedin}
+              label="LinkedIn"
+              value="eager-beaver"
+              href={LINKEDIN}
+              external
+            />
+            <ContactRow icon={Github} label="GitHub" value="@Eager1337" href={GITHUB} external />
+            <ContactRow icon={MapPin} label="Based in" value="Freetown, Sierra Leone" />
+          </div>
+        </div>
+      </section>
+
+      <footer className="px-5 sm:px-8 py-10 border-t border-white/5 text-xs text-[#A8A8A8] flex flex-wrap items-center justify-between gap-3">
+        <span>© {new Date().getFullYear()} Alusine G. Dumbuya, Eager Beaver.</span>
+        <span>Built & shipped from Sierra Leone.</span>
+      </footer>
+    </div>
+  );
+}
+
+function ContactRow({
+  icon: Icon,
+  label,
+  value,
+  href,
+  external,
+}: {
+  icon: typeof Mail;
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+}) {
+  const inner = (
+    <div className="group flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#0C0C0C] hover:border-[#E63946] hover:bg-[#1A1410] px-5 py-4 transition-colors">
+      <div className="flex items-center gap-4 min-w-0">
+        <Icon className="w-5 h-5 text-[#E63946] shrink-0" />
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-[#A8A8A8]">{label}</p>
+          <p className="text-sm text-white truncate">{value}</p>
+        </div>
+      </div>
+      {href && (
+        <ArrowUpRight className="w-4 h-4 text-[#A8A8A8] group-hover:text-white transition-colors shrink-0" />
+      )}
+    </div>
+  );
+  if (!href) return inner;
+  return (
+    <a href={href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} className="block">
+      {inner}
+    </a>
+  );
 }
