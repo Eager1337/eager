@@ -9,12 +9,74 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SkyeliteRouteImport } from './routes/skyelite'
+import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as LegendsRouteImport } from './routes/legends'
+import { Route as HaloRouteImport } from './routes/halo'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SkyeliteIndexRouteImport } from './routes/skyelite.index'
+import { Route as PortfolioOsIndexRouteImport } from './routes/portfolio-os.index'
+import { Route as LegendsIndexRouteImport } from './routes/legends.index'
+import { Route as WorkTaskoraRouteImport } from './routes/work.taskora'
+import { Route as WorkIosRouteImport } from './routes/work.ios'
+import { Route as WorkDeckRouteImport } from './routes/work.deck'
+import { Route as WorkDatacoreRouteImport } from './routes/work.datacore'
+import { Route as WorkAuraiRouteImport } from './routes/work.aurai'
+import { Route as WorkAeonRouteImport } from './routes/work.aeon'
+import { Route as SkyeliteStoryRouteImport } from './routes/skyelite.story'
+import { Route as SkyeliteRatesRouteImport } from './routes/skyelite.rates'
+import { Route as SkyeliteFaqRouteImport } from './routes/skyelite.faq'
+import { Route as SkyeliteBookRouteImport } from './routes/skyelite.book'
+import { Route as SkyeliteBenefitsRouteImport } from './routes/skyelite.benefits'
+import { Route as PortfolioOsSuiteRouteImport } from './routes/portfolio-os.suite'
+import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug'
+import { Route as LegendsSlugRouteImport } from './routes/legends.$slug'
+import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
+import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
+import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
 
+const SkyeliteRoute = SkyeliteRouteImport.update({
+  id: '/skyelite',
+  path: '/skyelite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioOsRoute = PortfolioOsRouteImport.update({
+  id: '/portfolio-os',
+  path: '/portfolio-os',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegendsRoute = LegendsRouteImport.update({
+  id: '/legends',
+  path: '/legends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HaloRoute = HaloRouteImport.update({
+  id: '/halo',
+  path: '/halo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +84,367 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SkyeliteIndexRoute = SkyeliteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const PortfolioOsIndexRoute = PortfolioOsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const LegendsIndexRoute = LegendsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LegendsRoute,
+} as any)
+const WorkTaskoraRoute = WorkTaskoraRouteImport.update({
+  id: '/work/taskora',
+  path: '/work/taskora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkIosRoute = WorkIosRouteImport.update({
+  id: '/work/ios',
+  path: '/work/ios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkDeckRoute = WorkDeckRouteImport.update({
+  id: '/work/deck',
+  path: '/work/deck',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkDatacoreRoute = WorkDatacoreRouteImport.update({
+  id: '/work/datacore',
+  path: '/work/datacore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkAuraiRoute = WorkAuraiRouteImport.update({
+  id: '/work/aurai',
+  path: '/work/aurai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkAeonRoute = WorkAeonRouteImport.update({
+  id: '/work/aeon',
+  path: '/work/aeon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkyeliteStoryRoute = SkyeliteStoryRouteImport.update({
+  id: '/story',
+  path: '/story',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteRatesRoute = SkyeliteRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteFaqRoute = SkyeliteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteBookRoute = SkyeliteBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteBenefitsRoute = SkyeliteBenefitsRouteImport.update({
+  id: '/benefits',
+  path: '/benefits',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const PortfolioOsSuiteRoute = PortfolioOsSuiteRouteImport.update({
+  id: '/suite',
+  path: '/suite',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const PortfolioOsSlugRoute = PortfolioOsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const LegendsSlugRoute = LegendsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LegendsRoute,
+} as any)
+const LandingSlugRoute = LandingSlugRouteImport.update({
+  id: '/landing/$slug',
+  path: '/landing/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreSlugRoute = ExploreSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ExploreRoute,
+} as any)
+const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
+  id: '/api/public/media/$key',
+  path: '/api/public/media/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
+  '/explore': typeof ExploreRouteWithChildren
+  '/halo': typeof HaloRoute
+  '/legends': typeof LegendsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
+  '/portfolio-os': typeof PortfolioOsRouteWithChildren
+  '/skyelite': typeof SkyeliteRouteWithChildren
+  '/explore/$slug': typeof ExploreSlugRoute
+  '/landing/$slug': typeof LandingSlugRoute
+  '/legends/$slug': typeof LegendsSlugRoute
+  '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
+  '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
+  '/skyelite/benefits': typeof SkyeliteBenefitsRoute
+  '/skyelite/book': typeof SkyeliteBookRoute
+  '/skyelite/faq': typeof SkyeliteFaqRoute
+  '/skyelite/rates': typeof SkyeliteRatesRoute
+  '/skyelite/story': typeof SkyeliteStoryRoute
+  '/work/aeon': typeof WorkAeonRoute
+  '/work/aurai': typeof WorkAuraiRoute
+  '/work/datacore': typeof WorkDatacoreRoute
+  '/work/deck': typeof WorkDeckRoute
+  '/work/ios': typeof WorkIosRoute
+  '/work/taskora': typeof WorkTaskoraRoute
+  '/legends/': typeof LegendsIndexRoute
+  '/portfolio-os/': typeof PortfolioOsIndexRoute
+  '/skyelite/': typeof SkyeliteIndexRoute
+  '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
+  '/explore': typeof ExploreRouteWithChildren
+  '/halo': typeof HaloRoute
   '/portfolio': typeof PortfolioRoute
+  '/explore/$slug': typeof ExploreSlugRoute
+  '/landing/$slug': typeof LandingSlugRoute
+  '/legends/$slug': typeof LegendsSlugRoute
+  '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
+  '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
+  '/skyelite/benefits': typeof SkyeliteBenefitsRoute
+  '/skyelite/book': typeof SkyeliteBookRoute
+  '/skyelite/faq': typeof SkyeliteFaqRoute
+  '/skyelite/rates': typeof SkyeliteRatesRoute
+  '/skyelite/story': typeof SkyeliteStoryRoute
+  '/work/aeon': typeof WorkAeonRoute
+  '/work/aurai': typeof WorkAuraiRoute
+  '/work/datacore': typeof WorkDatacoreRoute
+  '/work/deck': typeof WorkDeckRoute
+  '/work/ios': typeof WorkIosRoute
+  '/work/taskora': typeof WorkTaskoraRoute
+  '/legends': typeof LegendsIndexRoute
+  '/portfolio-os': typeof PortfolioOsIndexRoute
+  '/skyelite': typeof SkyeliteIndexRoute
+  '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
+  '/explore': typeof ExploreRouteWithChildren
+  '/halo': typeof HaloRoute
+  '/legends': typeof LegendsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
+  '/portfolio-os': typeof PortfolioOsRouteWithChildren
+  '/skyelite': typeof SkyeliteRouteWithChildren
+  '/explore/$slug': typeof ExploreSlugRoute
+  '/landing/$slug': typeof LandingSlugRoute
+  '/legends/$slug': typeof LegendsSlugRoute
+  '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
+  '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
+  '/skyelite/benefits': typeof SkyeliteBenefitsRoute
+  '/skyelite/book': typeof SkyeliteBookRoute
+  '/skyelite/faq': typeof SkyeliteFaqRoute
+  '/skyelite/rates': typeof SkyeliteRatesRoute
+  '/skyelite/story': typeof SkyeliteStoryRoute
+  '/work/aeon': typeof WorkAeonRoute
+  '/work/aurai': typeof WorkAuraiRoute
+  '/work/datacore': typeof WorkDatacoreRoute
+  '/work/deck': typeof WorkDeckRoute
+  '/work/ios': typeof WorkIosRoute
+  '/work/taskora': typeof WorkTaskoraRoute
+  '/legends/': typeof LegendsIndexRoute
+  '/portfolio-os/': typeof PortfolioOsIndexRoute
+  '/skyelite/': typeof SkyeliteIndexRoute
+  '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/portfolio'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/contact'
+    | '/explore'
+    | '/halo'
+    | '/legends'
+    | '/portfolio'
+    | '/portfolio-os'
+    | '/skyelite'
+    | '/explore/$slug'
+    | '/landing/$slug'
+    | '/legends/$slug'
+    | '/portfolio-os/$slug'
+    | '/portfolio-os/suite'
+    | '/skyelite/benefits'
+    | '/skyelite/book'
+    | '/skyelite/faq'
+    | '/skyelite/rates'
+    | '/skyelite/story'
+    | '/work/aeon'
+    | '/work/aurai'
+    | '/work/datacore'
+    | '/work/deck'
+    | '/work/ios'
+    | '/work/taskora'
+    | '/legends/'
+    | '/portfolio-os/'
+    | '/skyelite/'
+    | '/api/public/media/$key'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/portfolio'
-  id: '__root__' | '/' | '/portfolio'
+  to:
+    | '/'
+    | '/admin'
+    | '/contact'
+    | '/explore'
+    | '/halo'
+    | '/portfolio'
+    | '/explore/$slug'
+    | '/landing/$slug'
+    | '/legends/$slug'
+    | '/portfolio-os/$slug'
+    | '/portfolio-os/suite'
+    | '/skyelite/benefits'
+    | '/skyelite/book'
+    | '/skyelite/faq'
+    | '/skyelite/rates'
+    | '/skyelite/story'
+    | '/work/aeon'
+    | '/work/aurai'
+    | '/work/datacore'
+    | '/work/deck'
+    | '/work/ios'
+    | '/work/taskora'
+    | '/legends'
+    | '/portfolio-os'
+    | '/skyelite'
+    | '/api/public/media/$key'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/contact'
+    | '/explore'
+    | '/halo'
+    | '/legends'
+    | '/portfolio'
+    | '/portfolio-os'
+    | '/skyelite'
+    | '/explore/$slug'
+    | '/landing/$slug'
+    | '/legends/$slug'
+    | '/portfolio-os/$slug'
+    | '/portfolio-os/suite'
+    | '/skyelite/benefits'
+    | '/skyelite/book'
+    | '/skyelite/faq'
+    | '/skyelite/rates'
+    | '/skyelite/story'
+    | '/work/aeon'
+    | '/work/aurai'
+    | '/work/datacore'
+    | '/work/deck'
+    | '/work/ios'
+    | '/work/taskora'
+    | '/legends/'
+    | '/portfolio-os/'
+    | '/skyelite/'
+    | '/api/public/media/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ContactRoute: typeof ContactRoute
+  ExploreRoute: typeof ExploreRouteWithChildren
+  HaloRoute: typeof HaloRoute
+  LegendsRoute: typeof LegendsRouteWithChildren
   PortfolioRoute: typeof PortfolioRoute
+  PortfolioOsRoute: typeof PortfolioOsRouteWithChildren
+  SkyeliteRoute: typeof SkyeliteRouteWithChildren
+  LandingSlugRoute: typeof LandingSlugRoute
+  WorkAeonRoute: typeof WorkAeonRoute
+  WorkAuraiRoute: typeof WorkAuraiRoute
+  WorkDatacoreRoute: typeof WorkDatacoreRoute
+  WorkDeckRoute: typeof WorkDeckRoute
+  WorkIosRoute: typeof WorkIosRoute
+  WorkTaskoraRoute: typeof WorkTaskoraRoute
+  ApiPublicMediaKeyRoute: typeof ApiPublicMediaKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/skyelite': {
+      id: '/skyelite'
+      path: '/skyelite'
+      fullPath: '/skyelite'
+      preLoaderRoute: typeof SkyeliteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-os': {
+      id: '/portfolio-os'
+      path: '/portfolio-os'
+      fullPath: '/portfolio-os'
+      preLoaderRoute: typeof PortfolioOsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portfolio': {
       id: '/portfolio'
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legends': {
+      id: '/legends'
+      path: '/legends'
+      fullPath: '/legends'
+      preLoaderRoute: typeof LegendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/halo': {
+      id: '/halo'
+      path: '/halo'
+      fullPath: '/halo'
+      preLoaderRoute: typeof HaloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +454,229 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/skyelite/': {
+      id: '/skyelite/'
+      path: '/'
+      fullPath: '/skyelite/'
+      preLoaderRoute: typeof SkyeliteIndexRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/portfolio-os/': {
+      id: '/portfolio-os/'
+      path: '/'
+      fullPath: '/portfolio-os/'
+      preLoaderRoute: typeof PortfolioOsIndexRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/legends/': {
+      id: '/legends/'
+      path: '/'
+      fullPath: '/legends/'
+      preLoaderRoute: typeof LegendsIndexRouteImport
+      parentRoute: typeof LegendsRoute
+    }
+    '/work/taskora': {
+      id: '/work/taskora'
+      path: '/work/taskora'
+      fullPath: '/work/taskora'
+      preLoaderRoute: typeof WorkTaskoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/ios': {
+      id: '/work/ios'
+      path: '/work/ios'
+      fullPath: '/work/ios'
+      preLoaderRoute: typeof WorkIosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/deck': {
+      id: '/work/deck'
+      path: '/work/deck'
+      fullPath: '/work/deck'
+      preLoaderRoute: typeof WorkDeckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/datacore': {
+      id: '/work/datacore'
+      path: '/work/datacore'
+      fullPath: '/work/datacore'
+      preLoaderRoute: typeof WorkDatacoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/aurai': {
+      id: '/work/aurai'
+      path: '/work/aurai'
+      fullPath: '/work/aurai'
+      preLoaderRoute: typeof WorkAuraiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/aeon': {
+      id: '/work/aeon'
+      path: '/work/aeon'
+      fullPath: '/work/aeon'
+      preLoaderRoute: typeof WorkAeonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skyelite/story': {
+      id: '/skyelite/story'
+      path: '/story'
+      fullPath: '/skyelite/story'
+      preLoaderRoute: typeof SkyeliteStoryRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/rates': {
+      id: '/skyelite/rates'
+      path: '/rates'
+      fullPath: '/skyelite/rates'
+      preLoaderRoute: typeof SkyeliteRatesRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/faq': {
+      id: '/skyelite/faq'
+      path: '/faq'
+      fullPath: '/skyelite/faq'
+      preLoaderRoute: typeof SkyeliteFaqRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/book': {
+      id: '/skyelite/book'
+      path: '/book'
+      fullPath: '/skyelite/book'
+      preLoaderRoute: typeof SkyeliteBookRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/benefits': {
+      id: '/skyelite/benefits'
+      path: '/benefits'
+      fullPath: '/skyelite/benefits'
+      preLoaderRoute: typeof SkyeliteBenefitsRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/portfolio-os/suite': {
+      id: '/portfolio-os/suite'
+      path: '/suite'
+      fullPath: '/portfolio-os/suite'
+      preLoaderRoute: typeof PortfolioOsSuiteRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/portfolio-os/$slug': {
+      id: '/portfolio-os/$slug'
+      path: '/$slug'
+      fullPath: '/portfolio-os/$slug'
+      preLoaderRoute: typeof PortfolioOsSlugRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/legends/$slug': {
+      id: '/legends/$slug'
+      path: '/$slug'
+      fullPath: '/legends/$slug'
+      preLoaderRoute: typeof LegendsSlugRouteImport
+      parentRoute: typeof LegendsRoute
+    }
+    '/landing/$slug': {
+      id: '/landing/$slug'
+      path: '/landing/$slug'
+      fullPath: '/landing/$slug'
+      preLoaderRoute: typeof LandingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/$slug': {
+      id: '/explore/$slug'
+      path: '/$slug'
+      fullPath: '/explore/$slug'
+      preLoaderRoute: typeof ExploreSlugRouteImport
+      parentRoute: typeof ExploreRoute
+    }
+    '/api/public/media/$key': {
+      id: '/api/public/media/$key'
+      path: '/api/public/media/$key'
+      fullPath: '/api/public/media/$key'
+      preLoaderRoute: typeof ApiPublicMediaKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface ExploreRouteChildren {
+  ExploreSlugRoute: typeof ExploreSlugRoute
+}
+
+const ExploreRouteChildren: ExploreRouteChildren = {
+  ExploreSlugRoute: ExploreSlugRoute,
+}
+
+const ExploreRouteWithChildren =
+  ExploreRoute._addFileChildren(ExploreRouteChildren)
+
+interface LegendsRouteChildren {
+  LegendsSlugRoute: typeof LegendsSlugRoute
+  LegendsIndexRoute: typeof LegendsIndexRoute
+}
+
+const LegendsRouteChildren: LegendsRouteChildren = {
+  LegendsSlugRoute: LegendsSlugRoute,
+  LegendsIndexRoute: LegendsIndexRoute,
+}
+
+const LegendsRouteWithChildren =
+  LegendsRoute._addFileChildren(LegendsRouteChildren)
+
+interface PortfolioOsRouteChildren {
+  PortfolioOsSlugRoute: typeof PortfolioOsSlugRoute
+  PortfolioOsSuiteRoute: typeof PortfolioOsSuiteRoute
+  PortfolioOsIndexRoute: typeof PortfolioOsIndexRoute
+}
+
+const PortfolioOsRouteChildren: PortfolioOsRouteChildren = {
+  PortfolioOsSlugRoute: PortfolioOsSlugRoute,
+  PortfolioOsSuiteRoute: PortfolioOsSuiteRoute,
+  PortfolioOsIndexRoute: PortfolioOsIndexRoute,
+}
+
+const PortfolioOsRouteWithChildren = PortfolioOsRoute._addFileChildren(
+  PortfolioOsRouteChildren,
+)
+
+interface SkyeliteRouteChildren {
+  SkyeliteBenefitsRoute: typeof SkyeliteBenefitsRoute
+  SkyeliteBookRoute: typeof SkyeliteBookRoute
+  SkyeliteFaqRoute: typeof SkyeliteFaqRoute
+  SkyeliteRatesRoute: typeof SkyeliteRatesRoute
+  SkyeliteStoryRoute: typeof SkyeliteStoryRoute
+  SkyeliteIndexRoute: typeof SkyeliteIndexRoute
+}
+
+const SkyeliteRouteChildren: SkyeliteRouteChildren = {
+  SkyeliteBenefitsRoute: SkyeliteBenefitsRoute,
+  SkyeliteBookRoute: SkyeliteBookRoute,
+  SkyeliteFaqRoute: SkyeliteFaqRoute,
+  SkyeliteRatesRoute: SkyeliteRatesRoute,
+  SkyeliteStoryRoute: SkyeliteStoryRoute,
+  SkyeliteIndexRoute: SkyeliteIndexRoute,
+}
+
+const SkyeliteRouteWithChildren = SkyeliteRoute._addFileChildren(
+  SkyeliteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ContactRoute: ContactRoute,
+  ExploreRoute: ExploreRouteWithChildren,
+  HaloRoute: HaloRoute,
+  LegendsRoute: LegendsRouteWithChildren,
   PortfolioRoute: PortfolioRoute,
+  PortfolioOsRoute: PortfolioOsRouteWithChildren,
+  SkyeliteRoute: SkyeliteRouteWithChildren,
+  LandingSlugRoute: LandingSlugRoute,
+  WorkAeonRoute: WorkAeonRoute,
+  WorkAuraiRoute: WorkAuraiRoute,
+  WorkDatacoreRoute: WorkDatacoreRoute,
+  WorkDeckRoute: WorkDeckRoute,
+  WorkIosRoute: WorkIosRoute,
+  WorkTaskoraRoute: WorkTaskoraRoute,
+  ApiPublicMediaKeyRoute: ApiPublicMediaKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

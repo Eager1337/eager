@@ -1,0 +1,343 @@
+// 50 showcase projects, single source of truth for /explore grid and /explore/$slug detail
+
+export type ProjectCategory =
+  | "Education"
+  | "Medical"
+  | "Government"
+  | "Sierra Leone"
+  | "Business"
+  | "AI"
+  | "Creator"
+  | "Startup"
+  | "Advanced"
+  | "Experimental";
+
+export interface Project {
+  slug: string;
+  title: string;
+  category: ProjectCategory;
+  tagline: string;
+  preview: string; // background gradient or image url
+  accent: string; // hex
+  problem: string;
+  solution: string;
+  stack: string[];
+  features: string[];
+  metrics: { label: string; value: string }[];
+  demo: string; // url or empty
+  docs?: string;
+}
+
+const grad = (a: string, b: string) =>
+  `linear-gradient(135deg, ${a} 0%, ${b} 100%)`;
+
+function make(
+  slug: string,
+  title: string,
+  category: ProjectCategory,
+  tagline: string,
+  accent: string,
+  accent2: string,
+  problem: string,
+  solution: string,
+  stack: string[],
+  features: string[],
+  metrics: [string, string][],
+): Project {
+  return {
+    slug,
+    title,
+    category,
+    tagline,
+    preview: grad(accent, accent2),
+    accent,
+    problem,
+    solution,
+    stack,
+    features,
+    metrics: metrics.map(([label, value]) => ({ label, value })),
+    demo: "",
+  };
+}
+
+export const PROJECTS: Project[] = [
+  // EDUCATION
+  make("university-erp", "University ERP", "Education", "Unified operating system for modern universities", "#6366f1", "#06b6d4",
+    "Universities run on 12+ disconnected systems for admissions, fees, exams, hostel, library and HR, students bounce between portals and staff re-enter data daily.",
+    "A single ERP with role-based dashboards for students, lecturers, deans and finance, real-time exam analytics, integrated mobile money fees, and an audit-grade approval graph.",
+    ["Next.js", "PostgreSQL", "Redis", "Prisma", "Tailwind", "Stripe"],
+    ["Admissions pipeline", "Exam grade analytics", "Mobile-money fees", "Hostel allocation", "Role-based access", "Audit logs"],
+    [["Students", "42K"], ["Modules", "11"], ["Uptime", "99.98%"], ["TTI", "0.8s"]]),
+  make("assignment-tracker", "Assignment Tracker", "Education", "AI-assisted homework and grading workspace", "#22d3ee", "#3b82f6",
+    "Teachers spend 9+ hours/week grading and tracking who submitted what across email, WhatsApp and paper.",
+    "Smart dashboard with auto-rubric grading, plagiarism checks, parent notifications and a kanban for assignment lifecycles.",
+    ["React", "Supabase", "OpenAI", "Tailwind"], ["AI grading", "Plagiarism check", "Parent SMS", "Kanban", "Late-submission scoring"],
+    [["Hours saved/wk", "9.2"], ["Schools", "120"], ["Submissions", "1.2M"]]),
+  make("student-workspace", "Student Workspace", "Education", "Notion-grade workspace built for students", "#f59e0b", "#ef4444",
+    "Students juggle 4–6 tools for notes, deadlines, group projects and resources, none of them speak to each other.",
+    "One workspace: notes with /AI commands, shared group docs, syllabus import, focus timer and a calendar that pulls from school LMS.",
+    ["Next.js", "tRPC", "Postgres", "Lexical", "AI"], ["AI notes", "Group docs", "Syllabus import", "Pomodoro", "LMS sync"],
+    [["DAU", "28K"], ["Notes created", "4.1M"], ["Avg session", "47m"]]),
+  make("ai-tutor", "AI Tutor", "Education", "Personal Socratic tutor for any subject", "#a855f7", "#ec4899",
+    "Private tutors cost $40/hr+, locking quality help to wealthy households.",
+    "A multimodal tutor that asks Socratic questions, draws diagrams, grades attempts and adapts to each student's learning gaps.",
+    ["Gemini 3", "Vector DB", "React", "Whisper"], ["Voice mode", "Drawing canvas", "Adaptive curriculum", "Progress reports"],
+    [["Learners", "180K"], ["Subjects", "24"], ["Avg score lift", "+27%"]]),
+  make("scholarship-portal", "Scholarship Portal", "Education", "Match students to scholarships in seconds", "#10b981", "#06b6d4",
+    "Eligible students miss billions in scholarships every year because applications are scattered and confusing.",
+    "AI-matched scholarship feed, single application form, document vault, deadline tracker and committee review tools.",
+    ["Next.js", "Supabase", "Stripe", "AI matching"], ["AI match", "Document vault", "Reviewer console", "Auto-resubmit"],
+    [["Awards facilitated", "$48M"], ["Students", "62K"]]),
+
+  // MEDICAL
+  make("clinic-management", "Clinic Management", "Medical", "OS for small and mid-size clinics", "#0ea5e9", "#22c55e",
+    "Small clinics run on paper charts and Excel, appointments collide, prescriptions get lost, and reporting to ministries takes weeks.",
+    "End-to-end clinic OS: appointments, e-prescriptions, billing, lab results, inventory and one-click ministry reports.",
+    ["Next.js", "Postgres", "HL7 FHIR", "Twilio"], ["E-prescriptions", "Lab integration", "SMS reminders", "Insurance billing", "MoH reports"],
+    [["Clinics", "230"], ["Visits/mo", "84K"], ["No-show drop", "-41%"]]),
+  make("health-records", "Health Records", "Medical", "FHIR-compliant patient record vault", "#3b82f6", "#8b5cf6",
+    "Patient records are siloed per hospital, referrals lose history, duplicate tests waste money and risk lives.",
+    "Patient-owned health vault with provider sharing, FHIR-native APIs, encrypted storage and consent receipts.",
+    ["FHIR", "Postgres", "AES-256", "Next.js"], ["FHIR API", "Patient consent", "Audit trail", "Provider portal"],
+    [["Records", "1.4M"], ["Providers", "320"]]),
+  make("telemedicine", "Telemedicine", "Medical", "Video consults with built-in vitals", "#06b6d4", "#0ea5e9",
+    "Patients in rural areas wait days to see a doctor; existing telehealth ignores low bandwidth.",
+    "Adaptive WebRTC video that survives 200kbps, in-call vitals capture, e-prescription and pharmacy handoff.",
+    ["WebRTC", "Twilio", "React Native", "Supabase"], ["Adaptive video", "Vitals capture", "E-prescription", "Pharmacy handoff"],
+    [["Consults", "112K"], ["Avg latency", "180ms"], ["Bandwidth floor", "180kbps"]]),
+  make("medicine-delivery", "Medicine Delivery", "Medical", "Same-day prescription fulfillment", "#ef4444", "#f59e0b",
+    "Patients hunt 3–5 pharmacies to find a single medicine, especially chronic-care drugs.",
+    "Live pharmacy inventory, prescription verification, last-mile rider network and chronic-care subscriptions.",
+    ["Next.js", "Postgres", "Mapbox", "Stripe"], ["Live inventory", "Rx verification", "Rider routing", "Chronic subs"],
+    [["Pharmacies", "180"], ["Avg delivery", "42m"]]),
+  make("health-analytics", "Health Analytics", "Medical", "Population health dashboard for ministries", "#8b5cf6", "#ec4899",
+    "Ministries lack real-time visibility into outbreaks, supply gaps and provider performance.",
+    "Ingests data from clinics and labs, surfaces anomalies, predicts outbreak hotspots and tracks supply chain.",
+    ["ClickHouse", "Python", "Next.js", "DuckDB"], ["Outbreak detection", "Supply tracker", "Provider scorecards"],
+    [["Facilities", "1.2K"], ["Anomalies caught", "417"]]),
+
+  // GOVERNMENT
+  make("permit-portal", "Permit Portal", "Government", "Apply, pay and track any permit online", "#f59e0b", "#ef4444",
+    "Citizens lose days in queues to apply for building, business and travel permits.",
+    "Single portal for 40+ permit types, online payment, document upload, signed PDF issuance and citizen tracking.",
+    ["Next.js", "Postgres", "Stripe", "PDF signing"], ["40+ permits", "Online payment", "Signed PDFs", "Officer console"],
+    [["Permits issued", "215K"], ["Avg turnaround", "3.4 days"]]),
+  make("tax-dashboard", "Tax Dashboard", "Government", "Self-service tax filing and refunds", "#22c55e", "#06b6d4",
+    "Tax filing is paper-heavy and error-prone; refunds take months.",
+    "Pre-filled returns from employer data, instant validation, online payment and same-week refunds.",
+    ["Next.js", "Postgres", "Stripe"], ["Pre-filled returns", "Refund tracker", "Audit console"],
+    [["Filings", "1.1M"], ["Refund time", "5 days"]]),
+  make("citizen-services", "Citizen Services", "Government", "One app for every government service", "#3b82f6", "#8b5cf6",
+    "Citizens don't know which agency handles which request, 311 lines are jammed.",
+    "Discovery-first portal with smart routing, status tracking and SLA accountability for every request.",
+    ["React Native", "Postgres", "Twilio"], ["Smart routing", "SLA tracking", "Citizen ratings"],
+    [["Requests", "640K"], ["SLA met", "92%"]]),
+  make("election-platform", "Election Platform", "Government", "End-to-end election operations", "#ef4444", "#1e293b",
+    "Election commissions stitch together spreadsheets, paper rolls and ad-hoc apps with no audit trail.",
+    "Voter registration, polling-station mapping, result aggregation with cryptographic audit logs.",
+    ["Next.js", "Postgres", "Mapbox", "Crypto"], ["Voter roll", "Result tally", "Audit hashes", "Observer portal"],
+    [["Voters", "4.8M"], ["Stations", "11K"]]),
+  make("digital-identity", "Digital Identity", "Government", "National e-ID with privacy at the core", "#0ea5e9", "#1e40af",
+    "Citizens carry 6+ ID cards; services don't trust each other's records.",
+    "Wallet-based national e-ID with selective disclosure, biometric onboarding and provider verification API.",
+    ["Next.js", "ZK proofs", "Postgres", "Biometrics"], ["Selective disclosure", "Biometric KYC", "Verifier API"],
+    [["Issued IDs", "3.1M"], ["Verifications/day", "210K"]]),
+
+  // SIERRA LEONE
+  make("agriculture-marketplace", "Agriculture Marketplace", "Sierra Leone", "Farmers sell direct to buyers", "#22c55e", "#f59e0b",
+    "Smallholder farmers in Sierra Leone sell to middlemen at 30–50% below market because they lack price visibility and buyers.",
+    "Live commodity prices, buyer matching, mobile-money payments, logistics partners and weather-driven planting tips.",
+    ["Next.js", "Supabase", "Africa's Talking", "Mapbox"], ["Live prices", "Buyer match", "Mobile money", "Logistics", "Weather tips"],
+    [["Farmers", "18K"], ["GMV", "$4.2M"], ["Avg price uplift", "+38%"]]),
+  make("local-transport", "Local Transport App", "Sierra Leone", "Poda-poda routes, fares and ride requests", "#f59e0b", "#ef4444",
+    "Freetown commuters can't predict poda-poda arrivals or fares and waste 2+ hours daily commuting.",
+    "Live route map with crowdsourced poda-poda positions, fixed fare lookup, in-app requests and rider safety alerts.",
+    ["React Native", "Mapbox", "Supabase"], ["Live routes", "Fare table", "Safety SOS", "Driver ratings"],
+    [["Riders", "47K"], ["Avg wait", "-32%"]]),
+  make("school-payments", "School Payments", "Sierra Leone", "Mobile-money school fees & receipts", "#3b82f6", "#22c55e",
+    "Parents in Sierra Leone trek to banks to pay fees in cash and lose receipts.",
+    "Pay any school via Orange Money or AfriMoney, get instant receipts, reminders and term-by-term statements.",
+    ["Next.js", "Orange Money API", "Supabase"], ["Mobile money", "Auto-receipts", "Reminders", "School console"],
+    [["Schools", "320"], ["Payments processed", "$3.1M"]]),
+  make("community-health", "Community Health", "Sierra Leone", "CHW field tools that work offline", "#06b6d4", "#22c55e",
+    "Community health workers in rural districts record visits on paper that may take weeks to digitize.",
+    "Offline-first PWA for CHWs: visit logs, vaccine tracking, malnutrition screening with auto-sync when on network.",
+    ["PWA", "IndexedDB", "Supabase"], ["Offline-first", "Vaccine tracking", "MUAC screening", "Sync queue"],
+    [["CHWs", "2.3K"], ["Visits logged", "418K"]]),
+  make("sme-dashboard", "SME Dashboard", "Sierra Leone", "Books, invoices and tax for small businesses", "#a855f7", "#ec4899",
+    "Sierra Leonean SMEs lose loans and tenders because they have no books to show.",
+    "Simple invoicing, expense tracking via SMS, auto-generated financials and a lender-ready credit profile.",
+    ["Next.js", "Supabase", "Africa's Talking"], ["SMS expenses", "Invoices", "Financial PDFs", "Credit profile"],
+    [["SMEs", "6.4K"], ["Loans unlocked", "$1.8M"]]),
+
+  // BUSINESS
+  make("crm", "CRM", "Business", "Sales pipeline that closes deals faster", "#8b5cf6", "#3b82f6",
+    "Sales teams lose deals because pipeline data lives in heads and inboxes.",
+    "Email-synced CRM with deal scoring, AI follow-up drafts, forecasting and a Slack-grade activity feed.",
+    ["Next.js", "Postgres", "OpenAI"], ["Email sync", "AI drafts", "Forecasting", "Slack feed"],
+    [["Teams", "1.2K"], ["Pipeline tracked", "$420M"]]),
+  make("erp", "ERP", "Business", "Manufacturing and ops in one place", "#0ea5e9", "#6366f1",
+    "Mid-market manufacturers patch together QuickBooks + spreadsheets and lose margin to errors.",
+    "Inventory, BOM, MRP, finance, HR and procurement in one ERP with mobile shop-floor capture.",
+    ["Next.js", "Postgres", "Prisma"], ["BOM/MRP", "Shop-floor app", "Procurement", "Finance"],
+    [["Plants", "47"], ["SKUs", "210K"]]),
+  make("hr-platform", "HR Platform", "Business", "Hiring, onboarding, payroll, OKRs", "#f97316", "#ef4444",
+    "Companies stitch together 6 HR tools and still miss compliance dates.",
+    "ATS, onboarding flows, multi-country payroll, OKRs and reviews in a single platform.",
+    ["Next.js", "Postgres", "Stripe"], ["ATS", "Payroll", "OKRs", "Reviews"],
+    [["Companies", "880"], ["Employees", "112K"]]),
+  make("finance-dashboard", "Finance Dashboard", "Business", "Real-time CFO command center", "#10b981", "#06b6d4",
+    "CFOs close books 15 days late and lack live cash visibility.",
+    "Real-time GL, cash forecast, scenario planning and board-grade reports auto-generated nightly.",
+    ["Next.js", "ClickHouse", "Plaid"], ["Live GL", "Forecast", "Scenarios", "Board reports"],
+    [["Companies", "260"], ["Close time", "-9 days"]]),
+  make("analytics-suite", "Analytics Suite", "Business", "Self-serve product analytics", "#a855f7", "#ec4899",
+    "PMs wait days for SQL queries and miss insights.",
+    "Event ingest, no-code charts, funnel + cohort analysis and AI-asked-questions in plain English.",
+    ["ClickHouse", "Next.js", "DuckDB"], ["Funnels", "Cohorts", "AI queries", "Dashboards"],
+    [["Events/day", "8B"], ["Queries/s", "12K"]]),
+
+  // AI
+  make("ai-workspace", "AI Workspace", "AI", "Multiplayer canvas for AI work", "#ec4899", "#8b5cf6",
+    "AI work is locked in chat threads, nothing is reusable, sharable or composable.",
+    "Canvas-based workspace where prompts, agents and outputs become reusable blocks teams can branch and remix.",
+    ["Next.js", "tRPC", "Yjs", "Postgres"], ["Canvas", "Reusable blocks", "Branching", "Team comments"],
+    [["Workspaces", "9.4K"], ["Blocks/day", "180K"]]),
+  make("ai-research", "AI Research Tool", "AI", "Long-running research agents with citations", "#3b82f6", "#06b6d4",
+    "Researchers waste hours stitching together search, PDFs and notes.",
+    "Multi-agent research with parallel browsing, PDF parsing, source citations and an editable outline.",
+    ["LangGraph", "Next.js", "Vector DB"], ["Parallel agents", "Citations", "PDF parsing", "Outline editor"],
+    [["Reports", "62K"], ["Avg time saved", "4.1h"]]),
+  make("ai-design", "AI Design Assistant", "AI", "Designer-grade AI that respects your system", "#f59e0b", "#ef4444",
+    "Generic AI image tools ignore design tokens and brand systems.",
+    "Connects to your design tokens, generates components that respect type, color and spacing rules, exports to Figma.",
+    ["React", "Diffusion", "Figma API"], ["Token-aware", "Component output", "Figma sync"],
+    [["Designers", "11K"], ["Components shipped", "240K"]]),
+  make("ai-content-studio", "AI Content Studio", "AI", "Brand-aware long-form content factory", "#22c55e", "#06b6d4",
+    "AI writers ignore brand voice, do shallow research and produce thin posts.",
+    "Brand voice fine-tune, multi-source research, structured outlines, image gen and SEO scoring all in one editor.",
+    ["Next.js", "OpenAI", "Vector DB"], ["Brand voice", "Outlines", "SEO score", "Image gen"],
+    [["Posts published", "85K"], ["Avg SERP rank", "+12"]]),
+  make("ai-agent-builder", "AI Agent Builder", "AI", "No-code platform for production agents", "#0ea5e9", "#6366f1",
+    "Building reliable AI agents requires custom code, observability and eval pipelines most teams skip.",
+    "Visual graph editor, tool registry, evals, traces and one-click deploy to a managed runtime.",
+    ["Next.js", "Postgres", "LangGraph"], ["Graph editor", "Tool registry", "Evals", "Traces", "Deploys"],
+    [["Agents shipped", "3.2K"], ["Eval pass rate", "94%"]]),
+
+  // CREATOR
+  make("video-platform", "Video Platform", "Creator", "Creator-owned video hosting", "#ef4444", "#f59e0b",
+    "Creators rent audiences from platforms that change rules overnight.",
+    "Own-domain video hosting, paid memberships, live, comments and creator-controlled algorithm.",
+    ["Next.js", "Mux", "Stripe", "Postgres"], ["Own domain", "Memberships", "Live", "Algorithm dials"],
+    [["Creators", "8.1K"], ["Watch time", "210M min"]]),
+  make("creator-dashboard", "Creator Dashboard", "Creator", "All your platforms in one analytics view", "#06b6d4", "#3b82f6",
+    "Creators check 5+ dashboards to know what's working.",
+    "Unified analytics across YouTube, IG, TikTok and Substack with AI insights and content ideas.",
+    ["Next.js", "Postgres", "OpenAI"], ["Unified analytics", "AI insights", "Content ideas"],
+    [["Creators", "22K"], ["Time saved/wk", "6h"]]),
+  make("portfolio-builder", "Portfolio Builder", "Creator", "Investor-grade portfolios in minutes", "#a855f7", "#ec4899",
+    "Most portfolio sites look templated and don't convert.",
+    "AI builds a tailored portfolio from your work, with case studies, metrics, motion and SEO baked in.",
+    ["Next.js", "OpenAI", "Vercel"], ["AI builder", "Case studies", "Motion", "SEO"],
+    [["Sites built", "41K"], ["Avg time", "8m"]]),
+  make("membership-platform", "Membership Platform", "Creator", "Recurring revenue for creators", "#f97316", "#ef4444",
+    "Creators stitch Patreon + Discord + email, no single source of truth.",
+    "Subscriptions, gated content, community feed, courses and email all on one platform.",
+    ["Next.js", "Stripe", "Postgres"], ["Tiers", "Gated content", "Courses", "Email"],
+    [["Creators", "6.4K"], ["MRR routed", "$11M"]]),
+  make("digital-store", "Digital Store", "Creator", "Sell digital goods with zero fees", "#22c55e", "#10b981",
+    "Marketplaces take 30%+ on digital downloads.",
+    "Sell PDFs, presets, code and templates with instant delivery, license keys and zero-fee Stripe checkout.",
+    ["Next.js", "Stripe", "S3"], ["License keys", "Instant delivery", "Affiliate"],
+    [["Sellers", "14K"], ["GMV", "$8.7M"]]),
+
+  // STARTUP
+  make("fundraising-portal", "Fundraising Portal", "Startup", "Run a round like a public market", "#6366f1", "#06b6d4",
+    "Founders manage rounds in email and lose investor signal.",
+    "Investor pipeline, data room, e-sign SAFEs, cap table and a real-time round dashboard.",
+    ["Next.js", "Postgres", "Dropbox Sign"], ["Pipeline", "Data room", "SAFE signing", "Cap table"],
+    [["Rounds closed", "412"], ["Capital tracked", "$680M"]]),
+  make("investor-dashboard", "Investor Dashboard", "Startup", "Portfolio company tracking for VCs", "#0ea5e9", "#1e40af",
+    "VCs juggle 80+ portfolio updates in inboxes.",
+    "Auto-collected metrics, KPI dashboards, founder updates and AI-summarized portfolio health.",
+    ["Next.js", "Postgres", "OpenAI"], ["Metrics ingest", "KPIs", "AI summaries"],
+    [["Funds", "120"], ["Portcos", "3.4K"]]),
+  make("saas-dashboard", "SaaS Dashboard", "Startup", "Operational backbone for SaaS startups", "#a855f7", "#ec4899",
+    "Early SaaS teams cobble Stripe + Mixpanel + Notion and miss key signals.",
+    "Revenue, churn, NPS, billing, support tickets and team OKRs in one operating system.",
+    ["Next.js", "Stripe", "Postgres"], ["MRR / churn", "NPS", "Billing", "OKRs"],
+    [["Customers", "1.8K"], ["MRR managed", "$24M"]]),
+  make("subscription-platform", "Subscription Platform", "Startup", "Headless subscriptions and metering", "#f59e0b", "#ef4444",
+    "Building usage-based billing in-house takes a quarter.",
+    "Headless metering, invoicing, dunning, proration and tax across 40 countries.",
+    ["Stripe", "Next.js", "Postgres"], ["Metering", "Dunning", "Proration", "Tax"],
+    [["Plans", "12K"], ["Charges/day", "180K"]]),
+  make("marketplace", "Marketplace", "Startup", "Two-sided marketplace in a box", "#10b981", "#06b6d4",
+    "Marketplace founders spend a year before first transaction.",
+    "Listings, search, escrow payments, reviews, disputes and trust scoring.",
+    ["Next.js", "Postgres", "Stripe Connect"], ["Search", "Escrow", "Reviews", "Disputes"],
+    [["Marketplaces", "210"], ["GMV", "$94M"]]),
+
+  // ADVANCED
+  make("smart-city", "Smart City", "Advanced", "Civic operations on live data", "#0ea5e9", "#22c55e",
+    "Cities don't have a unified view of traffic, waste, energy and incidents.",
+    "Real-time city OS ingesting IoT, video and citizen reports with operational dashboards per department.",
+    ["MQTT", "ClickHouse", "Next.js", "Mapbox"], ["IoT ingest", "Video AI", "Department views"],
+    [["Sensors", "120K"], ["Avg incident resp", "-38%"]]),
+  make("logistics-network", "Logistics Network", "Advanced", "Live freight visibility across modes", "#f59e0b", "#ef4444",
+    "Shippers can't tell where freight is between port, road and warehouse.",
+    "Multi-modal tracking, EDI integrations, ETA prediction and customer-facing tracking pages.",
+    ["Next.js", "Postgres", "Kafka"], ["EDI", "ETA AI", "Tracking pages"],
+    [["Shipments tracked", "4.1M"], ["Carriers", "230"]]),
+  make("remote-work-hub", "Remote Work Hub", "Advanced", "Async-first HQ for distributed teams", "#8b5cf6", "#3b82f6",
+    "Distributed teams drown in Slack and miss strategic context.",
+    "Threaded discussions, video memos, decision log, time-zone aware standups and weekly reviews.",
+    ["Next.js", "Mux", "Postgres"], ["Threads", "Video memos", "Decision log"],
+    [["Teams", "1.4K"], ["Meeting time", "-42%"]]),
+  make("cybersecurity-center", "Cybersecurity Center", "Advanced", "SOC-as-a-Service for SMBs", "#ef4444", "#1e293b",
+    "SMBs can't afford a full SOC and are hit hardest by attacks.",
+    "Managed detection, response playbooks, asset inventory and a compliance dashboard.",
+    ["Next.js", "ClickHouse", "Wazuh"], ["Detection", "Playbooks", "Compliance"],
+    [["Companies", "320"], ["Incidents closed", "11K"]]),
+  make("digital-twin", "Digital Twin", "Advanced", "Simulate physical operations in 3D", "#06b6d4", "#0ea5e9",
+    "Plant operators can't safely test process changes without downtime.",
+    "3D digital twin with live sensor overlays, what-if simulation and ROI calculation per change.",
+    ["Three.js", "WebGPU", "Python"], ["3D twin", "Sensor overlay", "What-if sim"],
+    [["Plants twinned", "28"], ["Downtime avoided", "1.2K hrs"]]),
+
+  // EXPERIMENTAL
+  make("future-university", "Future University", "Experimental", "Project-based university platform", "#a855f7", "#3b82f6",
+    "Lectures don't build real skills; campuses are expensive and inaccessible.",
+    "Cohort-based, project-graded learning with mentors, employer pipelines and verifiable credentials.",
+    ["Next.js", "Mux", "Postgres", "POAP"], ["Cohorts", "Projects", "Mentors", "Credentials"],
+    [["Learners", "32K"], ["Job placement", "78%"]]),
+  make("climate-dashboard", "Climate Dashboard", "Experimental", "Track climate commitments at scale", "#22c55e", "#10b981",
+    "Corporate climate pledges are unverifiable.",
+    "Auto-collect emissions data, calculate Scope 1/2/3 and publish progress with cryptographic attestations.",
+    ["Next.js", "Postgres", "Crypto"], ["Scope 1/2/3", "Attestations", "Public ledger"],
+    [["Companies", "180"], ["MtCO2 tracked", "12"]]),
+  make("global-ngo", "Global NGO Platform", "Experimental", "Operations for international NGOs", "#0ea5e9", "#22c55e",
+    "NGOs run on Excel and lose grants because reporting is slow.",
+    "Programs, beneficiaries, donations, grant reporting and impact dashboards across countries.",
+    ["Next.js", "Postgres", "Mapbox"], ["Programs", "Beneficiaries", "Grant reports", "Impact maps"],
+    [["NGOs", "420"], ["Beneficiaries", "2.1M"]]),
+  make("startup-incubator", "Startup Incubator", "Experimental", "Run an accelerator like a product", "#f59e0b", "#ef4444",
+    "Accelerators run on shared drives and lose founder context.",
+    "Application portal, cohort dashboards, mentor matching, demo day platform and alumni network.",
+    ["Next.js", "Postgres"], ["Applications", "Cohort tools", "Mentor match", "Demo day"],
+    [["Cohorts", "82"], ["Founders", "1.1K"]]),
+  make("venture-studio", "Venture Studio", "Experimental", "Spin up companies on a shared OS", "#ec4899", "#a855f7",
+    "Venture studios re-build the same ops stack for every spin-out.",
+    "Shared identity, billing, HR, growth and engineering scaffolds reusable across portfolio companies.",
+    ["Next.js", "Postgres", "Stripe"], ["Shared identity", "Shared HR", "Reusable scaffolds"],
+    [["Companies launched", "34"], ["Avg time-to-launch", "11 weeks"]]),
+];
+
+export const CATEGORIES: ProjectCategory[] = [
+  "Education", "Medical", "Government", "Sierra Leone", "Business",
+  "AI", "Creator", "Startup", "Advanced", "Experimental",
+];
+
+export function getProject(slug: string): Project | undefined {
+  return PROJECTS.find((p) => p.slug === slug);
+}

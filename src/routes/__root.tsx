@@ -8,9 +8,16 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { CommandPalette } from "../components/portfolio-os/CommandPalette";
+import { GlobalSiteTools } from "../components/GlobalSiteTools";
+import { PortfolioOsSettingsProvider, bumpSession } from "../lib/portfolio-os-settings";
+import { registerPortfolioOsSw } from "../lib/register-sw";
+import { ContentStoreProvider } from "../lib/content-store";
+import { InvestorModeProvider } from "../lib/investor-mode";
 
 function NotFoundComponent() {
   return (
@@ -77,25 +84,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "EAGER-HUB" },
+      { name: "description", content: "MY PORTFOLIO" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "EAGER-HUB" },
+      { property: "og:description", content: "MY PORTFOLIO" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "EAGER-HUB" },
+      { name: "twitter:description", content: "MY PORTFOLIO" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/02c07f08-8caf-4d55-9b9e-6a247d529a58/id-preview-8382bdc8--1de7e9b1-145d-4226-af15-d4f656f5d361.lovable.app-1781745802966.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/02c07f08-8caf-4d55-9b9e-6a247d529a58/id-preview-8382bdc8--1de7e9b1-145d-4226-af15-d4f656f5d361.lovable.app-1781745802966.png",
+      },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap",
       },
     ],
   }),
@@ -121,11 +137,25 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    bumpSession();
+    registerPortfolioOsSw();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <PortfolioOsSettingsProvider>
+        <ContentStoreProvider>
+          <InvestorModeProvider>
+            <MotionConfig reducedMotion="user">
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <CommandPalette />
+              <GlobalSiteTools />
+            </MotionConfig>
+          </InvestorModeProvider>
+        </ContentStoreProvider>
+      </PortfolioOsSettingsProvider>
     </QueryClientProvider>
   );
 }
