@@ -37,6 +37,7 @@ import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug
 import { Route as LegendsSlugRouteImport } from './routes/legends.$slug'
 import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
 import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
+import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
 import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
 
 const SkyeliteRoute = SkyeliteRouteImport.update({
@@ -179,6 +180,11 @@ const ExploreSlugRoute = ExploreSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ExploreRoute,
 } as any)
+const CargoxSlugRoute = CargoxSlugRouteImport.update({
+  id: '/cargox/$slug',
+  path: '/cargox/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
   id: '/api/public/media/$key',
   path: '/api/public/media/$key',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
+  '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
   '/legends/$slug': typeof LegendsSlugRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/portfolio': typeof PortfolioRoute
+  '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
   '/legends/$slug': typeof LegendsSlugRoute
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
+  '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
   '/legends/$slug': typeof LegendsSlugRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/portfolio-os'
     | '/skyelite'
+    | '/cargox/$slug'
     | '/explore/$slug'
     | '/landing/$slug'
     | '/legends/$slug'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/halo'
     | '/portfolio'
+    | '/cargox/$slug'
     | '/explore/$slug'
     | '/landing/$slug'
     | '/legends/$slug'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/portfolio-os'
     | '/skyelite'
+    | '/cargox/$slug'
     | '/explore/$slug'
     | '/landing/$slug'
     | '/legends/$slug'
@@ -379,6 +391,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PortfolioOsRoute: typeof PortfolioOsRouteWithChildren
   SkyeliteRoute: typeof SkyeliteRouteWithChildren
+  CargoxSlugRoute: typeof CargoxSlugRoute
   LandingSlugRoute: typeof LandingSlugRoute
   WorkAeonRoute: typeof WorkAeonRoute
   WorkAuraiRoute: typeof WorkAuraiRoute
@@ -587,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreSlugRouteImport
       parentRoute: typeof ExploreRoute
     }
+    '/cargox/$slug': {
+      id: '/cargox/$slug'
+      path: '/cargox/$slug'
+      fullPath: '/cargox/$slug'
+      preLoaderRoute: typeof CargoxSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/media/$key': {
       id: '/api/public/media/$key'
       path: '/api/public/media/$key'
@@ -669,6 +689,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PortfolioOsRoute: PortfolioOsRouteWithChildren,
   SkyeliteRoute: SkyeliteRouteWithChildren,
+  CargoxSlugRoute: CargoxSlugRoute,
   LandingSlugRoute: LandingSlugRoute,
   WorkAeonRoute: WorkAeonRoute,
   WorkAuraiRoute: WorkAuraiRoute,
