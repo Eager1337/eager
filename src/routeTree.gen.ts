@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SkyeliteIndexRouteImport } from './routes/skyelite.index'
 import { Route as PortfolioOsIndexRouteImport } from './routes/portfolio-os.index'
 import { Route as LegendsIndexRouteImport } from './routes/legends.index'
+import { Route as CargoxIndexRouteImport } from './routes/cargox.index'
 import { Route as WorkTaskoraRouteImport } from './routes/work.taskora'
 import { Route as WorkIosRouteImport } from './routes/work.ios'
 import { Route as WorkDeckRouteImport } from './routes/work.deck'
@@ -99,6 +100,11 @@ const LegendsIndexRoute = LegendsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LegendsRoute,
+} as any)
+const CargoxIndexRoute = CargoxIndexRouteImport.update({
+  id: '/cargox/',
+  path: '/cargox/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const WorkTaskoraRoute = WorkTaskoraRouteImport.update({
   id: '/work/taskora',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/cargox/': typeof CargoxIndexRoute
   '/legends/': typeof LegendsIndexRoute
   '/portfolio-os/': typeof PortfolioOsIndexRoute
   '/skyelite/': typeof SkyeliteIndexRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/cargox': typeof CargoxIndexRoute
   '/legends': typeof LegendsIndexRoute
   '/portfolio-os': typeof PortfolioOsIndexRoute
   '/skyelite': typeof SkyeliteIndexRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/cargox/': typeof CargoxIndexRoute
   '/legends/': typeof LegendsIndexRoute
   '/portfolio-os/': typeof PortfolioOsIndexRoute
   '/skyelite/': typeof SkyeliteIndexRoute
@@ -314,6 +323,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/cargox/'
     | '/legends/'
     | '/portfolio-os/'
     | '/skyelite/'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/cargox'
     | '/legends'
     | '/portfolio-os'
     | '/skyelite'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/cargox/'
     | '/legends/'
     | '/portfolio-os/'
     | '/skyelite/'
@@ -399,6 +411,7 @@ export interface RootRouteChildren {
   WorkDeckRoute: typeof WorkDeckRoute
   WorkIosRoute: typeof WorkIosRoute
   WorkTaskoraRoute: typeof WorkTaskoraRoute
+  CargoxIndexRoute: typeof CargoxIndexRoute
   ApiPublicMediaKeyRoute: typeof ApiPublicMediaKeyRoute
 }
 
@@ -487,6 +500,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/legends/'
       preLoaderRoute: typeof LegendsIndexRouteImport
       parentRoute: typeof LegendsRoute
+    }
+    '/cargox/': {
+      id: '/cargox/'
+      path: '/cargox'
+      fullPath: '/cargox/'
+      preLoaderRoute: typeof CargoxIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/work/taskora': {
       id: '/work/taskora'
@@ -697,6 +717,7 @@ const rootRouteChildren: RootRouteChildren = {
   WorkDeckRoute: WorkDeckRoute,
   WorkIosRoute: WorkIosRoute,
   WorkTaskoraRoute: WorkTaskoraRoute,
+  CargoxIndexRoute: CargoxIndexRoute,
   ApiPublicMediaKeyRoute: ApiPublicMediaKeyRoute,
 }
 export const routeTree = rootRouteImport
