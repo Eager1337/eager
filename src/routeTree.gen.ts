@@ -13,6 +13,7 @@ import { Route as SkyeliteRouteImport } from './routes/skyelite'
 import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as LegendsRouteImport } from './routes/legends'
+import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as HaloRouteImport } from './routes/halo'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -59,6 +60,11 @@ const PortfolioRoute = PortfolioRouteImport.update({
 const LegendsRoute = LegendsRouteImport.update({
   id: '/legends',
   path: '/legends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorRoute = InvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HaloRoute = HaloRouteImport.update({
@@ -203,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
+  '/investor': typeof InvestorRoute
   '/legends': typeof LegendsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
+  '/investor': typeof InvestorRoute
   '/portfolio': typeof PortfolioRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
+  '/investor': typeof InvestorRoute
   '/legends': typeof LegendsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/explore'
     | '/halo'
+    | '/investor'
     | '/legends'
     | '/portfolio'
     | '/portfolio-os'
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/explore'
     | '/halo'
+    | '/investor'
     | '/portfolio'
     | '/cargox/$slug'
     | '/explore/$slug'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/explore'
     | '/halo'
+    | '/investor'
     | '/legends'
     | '/portfolio'
     | '/portfolio-os'
@@ -399,6 +411,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ExploreRoute: typeof ExploreRouteWithChildren
   HaloRoute: typeof HaloRoute
+  InvestorRoute: typeof InvestorRoute
   LegendsRoute: typeof LegendsRouteWithChildren
   PortfolioRoute: typeof PortfolioRoute
   PortfolioOsRoute: typeof PortfolioOsRouteWithChildren
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/legends'
       fullPath: '/legends'
       preLoaderRoute: typeof LegendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor': {
+      id: '/investor'
+      path: '/investor'
+      fullPath: '/investor'
+      preLoaderRoute: typeof InvestorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/halo': {
@@ -705,6 +725,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ExploreRoute: ExploreRouteWithChildren,
   HaloRoute: HaloRoute,
+  InvestorRoute: InvestorRoute,
   LegendsRoute: LegendsRouteWithChildren,
   PortfolioRoute: PortfolioRoute,
   PortfolioOsRoute: PortfolioOsRouteWithChildren,
