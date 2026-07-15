@@ -222,19 +222,54 @@ html[data-os-motion="reduced"] *, html[data-os-motion="reduced"] *::before, html
 html[data-os-font="dyslexic"] body { font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif !important; letter-spacing: 0.02em; }
 
 html[data-theme-mode="light"] body {
-  background: #f7f7f2;
+  background: #f6f2e9;
+  color: #14161a;
 }
 
-html[data-theme-mode="light"] main,
-html[data-theme-mode="light"] .min-h-screen.bg-neutral-950,
-html[data-theme-mode="light"] .bg-\[\#0C0C0C\] {
-  filter: invert(0.94) hue-rotate(180deg);
+/* Light mode: re-tint dark surfaces to warm paper without inverting media.
+   The site is dark-first with hardcoded Tailwind utilities; we override the
+   most common ones so switching to light doesn't produce a washed-out screen. */
+html[data-theme-mode="light"] {
+  /* Semantic tokens */
+  --background: oklch(0.97 0.01 90);
+  --foreground: oklch(0.18 0.02 260);
+  --card: oklch(0.99 0.005 90);
+  --card-foreground: oklch(0.18 0.02 260);
+  --border: oklch(0.85 0.01 260);
+  --muted-foreground: oklch(0.42 0.02 260);
+  color-scheme: light;
 }
-
-html[data-theme-mode="light"] img,
-html[data-theme-mode="light"] video,
-html[data-theme-mode="light"] canvas,
-html[data-theme-mode="light"] svg,
-html[data-theme-mode="light"] [style*="background-image"] {
-  filter: invert(1) hue-rotate(180deg);
+html[data-theme-mode="light"] .bg-neutral-950,
+html[data-theme-mode="light"] .bg-neutral-900,
+html[data-theme-mode="light"] .bg-black,
+html[data-theme-mode="light"] .bg-\[\#0C0C0C\],
+html[data-theme-mode="light"] .bg-\[\#0a0a0a\],
+html[data-theme-mode="light"] .bg-\[\#111\] { background-color: #f6f2e9 !important; }
+html[data-theme-mode="light"] .bg-neutral-800,
+html[data-theme-mode="light"] .bg-white\/5,
+html[data-theme-mode="light"] .bg-white\/10 { background-color: rgba(20,22,26,0.05) !important; }
+html[data-theme-mode="light"] .bg-white\/15,
+html[data-theme-mode="light"] .bg-white\/20 { background-color: rgba(20,22,26,0.08) !important; }
+html[data-theme-mode="light"] .text-white,
+html[data-theme-mode="light"] .text-neutral-100,
+html[data-theme-mode="light"] .text-neutral-200 { color: #14161a !important; }
+html[data-theme-mode="light"] .text-white\/90 { color: rgba(20,22,26,0.9) !important; }
+html[data-theme-mode="light"] .text-white\/80,
+html[data-theme-mode="light"] .text-white\/70 { color: rgba(20,22,26,0.78) !important; }
+html[data-theme-mode="light"] .text-white\/60,
+html[data-theme-mode="light"] .text-white\/50 { color: rgba(20,22,26,0.62) !important; }
+html[data-theme-mode="light"] .text-white\/40,
+html[data-theme-mode="light"] .text-white\/30 { color: rgba(20,22,26,0.45) !important; }
+html[data-theme-mode="light"] .border-white\/10,
+html[data-theme-mode="light"] .border-white\/15,
+html[data-theme-mode="light"] .border-white\/20 { border-color: rgba(20,22,26,0.12) !important; }
+html[data-theme-mode="light"] .divide-white\/10 > * + * { border-color: rgba(20,22,26,0.12) !important; }
+html[data-theme-mode="light"] .ring-white\/10,
+html[data-theme-mode="light"] .ring-white\/20 { --tw-ring-color: rgba(20,22,26,0.12) !important; }
+html[data-theme-mode="light"] .placeholder\:text-white\/40::placeholder { color: rgba(20,22,26,0.45) !important; }
+/* Keep gradient hero text readable on light paper */
+html[data-theme-mode="light"] .hero-heading {
+  background: linear-gradient(180deg, #14161a 0%, #4b5563 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
