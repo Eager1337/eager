@@ -155,6 +155,9 @@ function PortfolioPage() {
             EAGER<span className="text-[#E63946]">.</span>BEAVER
           </Link>
           <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            <a href="#about" className="text-[#A8A8A8] hover:text-white transition-colors">
+              About
+            </a>
             <a href="#work" className="text-[#A8A8A8] hover:text-white transition-colors">
               Work
             </a>
