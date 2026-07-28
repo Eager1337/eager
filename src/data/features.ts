@@ -69,6 +69,12 @@ export const FEATURES: Feature[] = [
   { id: 48, name: "Project bidding", group: "Business & Conversion", description: "Open RFPs accept proposals with sealed-bid logic.", icon: "Gavel", status: "beta" },
   { id: 49, name: "Revenue simulation", group: "Business & Conversion", description: "Project the revenue impact of shipping with us.", icon: "TrendingUp", status: "live" },
   { id: 50, name: "Build with me CTA", group: "Business & Conversion", description: "Persistent CTA that adapts to where the visitor is in the funnel.", icon: "Hammer", status: "live" },
+  // Admin & Security (extends Trust & Credibility)
+  { id: 51, name: "Admin MFA sign-in", group: "Trust & Credibility", description: "Second-factor code required on top of the owner username and password.", icon: "ShieldCheck", status: "live" },
+  { id: 52, name: "Intruder capture", group: "Trust & Credibility", description: "Failed admin logins record device, location and a snapshot for review.", icon: "Camera", status: "live" },
+  { id: 53, name: "Bulk media import", group: "Trust & Credibility", description: "Drop a zip and files map themselves to the correct portfolio slots.", icon: "FolderUp", status: "live" },
+  { id: 54, name: "Privacy retention rules", group: "Trust & Credibility", description: "Auto-purge captured evidence after a retention window you set.", icon: "Timer", status: "live" },
+  { id: 55, name: "Admin audit trail", group: "Trust & Credibility", description: "Every admin action is logged with actor, target and timestamp.", icon: "ScrollText", status: "live" },
 ];
 
 export const FEATURE_GROUPS = [

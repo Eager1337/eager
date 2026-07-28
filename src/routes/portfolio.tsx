@@ -155,6 +155,9 @@ function PortfolioPage() {
             EAGER<span className="text-[#E63946]">.</span>BEAVER
           </Link>
           <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            <a href="#about" className="text-[#A8A8A8] hover:text-white transition-colors">
+              About
+            </a>
             <a href="#work" className="text-[#A8A8A8] hover:text-white transition-colors">
               Work
             </a>
@@ -302,6 +305,79 @@ function PortfolioPage() {
                   </div>
                   <span className="flex h-3 w-3 rounded-full bg-[#E63946] animate-pulse" />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="about" className="px-5 sm:px-8 py-20 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">About me</p>
+          <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+            Built to ship,
+            <br />
+            <span className="text-[#E63946]">wired to last.</span>
+          </h2>
+
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-7 space-y-5 text-sm sm:text-base text-[#A8A8A8] leading-relaxed">
+              <p>
+                I am <span className="text-white font-semibold">Alusine G. Dumbuya</span>, known
+                professionally as Eager Beaver. I am a full-stack developer, systems builder and
+                video editor based in Sierra Leone, currently studying at Limkokwing University while
+                shipping production software for real clients.
+              </p>
+              <p>
+                My work sits where engineering meets business outcomes. I design the data model,
+                write the backend, build the interface, secure it, and then edit the launch video
+                that sells it. Clients get one accountable owner instead of a chain of hand-offs,
+                which is why projects land on time and stay maintainable after launch.
+              </p>
+              <p>
+                I care about three things on every engagement: measurable results, clean handover,
+                and security that holds up under scrutiny. Every system I deliver ships with role
+                based access control, audit logging, automated backups and documentation your next
+                developer can actually read.
+              </p>
+              <p>
+                Investors and founders work with me because I treat a portfolio site, an internal
+                tool and a revenue platform with the same rigour: define the metric, build the
+                shortest path to it, then instrument everything so the impact is provable.
+              </p>
+            </div>
+
+            <div className="lg:col-span-5 space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-[#1A1410] p-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">What I bring</p>
+                <ul className="mt-4 space-y-3 text-sm text-[#A8A8A8]">
+                  {[
+                    "End-to-end delivery: strategy, design, code, launch",
+                    "Security-first builds with MFA, RLS and audit trails",
+                    "Production React, TypeScript, Node and Postgres",
+                    "Broadcast-quality video editing and motion graphics",
+                    "Clear weekly reporting your stakeholders can follow",
+                  ].map((t) => (
+                    <li key={t} className="flex gap-3">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#E63946]" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-white/10 border border-white/10 rounded-2xl overflow-hidden">
+                {[
+                  { k: "5+", v: "Years building" },
+                  { k: "20+", v: "Systems shipped" },
+                  { k: "4", v: "Disciplines in-house" },
+                  { k: "48h", v: "Typical response SLA" },
+                ].map((s) => (
+                  <div key={s.v} className="bg-[#0C0C0C] p-5">
+                    <p className="font-[Anton,sans-serif] uppercase text-3xl text-white">{s.k}</p>
+                    <p className="mt-1 text-xs text-[#A8A8A8]">{s.v}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

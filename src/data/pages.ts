@@ -67,11 +67,18 @@ export const PAGES: PortfolioPage[] = [
   { slug: "demo-room", title: "Demo Room", group: "Premium", blurb: "Interactive product demos." },
   { slug: "live-showcase", title: "Live Showcase", group: "Premium", blurb: "Real-time stream of what I'm building now." },
   { slug: "private-access", title: "Private Access", group: "Premium", blurb: "Invite-only deep dives." },
+  // Admin
+  { slug: "admin-overview", title: "Admin Overview", group: "Admin", blurb: "Command centre for the whole portfolio: uptime, traffic and pending actions at a glance." },
+  { slug: "admin-security-log", title: "Security Log", group: "Admin", blurb: "Every login attempt, lockout and intruder capture in one auditable timeline." },
+  { slug: "admin-media-manager", title: "Media Manager", group: "Admin", blurb: "Upload, replace and map portfolio images and video to their slots, including bulk zip import." },
+  { slug: "admin-visitor-insights", title: "Visitor Insights", group: "Admin", blurb: "Who visited, what they opened and which case studies pulled the most attention." },
+  { slug: "admin-content-studio", title: "Content Studio", group: "Admin", blurb: "Edit copy, metrics and testimonials across the site without touching code." },
 ];
 
 export const PAGE_GROUPS = [
   "Brand", "Work", "Proof", "Technical", "Commercial",
   "Creative", "Community", "Interactive", "Professional", "Premium",
+  "Admin",
 ];
 
 export function getPage(slug: string): PortfolioPage | undefined {
