@@ -1,32 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Command as CommandIcon, Sparkles } from "lucide-react";
-import videoAsset from "../../assets/ninja-tortoise.mp4.asset.json";
 import { Link } from "@tanstack/react-router";
 import { MagneticButton } from "./MagneticButton";
 
 export function NinjaTortoiseHero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [available] = useState<"online" | "limited">("limited");
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v) v.play().catch(() => undefined);
-  }, []);
 
   return (
     <section className="relative w-full overflow-hidden bg-black text-white min-h-[100dvh] pb-40 sm:pb-24">
-      <video
-        ref={videoRef}
-        src={videoAsset.url}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 h-full w-full object-cover opacity-70"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.18),transparent_60%)]" />
+      <div className="absolute inset-0 bg-black" />
 
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-10">
