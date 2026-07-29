@@ -35,7 +35,19 @@ import {
   SlidersHorizontal,
   CheckCircle2,
   XCircle,
+  Palette,
+  LayoutTemplate,
+  FolderOpen,
+  Settings2,
+  Inbox,
 } from "lucide-react";
+import {
+  ThemeStudioPanel,
+  ContentSectionsPanel,
+  MediaLibraryPanel,
+  SiteSettingsPanel,
+  LeadsPanel,
+} from "../components/admin/ExtraPanels";
 import {
   useContent,
   type ToonSlide,
