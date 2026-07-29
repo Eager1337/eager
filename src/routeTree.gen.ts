@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as SkyeliteRouteImport } from './routes/skyelite'
 import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
@@ -16,6 +17,7 @@ import { Route as LegendsRouteImport } from './routes/legends'
 import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as HaloRouteImport } from './routes/halo'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as CvRouteImport } from './routes/cv'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -44,6 +46,11 @@ import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
 import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
 import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
 
+const ThankYouRoute = ThankYouRouteImport.update({
+  id: '/thank-you',
+  path: '/thank-you',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SkyeliteRoute = SkyeliteRouteImport.update({
   id: '/skyelite',
   path: '/skyelite',
@@ -77,6 +84,11 @@ const HaloRoute = HaloRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CvRoute = CvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -219,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -226,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
+  '/thank-you': typeof ThankYouRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -255,9 +269,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/portfolio': typeof PortfolioRoute
+  '/thank-you': typeof ThankYouRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -288,6 +304,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -295,6 +312,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
+  '/thank-you': typeof ThankYouRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -326,6 +344,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/investor'
@@ -333,6 +352,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/portfolio-os'
     | '/skyelite'
+    | '/thank-you'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -362,9 +382,11 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/portfolio'
+    | '/thank-you'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -394,6 +416,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/investor'
@@ -401,6 +424,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/portfolio-os'
     | '/skyelite'
+    | '/thank-you'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -431,6 +455,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
+  CvRoute: typeof CvRoute
   ExploreRoute: typeof ExploreRouteWithChildren
   HaloRoute: typeof HaloRoute
   InvestorRoute: typeof InvestorRouteWithChildren
@@ -438,6 +463,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PortfolioOsRoute: typeof PortfolioOsRouteWithChildren
   SkyeliteRoute: typeof SkyeliteRouteWithChildren
+  ThankYouRoute: typeof ThankYouRoute
   CargoxSlugRoute: typeof CargoxSlugRoute
   LandingSlugRoute: typeof LandingSlugRoute
   WorkAeonRoute: typeof WorkAeonRoute
@@ -452,6 +478,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/thank-you': {
+      id: '/thank-you'
+      path: '/thank-you'
+      fullPath: '/thank-you'
+      preLoaderRoute: typeof ThankYouRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/skyelite': {
       id: '/skyelite'
       path: '/skyelite'
@@ -499,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv': {
+      id: '/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof CvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -773,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
+  CvRoute: CvRoute,
   ExploreRoute: ExploreRouteWithChildren,
   HaloRoute: HaloRoute,
   InvestorRoute: InvestorRouteWithChildren,
@@ -780,6 +821,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PortfolioOsRoute: PortfolioOsRouteWithChildren,
   SkyeliteRoute: SkyeliteRouteWithChildren,
+  ThankYouRoute: ThankYouRoute,
   CargoxSlugRoute: CargoxSlugRoute,
   LandingSlugRoute: LandingSlugRoute,
   WorkAeonRoute: WorkAeonRoute,

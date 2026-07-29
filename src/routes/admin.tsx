@@ -35,7 +35,19 @@ import {
   SlidersHorizontal,
   CheckCircle2,
   XCircle,
+  Palette,
+  LayoutTemplate,
+  FolderOpen,
+  Settings2,
+  Inbox,
 } from "lucide-react";
+import {
+  ThemeStudioPanel,
+  ContentSectionsPanel,
+  MediaLibraryPanel,
+  SiteSettingsPanel,
+  LeadsPanel,
+} from "../components/admin/ExtraPanels";
 import {
   useContent,
   type ToonSlide,
@@ -559,7 +571,12 @@ type TabKey =
   | "intruders"
   | "seclogin"
   | "audit"
-  | "privacy";
+  | "privacy"
+  | "themes"
+  | "sections"
+  | "media"
+  | "settings"
+  | "leads";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -574,6 +591,11 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "seclogin", label: "Sign-in Security", icon: SlidersHorizontal },
   { key: "audit", label: "Audit Log", icon: FileText },
   { key: "privacy", label: "Privacy Controls", icon: Clock },
+  { key: "themes", label: "Theme Studio", icon: Palette },
+  { key: "sections", label: "Content Sections", icon: LayoutTemplate },
+  { key: "media", label: "Media Library", icon: FolderOpen },
+  { key: "settings", label: "Site Settings", icon: Settings2 },
+  { key: "leads", label: "Leads Inbox", icon: Inbox },
 ];
 
 
@@ -707,6 +729,11 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "seclogin" && <SecurityLoginPanel />}
               {tab === "audit" && <AuditLogPanel />}
               {tab === "privacy" && <PrivacyPanel />}
+              {tab === "themes" && <ThemeStudioPanel />}
+              {tab === "sections" && <ContentSectionsPanel />}
+              {tab === "media" && <MediaLibraryPanel />}
+              {tab === "settings" && <SiteSettingsPanel />}
+              {tab === "leads" && <LeadsPanel />}
             </motion.div>
           </AnimatePresence>
         </main>

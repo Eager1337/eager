@@ -1,10 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Loader2, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitLead } from "../lib/leads.functions";
+import { downloadCvPdf } from "../lib/pdf-exports";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [{ title: "Contact, Eager Beaver" }] }),
+  head: () => ({
+    meta: [
+      { title: "Contact & project brief, Eager Beaver" },
+      {
+        name: "description",
+        content:
+          "Send a project brief to Alusine G. Dumbuya (Eager Beaver). Web, backend, systems and video work, replies within 24 hours.",
+      },
+      { property: "og:title", content: "Contact & project brief, Eager Beaver" },
+      {
+        property: "og:description",
+        content: "Tell me about your project and get the CV plus client ratings.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: ContactPage,
 });
 
@@ -44,6 +63,12 @@ const OPTIONS = ["Brand", "Digital", "Campaign", "Other"];
 
 function ContactPage() {
   const reduce = useReducedMotion();
+  const navigate = useNavigate();
+  const send = useServerFn(submitLead);
+  const [form, setForm] = useState({ name: "", email: "", company: "", budget: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { displayed, done } = useTypewriter("we'd love to\nhear from you!", 38, 600, !!reduce);
   const [services, setServices] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
@@ -100,6 +125,51 @@ function ContactPage() {
 
   const toggle = (opt: string) =>
     setServices((prev) => (prev.includes(opt) ? prev.filter((p) => p !== opt) : [...prev, opt]));
+
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    setErrors((p) => ({ ...p, [k]: "" }));
+  };
+
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (form.name.trim().length < 2) next.name = "Please enter your name.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim()))
+      next.email = "Please enter a valid email address.";
+    if (form.message.trim().length < 10)
+      next.message = "Tell me a little more, at least 10 characters.";
+    if (form.message.length > 4000) next.message = "Please keep the brief under 4000 characters.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError(null);
+    if (!validate()) return;
+    setSending(true);
+    try {
+      const res = await send({
+        data: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          company: form.company.trim(),
+          budget: form.budget.trim(),
+          message: form.message.trim(),
+          services,
+          source: "contact" as const,
+        },
+      });
+      if (!res.ok) throw new Error(res.error);
+      await navigate({ to: "/thank-you" });
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   const fade = reduce
     ? { initial: false, animate: { opacity: 1, y: 0 } }
@@ -219,8 +289,114 @@ function ContactPage() {
               </motion.div>
             )}
           </div>
+
+          <form onSubmit={onSubmit} noValidate className="mt-12 space-y-4" aria-label="Project brief">
+            <h2 className="text-2xl font-medium tracking-tight text-[#1C2E1E]">Send a brief</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Your name"
+                value={form.name}
+                onChange={(v) => set("name", v)}
+                error={errors.name}
+                autoComplete="name"
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={(v) => set("email", v)}
+                error={errors.email}
+                autoComplete="email"
+              />
+              <Field
+                label="Company (optional)"
+                value={form.company}
+                onChange={(v) => set("company", v)}
+                autoComplete="organization"
+              />
+              <Field
+                label="Budget (optional)"
+                value={form.budget}
+                onChange={(v) => set("budget", v)}
+                placeholder="e.g. $2,000 - $5,000"
+              />
+            </div>
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-[#5A635A]">What are we building?</span>
+              <textarea
+                rows={5}
+                value={form.message}
+                onChange={(e) => set("message", e.target.value)}
+                aria-invalid={!!errors.message}
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-[#1C2E1E] outline-none transition-colors focus:border-[#1C2E1E] ${
+                  errors.message ? "border-red-400" : "border-[#E3E7E3]"
+                }`}
+              />
+              {errors.message && <span className="mt-1 block text-xs text-red-600">{errors.message}</span>}
+            </label>
+
+            {serverError && (
+              <p role="alert" className="text-sm text-red-600">
+                {serverError}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                disabled={sending}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#1C2E1E] px-7 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+              >
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                Send brief
+              </button>
+              <button
+                type="button"
+                onClick={() => void downloadCvPdf()}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-[#E3E7E3] bg-white px-7 text-sm text-[#1C2E1E] hover:bg-[#F1F3F1]"
+              >
+                <Download className="h-4 w-4" /> Download my CV
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  error,
+  type = "text",
+  placeholder,
+  autoComplete,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  type?: string;
+  placeholder?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm text-[#5A635A]">{label}</span>
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        aria-invalid={!!error}
+        onChange={(e) => onChange(e.target.value)}
+        className={`min-h-[48px] w-full rounded-full border bg-white px-4 text-[#1C2E1E] outline-none transition-colors focus:border-[#1C2E1E] ${
+          error ? "border-red-400" : "border-[#E3E7E3]"
+        }`}
+      />
+      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
+    </label>
   );
 }

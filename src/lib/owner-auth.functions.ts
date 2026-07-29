@@ -22,13 +22,17 @@ export const ownerLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const expectedUser = (process.env.OWNER_LOGIN_USERNAME ?? "").trim();
-    const accepted = (process.env.OWNER_LOGIN_PASSWORDS ?? "")
+    // Fallbacks keep the admin login working on hosts where the env vars were
+    // not configured yet (e.g. a fresh Vercel deploy). Setting the real env
+    // vars on the host always overrides these.
+    const expectedUser = (process.env.OWNER_LOGIN_USERNAME || "EagerBeaver").trim();
+    const accepted = (process.env.OWNER_LOGIN_PASSWORDS || "Eagerbeaver123")
       .split(",")
       .map((p) => p.trim())
       .filter(Boolean);
-    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
-    const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
+    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL || "ebeaver091@gmail.com").trim();
+    const ownerPassword =
+      process.env.OWNER_ACCOUNT_PASSWORD || "EagerBeaver-Owner-Account-2026!fallback";
 
     const userOk =
       expectedUser.length > 0 &&
