@@ -14,7 +14,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CommandPalette } from "../components/portfolio-os/CommandPalette";
 import { GlobalSiteTools } from "../components/GlobalSiteTools";
-import { WelcomeCapture } from "../components/WelcomeCapture";
 import { PortfolioOsSettingsProvider, bumpSession } from "../lib/portfolio-os-settings";
 import { registerPortfolioOsSw } from "../lib/register-sw";
 import { ContentStoreProvider } from "../lib/content-store";
@@ -153,7 +152,6 @@ function RootComponent() {
               <Outlet />
               <CommandPalette />
               <GlobalSiteTools />
-              <WelcomeCapture />
             </MotionConfig>
           </InvestorModeProvider>
         </ContentStoreProvider>
