@@ -63,6 +63,12 @@ const OPTIONS = ["Brand", "Digital", "Campaign", "Other"];
 
 function ContactPage() {
   const reduce = useReducedMotion();
+  const navigate = useNavigate();
+  const send = useServerFn(submitLead);
+  const [form, setForm] = useState({ name: "", email: "", company: "", budget: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { displayed, done } = useTypewriter("we'd love to\nhear from you!", 38, 600, !!reduce);
   const [services, setServices] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
@@ -119,6 +125,51 @@ function ContactPage() {
 
   const toggle = (opt: string) =>
     setServices((prev) => (prev.includes(opt) ? prev.filter((p) => p !== opt) : [...prev, opt]));
+
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    setErrors((p) => ({ ...p, [k]: "" }));
+  };
+
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (form.name.trim().length < 2) next.name = "Please enter your name.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim()))
+      next.email = "Please enter a valid email address.";
+    if (form.message.trim().length < 10)
+      next.message = "Tell me a little more, at least 10 characters.";
+    if (form.message.length > 4000) next.message = "Please keep the brief under 4000 characters.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError(null);
+    if (!validate()) return;
+    setSending(true);
+    try {
+      const res = await send({
+        data: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          company: form.company.trim(),
+          budget: form.budget.trim(),
+          message: form.message.trim(),
+          services,
+          source: "contact" as const,
+        },
+      });
+      if (!res.ok) throw new Error(res.error);
+      await navigate({ to: "/thank-you" });
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   const fade = reduce
     ? { initial: false, animate: { opacity: 1, y: 0 } }
