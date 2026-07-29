@@ -41,6 +41,7 @@ import { Route as LegendsSlugRouteImport } from './routes/legends.$slug'
 import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
 import { Route as InvestorSlugRouteImport } from './routes/investor.$slug'
 import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
+import { Route as ContactSuccessRouteImport } from './routes/contact.success'
 import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
 import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
 
@@ -204,6 +205,11 @@ const ExploreSlugRoute = ExploreSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ExploreRoute,
 } as any)
+const ContactSuccessRoute = ContactSuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
+  getParentRoute: () => ContactRoute,
+} as any)
 const CargoxSlugRoute = CargoxSlugRouteImport.update({
   id: '/cargox/$slug',
   path: '/cargox/$slug',
@@ -218,7 +224,7 @@ const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/contact': typeof ContactRoute
+  '/contact': typeof ContactRouteWithChildren
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/cargox/$slug': typeof CargoxSlugRoute
+  '/contact/success': typeof ContactSuccessRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
@@ -254,11 +261,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/contact': typeof ContactRoute
+  '/contact': typeof ContactRouteWithChildren
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/portfolio': typeof PortfolioRoute
   '/cargox/$slug': typeof CargoxSlugRoute
+  '/contact/success': typeof ContactSuccessRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
@@ -287,7 +295,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/contact': typeof ContactRoute
+  '/contact': typeof ContactRouteWithChildren
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/cargox/$slug': typeof CargoxSlugRoute
+  '/contact/success': typeof ContactSuccessRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
   '/landing/$slug': typeof LandingSlugRoute
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/portfolio-os'
     | '/skyelite'
     | '/cargox/$slug'
+    | '/contact/success'
     | '/explore/$slug'
     | '/investor/$slug'
     | '/landing/$slug'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/halo'
     | '/portfolio'
     | '/cargox/$slug'
+    | '/contact/success'
     | '/explore/$slug'
     | '/investor/$slug'
     | '/landing/$slug'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/portfolio-os'
     | '/skyelite'
     | '/cargox/$slug'
+    | '/contact/success'
     | '/explore/$slug'
     | '/investor/$slug'
     | '/landing/$slug'
@@ -430,7 +442,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  ContactRoute: typeof ContactRoute
+  ContactRoute: typeof ContactRouteWithChildren
   ExploreRoute: typeof ExploreRouteWithChildren
   HaloRoute: typeof HaloRoute
   InvestorRoute: typeof InvestorRouteWithChildren
@@ -676,6 +688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreSlugRouteImport
       parentRoute: typeof ExploreRoute
     }
+    '/contact/success': {
+      id: '/contact/success'
+      path: '/success'
+      fullPath: '/contact/success'
+      preLoaderRoute: typeof ContactSuccessRouteImport
+      parentRoute: typeof ContactRoute
+    }
     '/cargox/$slug': {
       id: '/cargox/$slug'
       path: '/cargox/$slug'
@@ -692,6 +711,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ContactRouteChildren {
+  ContactSuccessRoute: typeof ContactSuccessRoute
+}
+
+const ContactRouteChildren: ContactRouteChildren = {
+  ContactSuccessRoute: ContactSuccessRoute,
+}
+
+const ContactRouteWithChildren =
+  ContactRoute._addFileChildren(ContactRouteChildren)
 
 interface ExploreRouteChildren {
   ExploreSlugRoute: typeof ExploreSlugRoute
@@ -772,7 +802,7 @@ const SkyeliteRouteWithChildren = SkyeliteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  ContactRoute: ContactRoute,
+  ContactRoute: ContactRouteWithChildren,
   ExploreRoute: ExploreRouteWithChildren,
   HaloRoute: HaloRoute,
   InvestorRoute: InvestorRouteWithChildren,

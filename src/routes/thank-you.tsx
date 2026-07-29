@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Download, ArrowLeft, Mail } from "lucide-react";
 import { downloadCvPdf } from "../lib/pdf-exports";
 
-export const Route = createFileRoute("/contact/success")({
+export const Route = createFileRoute("/thank-you")({
   head: () => ({
     meta: [
       { title: "Message received, Eager Beaver" },
