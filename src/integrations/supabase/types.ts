@@ -116,6 +116,51 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          budget: string | null
+          company: string | null
+          created_at: string
+          cv_link_sent: boolean
+          email: string
+          id: string
+          message: string | null
+          name: string | null
+          notes: string | null
+          services: string[]
+          source: string
+          welcome_email_status: string
+        }
+        Insert: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string
+          cv_link_sent?: boolean
+          email: string
+          id?: string
+          message?: string | null
+          name?: string | null
+          notes?: string | null
+          services?: string[]
+          source?: string
+          welcome_email_status?: string
+        }
+        Update: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string
+          cv_link_sent?: boolean
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string | null
+          notes?: string | null
+          services?: string[]
+          source?: string
+          welcome_email_status?: string
+        }
+        Relationships: []
+      }
       portfolio_assets: {
         Row: {
           content_type: string | null
