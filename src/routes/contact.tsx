@@ -1,10 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Loader2, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitLead } from "../lib/leads.functions";
+import { downloadCvPdf } from "../lib/pdf-exports";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [{ title: "Contact, Eager Beaver" }] }),
+  head: () => ({
+    meta: [
+      { title: "Contact & project brief, Eager Beaver" },
+      {
+        name: "description",
+        content:
+          "Send a project brief to Alusine G. Dumbuya (Eager Beaver). Web, backend, systems and video work, replies within 24 hours.",
+      },
+      { property: "og:title", content: "Contact & project brief, Eager Beaver" },
+      {
+        property: "og:description",
+        content: "Tell me about your project and get the CV plus client ratings.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: ContactPage,
 });
 
