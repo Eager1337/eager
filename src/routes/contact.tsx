@@ -289,8 +289,114 @@ function ContactPage() {
               </motion.div>
             )}
           </div>
+
+          <form onSubmit={onSubmit} noValidate className="mt-12 space-y-4" aria-label="Project brief">
+            <h2 className="text-2xl font-medium tracking-tight text-[#1C2E1E]">Send a brief</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Your name"
+                value={form.name}
+                onChange={(v) => set("name", v)}
+                error={errors.name}
+                autoComplete="name"
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={(v) => set("email", v)}
+                error={errors.email}
+                autoComplete="email"
+              />
+              <Field
+                label="Company (optional)"
+                value={form.company}
+                onChange={(v) => set("company", v)}
+                autoComplete="organization"
+              />
+              <Field
+                label="Budget (optional)"
+                value={form.budget}
+                onChange={(v) => set("budget", v)}
+                placeholder="e.g. $2,000 - $5,000"
+              />
+            </div>
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-[#5A635A]">What are we building?</span>
+              <textarea
+                rows={5}
+                value={form.message}
+                onChange={(e) => set("message", e.target.value)}
+                aria-invalid={!!errors.message}
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-[#1C2E1E] outline-none transition-colors focus:border-[#1C2E1E] ${
+                  errors.message ? "border-red-400" : "border-[#E3E7E3]"
+                }`}
+              />
+              {errors.message && <span className="mt-1 block text-xs text-red-600">{errors.message}</span>}
+            </label>
+
+            {serverError && (
+              <p role="alert" className="text-sm text-red-600">
+                {serverError}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                disabled={sending}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#1C2E1E] px-7 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+              >
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                Send brief
+              </button>
+              <button
+                type="button"
+                onClick={() => void downloadCvPdf()}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-[#E3E7E3] bg-white px-7 text-sm text-[#1C2E1E] hover:bg-[#F1F3F1]"
+              >
+                <Download className="h-4 w-4" /> Download my CV
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  error,
+  type = "text",
+  placeholder,
+  autoComplete,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  type?: string;
+  placeholder?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm text-[#5A635A]">{label}</span>
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        aria-invalid={!!error}
+        onChange={(e) => onChange(e.target.value)}
+        className={`min-h-[48px] w-full rounded-full border bg-white px-4 text-[#1C2E1E] outline-none transition-colors focus:border-[#1C2E1E] ${
+          error ? "border-red-400" : "border-[#E3E7E3]"
+        }`}
+      />
+      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
+    </label>
   );
 }
