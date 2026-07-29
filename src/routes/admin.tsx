@@ -560,6 +560,11 @@ type TabKey =
   | "seclogin"
   | "audit"
   | "privacy";
+  | "themes"
+  | "sections"
+  | "media"
+  | "settings"
+  | "leads";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
