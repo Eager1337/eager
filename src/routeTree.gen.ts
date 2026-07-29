@@ -17,6 +17,7 @@ import { Route as LegendsRouteImport } from './routes/legends'
 import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as HaloRouteImport } from './routes/halo'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as CvRouteImport } from './routes/cv'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -83,6 +84,11 @@ const HaloRoute = HaloRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CvRoute = CvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/portfolio': typeof PortfolioRoute
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
   '/halo': typeof HaloRoute
   '/investor': typeof InvestorRouteWithChildren
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/investor'
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/portfolio'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/cv'
     | '/explore'
     | '/halo'
     | '/investor'
@@ -443,6 +455,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
+  CvRoute: typeof CvRoute
   ExploreRoute: typeof ExploreRouteWithChildren
   HaloRoute: typeof HaloRoute
   InvestorRoute: typeof InvestorRouteWithChildren
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv': {
+      id: '/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof CvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
+  CvRoute: CvRoute,
   ExploreRoute: ExploreRouteWithChildren,
   HaloRoute: HaloRoute,
   InvestorRoute: InvestorRouteWithChildren,
