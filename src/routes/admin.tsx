@@ -40,6 +40,11 @@ import {
   FolderOpen,
   Settings2,
   Inbox,
+  Users,
+  FolderKanban,
+  LayoutGrid,
+  BookOpen,
+  Activity,
 } from "lucide-react";
 import {
   ThemeStudioPanel,
