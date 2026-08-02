@@ -49,6 +49,13 @@ import {
   LeadsPanel,
 } from "../components/admin/ExtraPanels";
 import {
+  ClientsPanel,
+  ProjectsPanel,
+  DevWorkspacePanel,
+  KnowledgePanel,
+  VisitorsPanel,
+} from "../components/admin/WorkspacePanels";
+import {
   useContent,
   type ToonSlide,
   type PricingTier,
@@ -576,10 +583,20 @@ type TabKey =
   | "sections"
   | "media"
   | "settings"
-  | "leads";
+  | "leads"
+  | "clients"
+  | "projects"
+  | "workspace"
+  | "knowledge"
+  | "visitors";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
+  { key: "clients", label: "Clients", icon: Users },
+  { key: "projects", label: "Projects", icon: FolderKanban },
+  { key: "workspace", label: "Dev Workspace", icon: LayoutGrid },
+  { key: "knowledge", label: "Knowledge Base", icon: BookOpen },
+  { key: "visitors", label: "Visitors", icon: Activity },
   { key: "toonhub", label: "ToonHub Slides", icon: ImageIcon },
   { key: "legends", label: "Legends", icon: Sparkles },
   { key: "pricing", label: "Pricing Tiers", icon: DollarSign },
@@ -734,6 +751,11 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "media" && <MediaLibraryPanel />}
               {tab === "settings" && <SiteSettingsPanel />}
               {tab === "leads" && <LeadsPanel />}
+              {tab === "clients" && <ClientsPanel />}
+              {tab === "projects" && <ProjectsPanel />}
+              {tab === "workspace" && <DevWorkspacePanel />}
+              {tab === "knowledge" && <KnowledgePanel />}
+              {tab === "visitors" && <VisitorsPanel />}
             </motion.div>
           </AnimatePresence>
         </main>
