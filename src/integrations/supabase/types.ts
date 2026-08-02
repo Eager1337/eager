@@ -62,6 +62,158 @@ export type Database = {
         }
         Relationships: []
       }
+      client_projects: {
+        Row: {
+          api_docs: string
+          archived: boolean
+          budget: string
+          client_id: string | null
+          completed_hours: number
+          created_at: string
+          deadline: string | null
+          deployment_notes: string
+          design_assets: Json
+          estimated_hours: number
+          id: string
+          live_url: string
+          meeting_notes: string
+          milestones: Json
+          name: string
+          progress: number
+          repo_url: string
+          requirements: string
+          state: string
+          summary: string
+          tasks: Json
+          updated_at: string
+        }
+        Insert: {
+          api_docs?: string
+          archived?: boolean
+          budget?: string
+          client_id?: string | null
+          completed_hours?: number
+          created_at?: string
+          deadline?: string | null
+          deployment_notes?: string
+          design_assets?: Json
+          estimated_hours?: number
+          id?: string
+          live_url?: string
+          meeting_notes?: string
+          milestones?: Json
+          name: string
+          progress?: number
+          repo_url?: string
+          requirements?: string
+          state?: string
+          summary?: string
+          tasks?: Json
+          updated_at?: string
+        }
+        Update: {
+          api_docs?: string
+          archived?: boolean
+          budget?: string
+          client_id?: string | null
+          completed_hours?: number
+          created_at?: string
+          deadline?: string | null
+          deployment_notes?: string
+          design_assets?: Json
+          estimated_hours?: number
+          id?: string
+          live_url?: string
+          meeting_notes?: string
+          milestones?: Json
+          name?: string
+          progress?: number
+          repo_url?: string
+          requirements?: string
+          state?: string
+          summary?: string
+          tasks?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          address: string
+          archived: boolean
+          billing_info: string
+          communication_log: string
+          company: string
+          contract_notes: string
+          created_at: string
+          documents: Json
+          email: string
+          feedback: string
+          follow_up_at: string | null
+          id: string
+          name: string
+          phone: string
+          priority: string
+          project_notes: string
+          reminder: string
+          status: string
+          updated_at: string
+          website: string
+        }
+        Insert: {
+          address?: string
+          archived?: boolean
+          billing_info?: string
+          communication_log?: string
+          company?: string
+          contract_notes?: string
+          created_at?: string
+          documents?: Json
+          email?: string
+          feedback?: string
+          follow_up_at?: string | null
+          id?: string
+          name: string
+          phone?: string
+          priority?: string
+          project_notes?: string
+          reminder?: string
+          status?: string
+          updated_at?: string
+          website?: string
+        }
+        Update: {
+          address?: string
+          archived?: boolean
+          billing_info?: string
+          communication_log?: string
+          company?: string
+          contract_notes?: string
+          created_at?: string
+          documents?: Json
+          email?: string
+          feedback?: string
+          follow_up_at?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          priority?: string
+          project_notes?: string
+          reminder?: string
+          status?: string
+          updated_at?: string
+          website?: string
+        }
+        Relationships: []
+      }
       intruder_events: {
         Row: {
           accuracy: number | null
@@ -113,6 +265,42 @@ export type Database = {
           timezone?: string | null
           user_agent?: string | null
           username_tried?: string
+        }
+        Relationships: []
+      }
+      knowledge_items: {
+        Row: {
+          body: string
+          created_at: string
+          favorite: boolean
+          id: string
+          kind: string
+          tags: string[]
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          favorite?: boolean
+          id?: string
+          kind?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          favorite?: boolean
+          id?: string
+          kind?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }
@@ -236,6 +424,57 @@ export type Database = {
         }
         Relationships: []
       }
+      site_visits: {
+        Row: {
+          browser: string
+          created_at: string
+          device: string
+          id: string
+          ip: string
+          is_returning: boolean
+          language: string
+          os: string
+          path: string
+          referrer: string
+          screen: string
+          session_id: string
+          timezone: string
+          user_agent: string
+        }
+        Insert: {
+          browser?: string
+          created_at?: string
+          device?: string
+          id?: string
+          ip?: string
+          is_returning?: boolean
+          language?: string
+          os?: string
+          path?: string
+          referrer?: string
+          screen?: string
+          session_id?: string
+          timezone?: string
+          user_agent?: string
+        }
+        Update: {
+          browser?: string
+          created_at?: string
+          device?: string
+          id?: string
+          ip?: string
+          is_returning?: boolean
+          language?: string
+          os?: string
+          path?: string
+          referrer?: string
+          screen?: string
+          session_id?: string
+          timezone?: string
+          user_agent?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -254,6 +493,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_tools: {
+        Row: {
+          category: string
+          created_at: string
+          favorite: boolean
+          icon: string
+          id: string
+          last_opened_at: string | null
+          name: string
+          notes: string
+          open_count: number
+          pinned: boolean
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          favorite?: boolean
+          icon?: string
+          id?: string
+          last_opened_at?: string | null
+          name: string
+          notes?: string
+          open_count?: number
+          pinned?: boolean
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          favorite?: boolean
+          icon?: string
+          id?: string
+          last_opened_at?: string | null
+          name?: string
+          notes?: string
+          open_count?: number
+          pinned?: boolean
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }
