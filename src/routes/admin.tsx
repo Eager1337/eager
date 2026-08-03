@@ -60,6 +60,16 @@ import {
   KnowledgePanel,
   VisitorsPanel,
 } from "../components/admin/WorkspacePanels";
+import { AnalyticsCenter } from "../components/admin/AnalyticsCenter";
+import {
+  SalesPanel,
+  BookingsPanel,
+  FinancePanel,
+  TeamPanel,
+  ContractsPanel,
+  DeploymentCenterPanel,
+  SecurityCenterPanel,
+} from "../components/admin/BusinessPanels";
 import {
   useContent,
   type ToonSlide,
@@ -593,7 +603,15 @@ type TabKey =
   | "projects"
   | "workspace"
   | "knowledge"
-  | "visitors";
+  | "visitors"
+  | "bi"
+  | "sales"
+  | "bookings"
+  | "finance"
+  | "team"
+  | "contracts"
+  | "deploy"
+  | "seccenter";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -602,6 +620,14 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "workspace", label: "Dev Workspace", icon: LayoutGrid },
   { key: "knowledge", label: "Knowledge Base", icon: BookOpen },
   { key: "visitors", label: "Visitors", icon: Activity },
+  { key: "bi", label: "Business Intelligence", icon: Activity },
+  { key: "sales", label: "Sales & Orders", icon: DollarSign },
+  { key: "bookings", label: "Bookings", icon: Clock },
+  { key: "finance", label: "Finance & Goals", icon: DollarSign },
+  { key: "team", label: "Team Workspace", icon: Users },
+  { key: "contracts", label: "Contracts & Invoices", icon: FileText },
+  { key: "deploy", label: "Deployment Center", icon: Rocket },
+  { key: "seccenter", label: "Cybersecurity Center", icon: ShieldAlert },
   { key: "toonhub", label: "ToonHub Slides", icon: ImageIcon },
   { key: "legends", label: "Legends", icon: Sparkles },
   { key: "pricing", label: "Pricing Tiers", icon: DollarSign },
@@ -761,6 +787,14 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "workspace" && <DevWorkspacePanel />}
               {tab === "knowledge" && <KnowledgePanel />}
               {tab === "visitors" && <VisitorsPanel />}
+              {tab === "bi" && <AnalyticsCenter />}
+              {tab === "sales" && <SalesPanel />}
+              {tab === "bookings" && <BookingsPanel />}
+              {tab === "finance" && <FinancePanel />}
+              {tab === "team" && <TeamPanel />}
+              {tab === "contracts" && <ContractsPanel />}
+              {tab === "deploy" && <DeploymentCenterPanel />}
+              {tab === "seccenter" && <SecurityCenterPanel />}
             </motion.div>
           </AnimatePresence>
         </main>
