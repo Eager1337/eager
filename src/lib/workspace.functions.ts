@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestIP } from "@tanstack/react-start/server";
+import { getRequestIP, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -388,6 +388,9 @@ export const recordVisit = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const ip = getRequestIP({ xForwardedFor: true }) ?? "";
+    const country = getRequestHeader("cf-ipcountry") ?? "";
+    const region = getRequestHeader("cf-region") ?? "";
+    const city = getRequestHeader("cf-ipcity") ?? "";
     const { error } = await supabaseAdmin.from("site_visits").insert({
       session_id: data.sessionId,
       path: data.path,
@@ -401,6 +404,9 @@ export const recordVisit = createServerFn({ method: "POST" })
       is_returning: data.isReturning,
       ip,
       user_agent: data.userAgent,
+      country,
+      region,
+      city,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
