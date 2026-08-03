@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_devices: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          id: string
+          label: string
+          last_seen_at: string
+          trusted: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          label?: string
+          last_seen_at?: string
+          trusted?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          label?: string
+          last_seen_at?: string
+          trusted?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_login_attempts: {
         Row: {
           fail_count: number
@@ -58,6 +88,156 @@ export type Database = {
           fail_count?: number
           identifier?: string
           locked_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_login_history: {
+        Row: {
+          browser: string
+          created_at: string
+          device: string
+          id: string
+          identifier: string
+          ip: string
+          location_label: string
+          os: string
+          outcome: string
+        }
+        Insert: {
+          browser?: string
+          created_at?: string
+          device?: string
+          id?: string
+          identifier?: string
+          ip?: string
+          location_label?: string
+          os?: string
+          outcome?: string
+        }
+        Update: {
+          browser?: string
+          created_at?: string
+          device?: string
+          id?: string
+          identifier?: string
+          ip?: string
+          location_label?: string
+          os?: string
+          outcome?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          scheduled_for: string | null
+          session_type: string
+          status: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          scheduled_for?: string | null
+          session_type?: string
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          scheduled_for?: string | null
+          session_type?: string
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      business_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          label: string
+          notes: string
+          spent_on: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string
+          spent_on?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string
+          spent_on?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      business_goals: {
+        Row: {
+          category: string
+          created_at: string
+          current_value: number
+          due_on: string | null
+          id: string
+          notes: string
+          status: string
+          target_value: number
+          title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          current_value?: number
+          due_on?: string | null
+          id?: string
+          notes?: string
+          status?: string
+          target_value?: number
+          title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_value?: number
+          due_on?: string | null
+          id?: string
+          notes?: string
+          status?: string
+          target_value?: number
+          title?: string
+          unit?: string
           updated_at?: string
         }
         Relationships: []
@@ -214,6 +394,56 @@ export type Database = {
         }
         Relationships: []
       }
+      contracts: {
+        Row: {
+          client_id: string | null
+          client_name: string
+          created_at: string
+          ends_on: string | null
+          id: string
+          starts_on: string | null
+          status: string
+          terms: string
+          title: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          starts_on?: string | null
+          status?: string
+          terms?: string
+          title?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          starts_on?: string | null
+          status?: string
+          terms?: string
+          title?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       intruder_events: {
         Row: {
           accuracy: number | null
@@ -267,6 +497,56 @@ export type Database = {
           username_tried?: string
         }
         Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          client_id: string | null
+          client_name: string
+          created_at: string
+          due_on: string | null
+          id: string
+          issued_on: string | null
+          notes: string
+          number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          due_on?: string | null
+          id?: string
+          issued_on?: string | null
+          notes?: string
+          number?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          due_on?: string | null
+          id?: string
+          issued_on?: string | null
+          notes?: string
+          number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_items: {
         Row: {
@@ -349,6 +629,51 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          id: string
+          notes: string
+          product_name: string
+          product_type: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          notes?: string
+          product_name?: string
+          product_type?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          notes?: string
+          product_name?: string
+          product_type?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_assets: {
         Row: {
           content_type: string | null
@@ -403,6 +728,72 @@ export type Database = {
         }
         Relationships: []
       }
+      product_downloads: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          product_name: string
+          product_type: string
+          referrer: string
+          session_id: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          id?: string
+          product_name?: string
+          product_type?: string
+          referrer?: string
+          session_id?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          product_name?: string
+          product_type?: string
+          referrer?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      security_findings: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          remediation: string
+          severity: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          remediation?: string
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          remediation?: string
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       security_settings: {
         Row: {
           id: string
@@ -427,15 +818,20 @@ export type Database = {
       site_visits: {
         Row: {
           browser: string
+          city: string
+          country: string
           created_at: string
           device: string
+          duration_seconds: number
           id: string
           ip: string
+          is_bounce: boolean
           is_returning: boolean
           language: string
           os: string
           path: string
           referrer: string
+          region: string
           screen: string
           session_id: string
           timezone: string
@@ -443,15 +839,20 @@ export type Database = {
         }
         Insert: {
           browser?: string
+          city?: string
+          country?: string
           created_at?: string
           device?: string
+          duration_seconds?: number
           id?: string
           ip?: string
+          is_bounce?: boolean
           is_returning?: boolean
           language?: string
           os?: string
           path?: string
           referrer?: string
+          region?: string
           screen?: string
           session_id?: string
           timezone?: string
@@ -459,19 +860,60 @@ export type Database = {
         }
         Update: {
           browser?: string
+          city?: string
+          country?: string
           created_at?: string
           device?: string
+          duration_seconds?: number
           id?: string
           ip?: string
+          is_bounce?: boolean
           is_returning?: boolean
           language?: string
           os?: string
           path?: string
           referrer?: string
+          region?: string
           screen?: string
           session_id?: string
           timezone?: string
           user_agent?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          permissions: string[]
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          permissions?: string[]
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          permissions?: string[]
+          role?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
