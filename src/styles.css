@@ -273,3 +273,101 @@ html[data-theme-mode="light"] .hero-heading {
   -webkit-background-clip: text;
   background-clip: text;
 }
+
+/* ============ Mobile hardening: no horizontal scroll, safe media, fluid type ============ */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+/* Long strings (urls, keys, emails) must never widen a card */
+p,
+li,
+td,
+th,
+h1,
+h2,
+h3,
+h4,
+dd,
+dt,
+code,
+pre {
+  overflow-wrap: anywhere;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+/* Tables scroll inside their own container instead of the page */
+table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Comfortable tap targets on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a[role="button"],
+  [type="button"],
+  [type="submit"],
+  select {
+    min-height: 44px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* stops iOS zoom-on-focus */
+  }
+}
+
+/* Charts and recharts wrappers should shrink, not push the layout */
+.recharts-wrapper,
+.recharts-surface {
+  max-width: 100% !important;
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+    line-height: 1.1;
+  }
+  h2 {
+    font-size: clamp(1.375rem, 6.5vw, 2rem);
+    line-height: 1.15;
+  }
+  h3 {
+    font-size: clamp(1.125rem, 5vw, 1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

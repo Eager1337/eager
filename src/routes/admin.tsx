@@ -61,6 +61,7 @@ import {
   VisitorsPanel,
 } from "../components/admin/WorkspacePanels";
 import { AnalyticsCenter } from "../components/admin/AnalyticsCenter";
+import { AiWorkspacePanel } from "../components/admin/AiWorkspacePanel";
 import {
   SalesPanel,
   BookingsPanel,
@@ -611,7 +612,8 @@ type TabKey =
   | "team"
   | "contracts"
   | "deploy"
-  | "seccenter";
+  | "seccenter"
+  | "ai";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -628,6 +630,7 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "contracts", label: "Contracts & Invoices", icon: FileText },
   { key: "deploy", label: "Deployment Center", icon: Rocket },
   { key: "seccenter", label: "Cybersecurity Center", icon: ShieldAlert },
+  { key: "ai", label: "AI Workspace", icon: Sparkles },
   { key: "toonhub", label: "ToonHub Slides", icon: ImageIcon },
   { key: "legends", label: "Legends", icon: Sparkles },
   { key: "pricing", label: "Pricing Tiers", icon: DollarSign },
@@ -795,6 +798,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "contracts" && <ContractsPanel />}
               {tab === "deploy" && <DeploymentCenterPanel />}
               {tab === "seccenter" && <SecurityCenterPanel />}
+              {tab === "ai" && <AiWorkspacePanel />}
             </motion.div>
           </AnimatePresence>
         </main>
