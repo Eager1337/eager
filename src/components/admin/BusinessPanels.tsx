@@ -60,10 +60,11 @@ export function SalesPanel() {
 
 export function BookingsPanel() {
   return (
-    <RecordManager
-      table="bookings"
-      title="Consultations and bookings"
-      description="Track every discovery call, audit and strategy session with its value."
+    <div className="space-y-8">
+      <RecordManager
+        table="bookings"
+        title="Consultations and bookings"
+        description="Track every discovery call, audit and strategy session with its value."
       fields={[
         { key: "name", label: "Client name", required: true },
         { key: "email", label: "Email" },
@@ -86,7 +87,35 @@ export function BookingsPanel() {
         { label: "Completed", value: String(rows.filter((r) => r.status === "completed").length) },
         { label: "Pipeline value", value: money(rows.reduce((s, r) => s + Number(r.value || 0), 0)) },
       ]}
-    />
+      />
+      <RecordManager
+        table="booking_reminders"
+        title="Reminders and follow-ups"
+        description="Every confirmation, reminder and follow-up recap queued for a booking. Edit the copy or the send time before it goes out."
+        orderBy="send_at"
+        fields={[
+          { key: "kind", label: "Kind", kind: "select", options: ["confirmation", "reminder", "follow-up", "reschedule", "cancellation"] },
+          { key: "channel", label: "Channel", kind: "select", options: ["email", "sms", "whatsapp"] },
+          { key: "send_at", label: "Send at", kind: "datetime" },
+          { key: "status", label: "Status", kind: "select", options: ["scheduled", "sent", "skipped", "failed"] },
+          { key: "subject", label: "Subject", full: true },
+          { key: "body", label: "Message", kind: "textarea", full: true },
+        ]}
+        columns={[
+          { key: "kind", label: "Kind" },
+          { key: "subject", label: "Subject" },
+          { key: "send_at", label: "Send at", format: (r) => (r.send_at ? new Date(r.send_at).toLocaleString() : "") },
+          { key: "channel", label: "Channel" },
+          { key: "status", label: "Status" },
+        ]}
+        summary={(rows) => [
+          { label: "Queued messages", value: String(rows.length) },
+          { label: "Scheduled", value: String(rows.filter((r) => r.status === "scheduled").length) },
+          { label: "Reminders", value: String(rows.filter((r) => r.kind === "reminder").length) },
+          { label: "Follow-ups", value: String(rows.filter((r) => r.kind === "follow-up").length) },
+        ]}
+      />
+    </div>
   );
 }
 

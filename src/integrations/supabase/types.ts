@@ -128,6 +128,56 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_reminders: {
+        Row: {
+          body: string
+          booking_id: string | null
+          channel: string
+          created_at: string
+          id: string
+          kind: string
+          send_at: string
+          sent_at: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          booking_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          send_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          booking_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          send_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_reminders_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           created_at: string
