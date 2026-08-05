@@ -363,3 +363,111 @@ export function downloadQuotePdf(q: QuoteInput) {
   footer(doc);
   saveAs(doc, `proposal-${(q.client || "client").replace(/\W+/g, "-")}-${Date.now()}.pdf`);
 }
+/* ============ Investor pitch deck ============ */
+import {
+  PRESS_SUMMARY,
+  PRESS_METRICS,
+  PRESS_COMPETITORS,
+  PRESS_PARTNERSHIPS,
+  PRESS_BOILERPLATE,
+  PRESS_FACTS,
+} from "../data/press-kit";
+
+export async function downloadPitchDeckPdf() {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+  const W = 297;
+  const H = 210;
+
+  const slide = (kicker: string, title: string) => {
+    doc.setFillColor(10, 10, 12);
+    doc.rect(0, 0, W, H, "F");
+    doc.setFillColor(230, 57, 70);
+    doc.rect(0, 0, W, 4, "F");
+    doc.setTextColor(230, 57, 70).setFont("helvetica", "bold").setFontSize(9);
+    doc.text(kicker.toUpperCase(), 18, 24);
+    doc.setTextColor(255, 255, 255).setFontSize(26);
+    doc.text(title, 18, 40);
+    doc.setFont("helvetica", "normal");
+  };
+  const body = (lines: string[], startY = 58, size = 12) => {
+    doc.setFontSize(size).setTextColor(225, 225, 230);
+    let y = startY;
+    lines.forEach((l) => {
+      const w = doc.splitTextToSize(l, W - 36);
+      doc.text(w, 18, y);
+      y += w.length * (size * 0.52) + 5;
+    });
+    return y;
+  };
+
+  // Cover
+  slide("Investor pitch deck", BRAND);
+  body([BRAND_TAG, PRESS_BOILERPLATE], 60, 13);
+  doc.setFontSize(10).setTextColor(150, 150, 155);
+  doc.text(CONTACT, 18, H - 16);
+
+  // Executive summary
+  doc.addPage();
+  slide("Executive summary", "One operator, product-grade delivery");
+  body(PRESS_SUMMARY.map((s) => "• " + s));
+
+  // Metrics
+  doc.addPage();
+  slide("Key metrics", "Traction to date");
+  PRESS_METRICS.forEach((m, i) => {
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    const x = 18 + col * 90;
+    const y = 62 + row * 52;
+    doc.setDrawColor(60, 60, 66).roundedRect(x, y - 12, 82, 40, 3, 3);
+    doc.setTextColor(230, 57, 70).setFont("helvetica", "bold").setFontSize(20);
+    doc.text(m.value, x + 6, y);
+    doc.setTextColor(255, 255, 255).setFontSize(9);
+    doc.text(m.label.toUpperCase(), x + 6, y + 7);
+    doc.setFont("helvetica", "normal").setTextColor(180, 180, 186).setFontSize(8);
+    doc.text(doc.splitTextToSize(m.note, 72), x + 6, y + 14);
+  });
+
+  // Competitors
+  doc.addPage();
+  slide("Competitive landscape", "Why clients pick the studio");
+  let cy = 58;
+  doc.setFontSize(9).setTextColor(150, 150, 155);
+  ["Option", "Positioning", "Speed", "Ownership", "Pricing"].forEach((h, i) =>
+    doc.text(h.toUpperCase(), 18 + i * 55, cy),
+  );
+  cy += 6;
+  PRESS_COMPETITORS.forEach((c) => {
+    doc.setFont("helvetica", c.us ? "bold" : "normal");
+    if (c.us) doc.setTextColor(230, 57, 70);
+    else doc.setTextColor(225, 225, 230);
+    doc.setFontSize(9);
+    [c.name, c.positioning, c.speed, c.ownership, c.price].forEach((v, i) => {
+      doc.text(doc.splitTextToSize(v, 52), 18 + i * 55, cy);
+    });
+    cy += 20;
+  });
+
+  // Partnerships
+  doc.addPage();
+  slide("Partnerships", "The delivery stack");
+  body(PRESS_PARTNERSHIPS.map((p) => `• ${p.name} (${p.kind}): ${p.body}`), 58, 11);
+
+  // Selected work
+  doc.addPage();
+  slide("Selected work", "Shipped platforms");
+  body(
+    PROJECTS.slice(0, 6).map((p) => `• ${p.title}: ${p.tagline}`),
+    58,
+    11,
+  );
+
+  // Facts and contact
+  doc.addPage();
+  slide("Fact sheet", "Studio at a glance");
+  body(PRESS_FACTS.map((f) => `• ${f.label}: ${f.value} — ${f.note}`.replace(" — ", ". ")), 58, 12);
+  doc.setFontSize(11).setTextColor(230, 57, 70);
+  doc.text(CONTACT, 18, H - 20);
+
+  saveAs(doc, `eager-beaver-pitch-deck-${Date.now()}.pdf`);
+}

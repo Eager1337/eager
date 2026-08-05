@@ -16,6 +16,7 @@ import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PressKitRouteImport } from './routes/press-kit'
 import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as OpenSourceRouteImport } from './routes/open-source'
@@ -93,6 +94,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PressKitRoute = PressKitRouteImport.update({
+  id: '/press-kit',
+  path: '/press-kit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioOsRoute = PortfolioOsRouteImport.update({
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/open-source': typeof OpenSourceRoute
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
+  '/press-kit': typeof PressKitRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
@@ -378,6 +385,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceRoute
   '/open-source': typeof OpenSourceRoute
   '/portfolio': typeof PortfolioRoute
+  '/press-kit': typeof PressKitRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/open-source': typeof OpenSourceRoute
   '/portfolio': typeof PortfolioRoute
   '/portfolio-os': typeof PortfolioOsRouteWithChildren
+  '/press-kit': typeof PressKitRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
@@ -484,6 +493,7 @@ export interface FileRouteTypes {
     | '/open-source'
     | '/portfolio'
     | '/portfolio-os'
+    | '/press-kit'
     | '/privacy'
     | '/resources'
     | '/services'
@@ -533,6 +543,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/open-source'
     | '/portfolio'
+    | '/press-kit'
     | '/privacy'
     | '/resources'
     | '/services'
@@ -584,6 +595,7 @@ export interface FileRouteTypes {
     | '/open-source'
     | '/portfolio'
     | '/portfolio-os'
+    | '/press-kit'
     | '/privacy'
     | '/resources'
     | '/services'
@@ -637,6 +649,7 @@ export interface RootRouteChildren {
   OpenSourceRoute: typeof OpenSourceRoute
   PortfolioRoute: typeof PortfolioRoute
   PortfolioOsRoute: typeof PortfolioOsRouteWithChildren
+  PressKitRoute: typeof PressKitRoute
   PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
   ServicesRoute: typeof ServicesRoute
@@ -707,6 +720,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/press-kit': {
+      id: '/press-kit'
+      path: '/press-kit'
+      fullPath: '/press-kit'
+      preLoaderRoute: typeof PressKitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio-os': {
@@ -1107,6 +1127,7 @@ const rootRouteChildren: RootRouteChildren = {
   OpenSourceRoute: OpenSourceRoute,
   PortfolioRoute: PortfolioRoute,
   PortfolioOsRoute: PortfolioOsRouteWithChildren,
+  PressKitRoute: PressKitRoute,
   PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
   ServicesRoute: ServicesRoute,
