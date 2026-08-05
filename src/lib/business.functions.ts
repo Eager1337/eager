@@ -20,6 +20,7 @@ const TABLE_FIELDS = {
     "notes",
   ],
   bookings: ["name", "email", "session_type", "scheduled_for", "status", "value", "notes"],
+  booking_reminders: ["booking_id", "kind", "channel", "send_at", "subject", "body", "status", "sent_at"],
   business_expenses: ["label", "category", "amount", "spent_on", "notes"],
   business_goals: [
     "title",
