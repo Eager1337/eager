@@ -439,7 +439,8 @@ export async function downloadPitchDeckPdf() {
   cy += 6;
   PRESS_COMPETITORS.forEach((c) => {
     doc.setFont("helvetica", c.us ? "bold" : "normal");
-    doc.setTextColor(...(c.us ? ([230, 57, 70] as const) : ([225, 225, 230] as const)));
+    if (c.us) doc.setTextColor(230, 57, 70);
+    else doc.setTextColor(225, 225, 230);
     doc.setFontSize(9);
     [c.name, c.positioning, c.speed, c.ownership, c.price].forEach((v, i) => {
       doc.text(doc.splitTextToSize(v, 52), 18 + i * 55, cy);
