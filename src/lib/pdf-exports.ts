@@ -456,7 +456,7 @@ export async function downloadPitchDeckPdf() {
   doc.addPage();
   slide("Selected work", "Shipped platforms");
   body(
-    PROJECTS.slice(0, 6).map((p) => `• ${p.title}: ${p.tagline ?? p.summary ?? ""}`),
+    PROJECTS.slice(0, 6).map((p) => `• ${p.title}: ${p.tagline}`),
     58,
     11,
   );

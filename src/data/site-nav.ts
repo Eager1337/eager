@@ -16,6 +16,7 @@ export const SITE_NAV: NavItem[] = [
   { label: "Testimonials", to: "/testimonials", note: "Client words" },
   { label: "Contact", to: "/contact", note: "Send a brief" },
   { label: "Investor Relations", to: "/investor", note: "Traction and roadmap" },
+  { label: "Investor Press Kit", to: "/press-kit", note: "Deck, metrics, press assets" },
   { label: "Open Source", to: "/open-source", note: "Public code" },
   { label: "Certifications", to: "/certifications", note: "Verified credentials" },
   { label: "Resources", to: "/resources", note: "Free downloads" },
