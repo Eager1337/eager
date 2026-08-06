@@ -22,17 +22,32 @@ export const ownerLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    // Fallbacks keep the admin login working on hosts where the env vars were
-    // not configured yet (e.g. a fresh Vercel deploy). Setting the real env
-    // vars on the host always overrides these.
-    const expectedUser = (process.env.OWNER_LOGIN_USERNAME || "EagerBeaver").trim();
-    const accepted = (process.env.OWNER_LOGIN_PASSWORDS || "Eagerbeaver123")
+    // No credentials live in the codebase. Every value below is read from the
+    // host environment at request time, so Lovable and Vercel behave the same
+    // as long as both carry the same variables (see .env.example).
+    const expectedUser = (process.env.OWNER_LOGIN_USERNAME ?? "").trim();
+    const accepted = (process.env.OWNER_LOGIN_PASSWORDS ?? "")
       .split(",")
       .map((p) => p.trim())
       .filter(Boolean);
-    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL || "ebeaver091@gmail.com").trim();
-    const ownerPassword =
-      process.env.OWNER_ACCOUNT_PASSWORD || "EagerBeaver-Owner-Account-2026!fallback";
+    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
+    const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
+
+    const missing = [
+      ...(expectedUser ? [] : ["OWNER_LOGIN_USERNAME"]),
+      ...(accepted.length ? [] : ["OWNER_LOGIN_PASSWORDS"]),
+      ...(ownerEmail ? [] : ["OWNER_ACCOUNT_EMAIL"]),
+      ...(ownerPassword ? [] : ["OWNER_ACCOUNT_PASSWORD"]),
+      ...(process.env.SUPABASE_URL ? [] : ["SUPABASE_URL"]),
+      ...(process.env.SUPABASE_PUBLISHABLE_KEY ? [] : ["SUPABASE_PUBLISHABLE_KEY"]),
+      ...(process.env.SUPABASE_SERVICE_ROLE_KEY ? [] : ["SUPABASE_SERVICE_ROLE_KEY"]),
+    ];
+    if (missing.length > 0) {
+      return {
+        ok: false as const,
+        error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
+      };
+    }
 
     const userOk =
       expectedUser.length > 0 &&
@@ -42,10 +57,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
     // Generic failure, never reveal which field was wrong.
     if (!userOk || !passOk) {
       return { ok: false as const };
-    }
-
-    if (!ownerEmail || !ownerPassword) {
-      return { ok: false as const, error: "Owner account is not configured." };
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

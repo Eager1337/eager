@@ -33,7 +33,35 @@ const TABLE_FIELDS = {
     "notes",
   ],
   team_members: ["name", "email", "role", "permissions", "status", "notes"],
-  contracts: ["client_id", "client_name", "title", "value", "status", "starts_on", "ends_on", "terms"],
+  contracts: [
+    "client_id",
+    "client_name",
+    "title",
+    "value",
+    "status",
+    "starts_on",
+    "ends_on",
+    "terms",
+    "signer_name",
+    "signer_email",
+    "signature_data",
+    "signed_at",
+    "signed_ip",
+  ],
+  proposals: [
+    "client_name",
+    "client_email",
+    "title",
+    "summary",
+    "scope",
+    "deliverables",
+    "timeline",
+    "price",
+    "currency",
+    "status",
+    "valid_until",
+    "notes",
+  ],
   invoices: ["client_id", "client_name", "number", "amount", "status", "issued_on", "due_on", "notes"],
   security_findings: ["title", "severity", "category", "status", "source", "remediation"],
   admin_devices: ["label", "fingerprint", "trusted", "last_seen_at"],
@@ -46,7 +74,7 @@ const tableSchema = z.enum(
 );
 
 const valueSchema = z.union([
-  z.string().max(12000),
+  z.string().max(400000),
   z.number(),
   z.boolean(),
   z.null(),
@@ -66,7 +94,8 @@ function sanitize(table: BusinessTable, payload: Record<string, unknown>) {
   const allowed = TABLE_FIELDS[table] as readonly string[];
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(payload)) {
-    if (allowed.includes(k)) out[k] = v === "" && k.endsWith("_on") ? null : v;
+    const isDateish = k.endsWith("_on") || k.endsWith("_at") || k.endsWith("_until");
+    if (allowed.includes(k)) out[k] = v === "" && isDateish ? null : v;
   }
   return out;
 }

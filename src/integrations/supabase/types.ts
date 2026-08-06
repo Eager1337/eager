@@ -451,6 +451,11 @@ export type Database = {
           created_at: string
           ends_on: string | null
           id: string
+          signature_data: string
+          signed_at: string | null
+          signed_ip: string
+          signer_email: string
+          signer_name: string
           starts_on: string | null
           status: string
           terms: string
@@ -464,6 +469,11 @@ export type Database = {
           created_at?: string
           ends_on?: string | null
           id?: string
+          signature_data?: string
+          signed_at?: string | null
+          signed_ip?: string
+          signer_email?: string
+          signer_name?: string
           starts_on?: string | null
           status?: string
           terms?: string
@@ -477,6 +487,11 @@ export type Database = {
           created_at?: string
           ends_on?: string | null
           id?: string
+          signature_data?: string
+          signed_at?: string | null
+          signed_ip?: string
+          signer_email?: string
+          signer_name?: string
           starts_on?: string | null
           status?: string
           terms?: string
@@ -805,6 +820,60 @@ export type Database = {
           product_type?: string
           referrer?: string
           session_id?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          client_email: string
+          client_name: string
+          created_at: string
+          currency: string
+          deliverables: string
+          id: string
+          notes: string
+          price: number
+          scope: Json
+          status: string
+          summary: string
+          timeline: string
+          title: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          currency?: string
+          deliverables?: string
+          id?: string
+          notes?: string
+          price?: number
+          scope?: Json
+          status?: string
+          summary?: string
+          timeline?: string
+          title?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          currency?: string
+          deliverables?: string
+          id?: string
+          notes?: string
+          price?: number
+          scope?: Json
+          status?: string
+          summary?: string
+          timeline?: string
+          title?: string
+          updated_at?: string
+          valid_until?: string | null
         }
         Relationships: []
       }

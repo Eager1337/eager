@@ -31,7 +31,28 @@ Production, Preview and Development.
 | `OWNER_ACCOUNT_PASSWORD` | Password of the backing owner account |
 
 Copy the values from the Lovable project (Settings, then the backend/secrets
-view). Do not commit any of them to git.
+view). Do not commit any of them to git. `.env.example` in the repository root
+lists every name in the same order, copy it to `.env` for local work.
+
+There are no credentials in the source code. `OWNER_LOGIN_*` and
+`OWNER_ACCOUNT_*` are read from the environment at request time, so if any of
+them is missing the admin screen says so explicitly instead of silently
+falling back to a build-time default.
+
+### Validate the environment before deploying
+
+```bash
+bun run verify:env
+```
+
+It prints only variable names and exits with code 1 when a required value is
+missing, so a Vercel build fails loudly rather than shipping a broken admin
+login. Add it as the Vercel "Install Command" suffix or run it locally before
+pushing:
+
+```
+bun install && bun run verify:env
+```
 
 ## 2. Steps
 
@@ -54,6 +75,29 @@ view). Do not commit any of them to git.
 - **Static assets.** Bundled from `src/assets/*.asset.json` CDN pointers.
 
 ## 4. Post-deploy checklist
+
+Environment and build
+
+- [ ] All nine required variables present in Production, Preview and Development
+- [ ] `bun run verify:env` passes on the deploy machine
+- [ ] `bun run build` finishes with no errors
+- [ ] Database migrations applied to the same backend project as Lovable
+
+Auth and access control
+
+- [ ] `/admin` login succeeds with `OWNER_LOGIN_USERNAME` / `OWNER_LOGIN_PASSWORDS`
+- [ ] The owner account is auto-created on first sign-in and holds the `admin`
+      role in `user_roles` (role-based access control, never a client-side flag)
+- [ ] Protected server functions reject requests without a bearer token
+- [ ] Sign-out clears the session and `/admin` asks for credentials again
+
+Media and endpoints
+
+- [ ] Images render on `/`, `/portfolio` and `/explore`
+- [ ] `/api/public/media/<key>` streams an uploaded image
+- [ ] Admin image upload writes to the `portfolio-media` bucket
+
+Original quick pass
 
 - [ ] `/` loads and the hero carousel animates
 - [ ] `/portfolio`, `/explore`, `/investor`, `/cv`, `/contact` all return 200
