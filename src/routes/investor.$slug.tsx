@@ -37,7 +37,15 @@ export const Route = createFileRoute("/investor/$slug")({
 });
 
 function InvestorSlug() {
-  const { page } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const page = findInvestorPage(slug);
+  if (!page) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <p>Practice not found.</p>
+      </div>
+    );
+  }
   return (
     <InvestorPage
       eyebrow={page.eyebrow}
