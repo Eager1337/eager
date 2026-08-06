@@ -74,7 +74,7 @@ const tableSchema = z.enum(
 );
 
 const valueSchema = z.union([
-  z.string().max(12000),
+  z.string().max(400000),
   z.number(),
   z.boolean(),
   z.null(),
@@ -94,7 +94,8 @@ function sanitize(table: BusinessTable, payload: Record<string, unknown>) {
   const allowed = TABLE_FIELDS[table] as readonly string[];
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(payload)) {
-    if (allowed.includes(k)) out[k] = v === "" && k.endsWith("_on") ? null : v;
+    const isDateish = k.endsWith("_on") || k.endsWith("_at") || k.endsWith("_until");
+    if (allowed.includes(k)) out[k] = v === "" && isDateish ? null : v;
   }
   return out;
 }
