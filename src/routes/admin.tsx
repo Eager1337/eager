@@ -46,6 +46,7 @@ import {
   BookOpen,
   Activity,
 } from "lucide-react";
+import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
   ThemeStudioPanel,
   ContentSectionsPanel,
@@ -611,6 +612,8 @@ type TabKey =
   | "finance"
   | "team"
   | "contracts"
+  | "proposals"
+  | "esign"
   | "deploy"
   | "seccenter"
   | "ai";
@@ -628,6 +631,8 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "finance", label: "Finance & Goals", icon: DollarSign },
   { key: "team", label: "Team Workspace", icon: Users },
   { key: "contracts", label: "Contracts & Invoices", icon: FileText },
+  { key: "proposals", label: "Proposal Generator", icon: FileText },
+  { key: "esign", label: "E-signature", icon: FileText },
   { key: "deploy", label: "Deployment Center", icon: Rocket },
   { key: "seccenter", label: "Cybersecurity Center", icon: ShieldAlert },
   { key: "ai", label: "AI Workspace", icon: Sparkles },
@@ -796,6 +801,8 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "finance" && <FinancePanel />}
               {tab === "team" && <TeamPanel />}
               {tab === "contracts" && <ContractsPanel />}
+              {tab === "proposals" && <ProposalsPanel />}
+              {tab === "esign" && <ContractSigningPanel />}
               {tab === "deploy" && <DeploymentCenterPanel />}
               {tab === "seccenter" && <SecurityCenterPanel />}
               {tab === "ai" && <AiWorkspacePanel />}
