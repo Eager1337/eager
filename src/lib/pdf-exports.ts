@@ -364,6 +364,135 @@ export function downloadQuotePdf(q: QuoteInput) {
   saveAs(doc, `proposal-${(q.client || "client").replace(/\W+/g, "-")}-${Date.now()}.pdf`);
 }
 /* ============ Investor pitch deck ============ */
+
+/* ============ Branded proposal + signable contract ============ */
+export interface ProposalInput {
+  client_name: string;
+  client_email: string;
+  title: string;
+  summary: string;
+  scope: string[];
+  deliverables: string;
+  timeline: string;
+  price: number;
+  currency: string;
+  valid_until?: string | null;
+  notes?: string;
+}
+
+export async function downloadProposalPdf(p: ProposalInput) {
+  const doc = new jsPDF();
+  header(doc, p.title || "Project Proposal", await loadPortrait());
+  let y = 46;
+  const money = `${p.currency || "USD"} ${Number(p.price || 0).toLocaleString()}`;
+
+  doc.setFontSize(10).setTextColor(60, 60, 60);
+  doc.text(`Prepared for: ${p.client_name || "Client"}`, 14, y);
+  y += 5;
+  if (p.client_email) { doc.text(p.client_email, 14, y); y += 5; }
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, y);
+  y += 5;
+  if (p.valid_until) { doc.text(`Valid until: ${p.valid_until}`, 14, y); y += 5; }
+  y += 5;
+
+  const sec = (title: string) => {
+    if (y > 250) { doc.addPage(); y = 24; }
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(230, 57, 70);
+    doc.text(title.toUpperCase(), 14, y);
+    y += 6;
+    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30, 30, 30);
+  };
+  const para = (t: string) => {
+    if (!t) return;
+    const w = doc.splitTextToSize(t, 182);
+    if (y + w.length * 5 > 275) { doc.addPage(); y = 24; }
+    doc.text(w, 14, y);
+    y += w.length * 5 + 3;
+  };
+  const li = (t: string) => para("\u2022 " + t);
+
+  if (p.summary) { sec("Executive summary"); para(p.summary); }
+  if (p.scope.length) { sec("Scope of work"); p.scope.forEach(li); }
+  if (p.deliverables) { sec("Deliverables"); p.deliverables.split("\n").filter(Boolean).forEach(li); }
+  if (p.timeline) { sec("Timeline"); para(p.timeline); }
+
+  sec("Investment");
+  doc.setFont("helvetica", "bold").setFontSize(14);
+  doc.text(money, 14, y);
+  y += 10;
+  doc.setFont("helvetica", "normal").setFontSize(10);
+
+  if (p.notes) { sec("Notes"); para(p.notes); }
+
+  sec("Acceptance");
+  para("Signing below authorises the scope, timeline and investment above.");
+  doc.setDrawColor(150, 150, 150);
+  doc.line(14, y + 12, 90, y + 12);
+  doc.line(110, y + 12, 196, y + 12);
+  doc.setFontSize(8).setTextColor(120, 120, 120);
+  doc.text("Client signature", 14, y + 17);
+  doc.text("Date", 110, y + 17);
+
+  footer(doc);
+  saveAs(doc, `proposal-${(p.client_name || "client").replace(/\W+/g, "-")}-${Date.now()}.pdf`);
+}
+
+export interface ContractInput {
+  title: string;
+  client_name: string;
+  value: number;
+  starts_on?: string | null;
+  ends_on?: string | null;
+  terms: string;
+  signer_name?: string;
+  signer_email?: string;
+  signature_data?: string;
+  signed_at?: string | null;
+}
+
+export async function downloadContractPdf(c: ContractInput) {
+  const doc = new jsPDF();
+  header(doc, c.title || "Service agreement", await loadPortrait());
+  let y = 46;
+  doc.setFontSize(10).setTextColor(60, 60, 60);
+  doc.text(`Client: ${c.client_name || "Client"}`, 14, y);
+  y += 5;
+  doc.text(`Contract value: $${Number(c.value || 0).toLocaleString()}`, 14, y);
+  y += 5;
+  doc.text(`Term: ${c.starts_on || "TBD"} to ${c.ends_on || "TBD"}`, 14, y);
+  y += 10;
+
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(230, 57, 70);
+  doc.text("TERMS", 14, y);
+  y += 6;
+  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30, 30, 30);
+  const terms = doc.splitTextToSize(c.terms || "Terms to be agreed.", 182);
+  terms.forEach((line: string) => {
+    if (y > 255) { doc.addPage(); y = 24; }
+    doc.text(line, 14, y);
+    y += 5;
+  });
+  y += 8;
+
+  if (y > 220) { doc.addPage(); y = 30; }
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(230, 57, 70);
+  doc.text("SIGNATURE", 14, y);
+  y += 8;
+  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30, 30, 30);
+  if (c.signature_data) {
+    try { doc.addImage(c.signature_data, "PNG", 14, y, 70, 26); } catch { /* ignore */ }
+  }
+  doc.setDrawColor(150, 150, 150);
+  doc.line(14, y + 28, 90, y + 28);
+  doc.setFontSize(9);
+  doc.text(c.signer_name || "Unsigned", 14, y + 34);
+  if (c.signer_email) doc.text(c.signer_email, 14, y + 39);
+  if (c.signed_at) doc.text(`Signed ${new Date(c.signed_at).toLocaleString()}`, 110, y + 34);
+
+  footer(doc);
+  saveAs(doc, `contract-${(c.client_name || "client").replace(/\W+/g, "-")}-${Date.now()}.pdf`);
+}
+
 import {
   PRESS_SUMMARY,
   PRESS_METRICS,
