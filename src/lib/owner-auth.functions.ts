@@ -19,6 +19,7 @@ export const ownerLogin = createServerFn({ method: "POST" })
     z.object({
       username: z.string().max(200),
       password: z.string().max(500),
+      code: z.string().trim().max(20).optional().default(""),
     }),
   )
   .handler(async ({ data }) => {
@@ -60,6 +61,36 @@ export const ownerLogin = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Second factor: if an authenticator is enrolled, a valid code is required.
+    const { data: totp } = await supabaseAdmin
+      .from("admin_totp")
+      .select("secret, enabled, recovery_codes")
+      .eq("id", "global")
+      .maybeSingle();
+    if (totp?.enabled) {
+      const { verifyTotp } = await import("./webauthn.server");
+      const supplied = (data.code ?? "").trim().toUpperCase();
+      if (!supplied) return { ok: false as const, mfaRequired: true as const };
+      const recovery = (totp.recovery_codes as string[] | null) ?? [];
+      const usedRecovery = recovery.includes(supplied);
+      const codeOk = usedRecovery || (await verifyTotp(String(totp.secret ?? ""), supplied));
+      if (!codeOk) {
+        await supabaseAdmin.from("login_alerts").insert({
+          event: "mfa_failed",
+          identifier: data.username,
+          detail: "A sign-in attempt supplied an invalid second factor.",
+          severity: "warning",
+        });
+        return { ok: false as const, mfaRequired: true as const, codeInvalid: true as const };
+      }
+      if (usedRecovery) {
+        await supabaseAdmin
+          .from("admin_totp")
+          .update({ recovery_codes: recovery.filter((c) => c !== supplied) })
+          .eq("id", "global");
+      }
+    }
 
     // Ensure the owner auth account exists (idempotent).
     let ownerId: string | null = null;
@@ -121,6 +152,102 @@ export const ownerLogin = createServerFn({ method: "POST" })
     if (error || !signIn.session) {
       return { ok: false as const, error: "Sign-in failed. Please try again." };
     }
+
+    await supabaseAdmin.from("login_alerts").insert({
+      event: "admin_signin",
+      identifier: data.username,
+      detail: "Admin signed in with username and password.",
+      severity: "info",
+    });
+
+    return {
+      ok: true as const,
+      access_token: signIn.session.access_token,
+      refresh_token: signIn.session.refresh_token,
+    };
+  });
+
+/**
+ * Passkey sign-in. The browser runs a WebAuthn assertion against a stateless
+ * challenge, the signature is verified here, and only then is a session minted.
+ */
+export const passkeyLogin = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      credentialId: z.string().max(500),
+      clientDataJSON: z.string().max(8000),
+      authenticatorData: z.string().max(8000),
+      signature: z.string().max(8000),
+      origin: z.string().max(300),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
+    const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
+    if (!ownerEmail || !ownerPassword) {
+      return { ok: false as const, error: "Passkey sign-in is not configured on this deployment." };
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { verifyAssertion, b64uToBytes } = await import("./webauthn.server");
+    const { verifyChallenge } = await import("./challenge.server");
+
+    const { data: cred } = await supabaseAdmin
+      .from("admin_passkeys")
+      .select("id, public_key, algorithm, label")
+      .eq("credential_id", data.credentialId)
+      .maybeSingle();
+    if (!cred) return { ok: false as const, error: "This passkey is not registered." };
+
+    let clientChallenge = "";
+    try {
+      clientChallenge =
+        (JSON.parse(new TextDecoder().decode(b64uToBytes(data.clientDataJSON))) as { challenge?: string })
+          .challenge ?? "";
+    } catch {
+      return { ok: false as const, error: "Malformed passkey response." };
+    }
+    if (!(await verifyChallenge(clientChallenge))) {
+      return { ok: false as const, error: "Passkey challenge expired. Try again." };
+    }
+
+    try {
+      const { signCount } = await verifyAssertion({
+        publicKey: String(cred.public_key),
+        algorithm: Number(cred.algorithm),
+        clientDataJSON: data.clientDataJSON,
+        authenticatorData: data.authenticatorData,
+        signature: data.signature,
+        expectedChallenge: clientChallenge,
+        expectedOrigin: data.origin,
+      });
+      await supabaseAdmin
+        .from("admin_passkeys")
+        .update({ sign_count: signCount, last_used_at: new Date().toISOString() })
+        .eq("id", cred.id);
+    } catch (err) {
+      await supabaseAdmin.from("login_alerts").insert({
+        event: "passkey_failed",
+        detail: err instanceof Error ? err.message : "Passkey verification failed.",
+        severity: "critical",
+      });
+      return { ok: false as const, error: "Passkey verification failed." };
+    }
+
+    const anon = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: signIn, error } = await anon.auth.signInWithPassword({
+      email: ownerEmail,
+      password: ownerPassword,
+    });
+    if (error || !signIn.session) return { ok: false as const, error: "Sign-in failed. Please try again." };
+
+    await supabaseAdmin.from("login_alerts").insert({
+      event: "passkey_signin",
+      detail: `Admin signed in with passkey: ${String(cred.label)}`,
+      severity: "info",
+    });
 
     return {
       ok: true as const,

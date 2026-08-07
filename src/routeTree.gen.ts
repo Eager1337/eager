@@ -51,6 +51,7 @@ import { Route as SkyeliteRatesRouteImport } from './routes/skyelite.rates'
 import { Route as SkyeliteFaqRouteImport } from './routes/skyelite.faq'
 import { Route as SkyeliteBookRouteImport } from './routes/skyelite.book'
 import { Route as SkyeliteBenefitsRouteImport } from './routes/skyelite.benefits'
+import { Route as SiteSlugRouteImport } from './routes/site.$slug'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as PortfolioOsSuiteRouteImport } from './routes/portfolio-os.suite'
 import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug'
@@ -271,6 +272,11 @@ const SkyeliteBenefitsRoute = SkyeliteBenefitsRouteImport.update({
   path: '/benefits',
   getParentRoute: () => SkyeliteRoute,
 } as any)
+const SiteSlugRoute = SiteSlugRouteImport.update({
+  id: '/site/$slug',
+  path: '/site/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
   '/skyelite/faq': typeof SkyeliteFaqRoute
@@ -400,6 +407,7 @@ export interface FileRoutesByTo {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
   '/skyelite/faq': typeof SkyeliteFaqRoute
@@ -454,6 +462,7 @@ export interface FileRoutesById {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
   '/skyelite/faq': typeof SkyeliteFaqRoute
@@ -509,6 +518,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
     | '/skyelite/faq'
@@ -558,6 +568,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
     | '/skyelite/faq'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
     | '/skyelite/faq'
@@ -660,6 +672,7 @@ export interface RootRouteChildren {
   CargoxSlugRoute: typeof CargoxSlugRoute
   LandingSlugRoute: typeof LandingSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
+  SiteSlugRoute: typeof SiteSlugRoute
   WorkAeonRoute: typeof WorkAeonRoute
   WorkAuraiRoute: typeof WorkAuraiRoute
   WorkDatacoreRoute: typeof WorkDatacoreRoute
@@ -967,6 +980,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkyeliteBenefitsRouteImport
       parentRoute: typeof SkyeliteRoute
     }
+    '/site/$slug': {
+      id: '/site/$slug'
+      path: '/site/$slug'
+      fullPath: '/site/$slug'
+      preLoaderRoute: typeof SiteSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$slug': {
       id: '/projects/$slug'
       path: '/projects/$slug'
@@ -1138,6 +1158,7 @@ const rootRouteChildren: RootRouteChildren = {
   CargoxSlugRoute: CargoxSlugRoute,
   LandingSlugRoute: LandingSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
+  SiteSlugRoute: SiteSlugRoute,
   WorkAeonRoute: WorkAeonRoute,
   WorkAuraiRoute: WorkAuraiRoute,
   WorkDatacoreRoute: WorkDatacoreRoute,
@@ -1151,13 +1172,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
