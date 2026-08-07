@@ -201,7 +201,7 @@ export async function verifyAssertion(input: AssertionInput): Promise<{ signCoun
   if (!(flags & 0x01)) throw new Error("Passkey was not verified by the authenticator.");
   const signCount = new DataView(authData.buffer, authData.byteOffset, authData.byteLength).getUint32(33);
 
-  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", clientDataBytes));
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", clientDataBytes as unknown as ArrayBuffer));
   const signed = new Uint8Array(authData.length + hash.length);
   signed.set(authData, 0);
   signed.set(hash, authData.length);
@@ -210,8 +210,8 @@ export async function verifyAssertion(input: AssertionInput): Promise<{ signCoun
   const rawSig = b64uToBytes(input.signature);
   const ok =
     input.algorithm === -7
-      ? await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, derToRaw(rawSig), signed)
-      : await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, rawSig, signed);
+      ? await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, derToRaw(rawSig) as unknown as ArrayBuffer, signed as unknown as ArrayBuffer)
+      : await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, rawSig as unknown as ArrayBuffer, signed as unknown as ArrayBuffer);
   if (!ok) throw new Error("Passkey signature did not verify.");
   return { signCount };
 }
