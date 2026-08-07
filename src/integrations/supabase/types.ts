@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alert_settings: {
+        Row: {
+          alert_on_failure: boolean
+          alert_on_new_device: boolean
+          alert_on_success: boolean
+          email: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          alert_on_failure?: boolean
+          alert_on_new_device?: boolean
+          alert_on_success?: boolean
+          email?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          alert_on_failure?: boolean
+          alert_on_new_device?: boolean
+          alert_on_success?: boolean
+          email?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -125,6 +152,111 @@ export type Database = {
           location_label?: string
           os?: string
           outcome?: string
+        }
+        Relationships: []
+      }
+      admin_passkeys: {
+        Row: {
+          algorithm: number
+          created_at: string
+          credential_id: string
+          id: string
+          label: string
+          last_used_at: string | null
+          public_key: string
+          sign_count: number
+          updated_at: string
+        }
+        Insert: {
+          algorithm?: number
+          created_at?: string
+          credential_id: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          public_key: string
+          sign_count?: number
+          updated_at?: string
+        }
+        Update: {
+          algorithm?: number
+          created_at?: string
+          credential_id?: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          public_key?: string
+          sign_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_totp: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          recovery_codes: string[]
+          secret: string
+          updated_at: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          recovery_codes?: string[]
+          secret?: string
+          updated_at?: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          recovery_codes?: string[]
+          secret?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_site_builds: {
+        Row: {
+          created_at: string
+          html: string
+          id: string
+          model: string
+          name: string
+          notes: string
+          prompt: string
+          published: boolean
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html?: string
+          id?: string
+          model?: string
+          name?: string
+          notes?: string
+          prompt?: string
+          published?: boolean
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html?: string
+          id?: string
+          model?: string
+          name?: string
+          notes?: string
+          prompt?: string
+          published?: boolean
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -694,6 +826,36 @@ export type Database = {
         }
         Relationships: []
       }
+      login_alerts: {
+        Row: {
+          acknowledged: boolean
+          created_at: string
+          detail: string
+          event: string
+          id: string
+          identifier: string
+          severity: string
+        }
+        Insert: {
+          acknowledged?: boolean
+          created_at?: string
+          detail?: string
+          event: string
+          id?: string
+          identifier?: string
+          severity?: string
+        }
+        Update: {
+          acknowledged?: boolean
+          created_at?: string
+          detail?: string
+          event?: string
+          id?: string
+          identifier?: string
+          severity?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -793,6 +955,51 @@ export type Database = {
         }
         Relationships: []
       }
+      product_bundles: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          discount_label: string
+          id: string
+          image_url: string
+          name: string
+          price: number
+          product_slugs: string[]
+          slug: string
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          discount_label?: string
+          id?: string
+          image_url?: string
+          name: string
+          price?: number
+          product_slugs?: string[]
+          slug: string
+          summary?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          discount_label?: string
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          product_slugs?: string[]
+          slug?: string
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_downloads: {
         Row: {
           country: string
@@ -820,6 +1027,150 @@ export type Database = {
           product_type?: string
           referrer?: string
           session_id?: string
+        }
+        Relationships: []
+      }
+      product_licenses: {
+        Row: {
+          activations: number
+          created_at: string
+          customer_email: string
+          customer_name: string
+          expires_on: string | null
+          id: string
+          license_key: string
+          max_activations: number
+          notes: string
+          product_slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          activations?: number
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          expires_on?: string | null
+          id?: string
+          license_key: string
+          max_activations?: number
+          notes?: string
+          product_slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          activations?: number
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          expires_on?: string | null
+          id?: string
+          license_key?: string
+          max_activations?: number
+          notes?: string
+          product_slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          approved: boolean
+          author_email: string
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          product_slug: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          author_email?: string
+          author_name?: string
+          body?: string
+          created_at?: string
+          id?: string
+          product_slug: string
+          rating?: number
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          author_email?: string
+          author_name?: string
+          body?: string
+          created_at?: string
+          id?: string
+          product_slug?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          active: boolean
+          category: string
+          changelog: string
+          created_at: string
+          currency: string
+          description: string
+          downloads_count: number
+          featured: boolean
+          file_url: string
+          id: string
+          image_url: string
+          name: string
+          price: number
+          slug: string
+          summary: string
+          tags: string[]
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          changelog?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          downloads_count?: number
+          featured?: boolean
+          file_url?: string
+          id?: string
+          image_url?: string
+          name: string
+          price?: number
+          slug: string
+          summary?: string
+          tags?: string[]
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          changelog?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          downloads_count?: number
+          featured?: boolean
+          file_url?: string
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          slug?: string
+          summary?: string
+          tags?: string[]
+          updated_at?: string
+          version?: string
         }
         Relationships: []
       }
@@ -1054,6 +1405,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_slug: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_slug: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_slug?: string
+          session_id?: string
         }
         Relationships: []
       }
