@@ -63,6 +63,14 @@ import {
 } from "../components/admin/WorkspacePanels";
 import { AnalyticsCenter } from "../components/admin/AnalyticsCenter";
 import { AiWorkspacePanel } from "../components/admin/AiWorkspacePanel";
+import { SiteBuilderPanel } from "../components/admin/SiteBuilderPanel";
+import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
+import {
+  ProductsPanel,
+  BundlesPanel,
+  ReviewsPanel,
+  LicensesPanel,
+} from "../components/admin/MarketplacePanels";
 import {
   SalesPanel,
   BookingsPanel,
@@ -616,7 +624,13 @@ type TabKey =
   | "esign"
   | "deploy"
   | "seccenter"
-  | "ai";
+  | "ai"
+  | "market"
+  | "bundles"
+  | "reviews"
+  | "licenses"
+  | "mfa"
+  | "builder";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -636,6 +650,12 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "deploy", label: "Deployment Center", icon: Rocket },
   { key: "seccenter", label: "Cybersecurity Center", icon: ShieldAlert },
   { key: "ai", label: "AI Workspace", icon: Sparkles },
+  { key: "builder", label: "AI Website Builder", icon: Sparkles },
+  { key: "market", label: "Marketplace Products", icon: DollarSign },
+  { key: "bundles", label: "Bundle Deals", icon: DollarSign },
+  { key: "reviews", label: "Customer Reviews", icon: Inbox },
+  { key: "licenses", label: "License Keys", icon: ShieldCheck },
+  { key: "mfa", label: "2FA & Passkeys", icon: ShieldCheck },
   { key: "toonhub", label: "ToonHub Slides", icon: ImageIcon },
   { key: "legends", label: "Legends", icon: Sparkles },
   { key: "pricing", label: "Pricing Tiers", icon: DollarSign },
@@ -806,6 +826,12 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "deploy" && <DeploymentCenterPanel />}
               {tab === "seccenter" && <SecurityCenterPanel />}
               {tab === "ai" && <AiWorkspacePanel />}
+              {tab === "builder" && <SiteBuilderPanel />}
+              {tab === "market" && <ProductsPanel />}
+              {tab === "bundles" && <BundlesPanel />}
+              {tab === "reviews" && <ReviewsPanel />}
+              {tab === "licenses" && <LicensesPanel />}
+              {tab === "mfa" && <SecurityMfaPanel />}
             </motion.div>
           </AnimatePresence>
         </main>
