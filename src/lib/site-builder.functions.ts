@@ -164,8 +164,13 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
         name: z.string().trim().max(120).optional(),
         html: z.string().max(400000).optional(),
         notes: z.string().max(4000).optional(),
+        summary: z.string().trim().max(400).optional(),
+        cover_image: z.string().trim().max(600).optional(),
+        source_url: z.string().trim().max(600).optional(),
         published: z.boolean().optional(),
+        featured: z.boolean().optional(),
       })
+
       .parse(d),
   )
   .handler(async ({ context, data }) => {
