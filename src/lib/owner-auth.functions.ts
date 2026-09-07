@@ -50,17 +50,33 @@ export const ownerLogin = createServerFn({ method: "POST" })
       };
     }
 
-    const userOk =
-      expectedUser.length > 0 &&
-      data.username.trim().toLowerCase() === expectedUser.toLowerCase();
-    const passOk = accepted.includes(data.password);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Credentials changed from the dashboard take priority over the env values.
+    const { data: stored } = await supabaseAdmin
+      .from("admin_credentials")
+      .select("username, password_hash, salt")
+      .eq("id", "global")
+      .maybeSingle();
+
+    let userOk: boolean;
+    let passOk: boolean;
+    if (stored?.username && stored?.password_hash) {
+      const { verifyPassword } = await import("./credentials.server");
+      userOk = data.username.trim().toLowerCase() === String(stored.username).trim().toLowerCase();
+      passOk = await verifyPassword(data.password, String(stored.salt ?? ""), String(stored.password_hash));
+    } else {
+      userOk =
+        expectedUser.length > 0 &&
+        data.username.trim().toLowerCase() === expectedUser.toLowerCase();
+      passOk = accepted.includes(data.password);
+    }
 
     // Generic failure, never reveal which field was wrong.
     if (!userOk || !passOk) {
       return { ok: false as const };
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Second factor: if an authenticator is enrolled, a valid code is required.
     const { data: totp } = await supabaseAdmin
