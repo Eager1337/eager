@@ -164,8 +164,13 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
         name: z.string().trim().max(120).optional(),
         html: z.string().max(400000).optional(),
         notes: z.string().max(4000).optional(),
+        summary: z.string().trim().max(400).optional(),
+        cover_image: z.string().trim().max(600).optional(),
+        source_url: z.string().trim().max(600).optional(),
         published: z.boolean().optional(),
+        featured: z.boolean().optional(),
       })
+
       .parse(d),
   )
   .handler(async ({ context, data }) => {
@@ -210,3 +215,109 @@ export const getPublishedSite = createServerFn({ method: "GET" })
       .maybeSingle();
     return { site: row ?? null };
   });
+
+/**
+ * Admin: bring an existing site into the builder library.
+ * Works for a plain link, a GitHub repository or Pages URL, another Lovable
+ * project URL, or an HTML file / zip entry the browser already read as text.
+ */
+export const importSite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        name: z.string().trim().max(120).default(""),
+        url: z.string().trim().max(600).default(""),
+        html: z.string().max(400000).default(""),
+        summary: z.string().trim().max(400).default(""),
+        kind: z.enum(["link", "github", "zip", "lovable", "upload"]).default("link"),
+        publish: z.boolean().default(true),
+        featured: z.boolean().default(true),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context);
+    if (!data.url && !data.html) throw new Error("Provide a link or a file to import.");
+
+    let html = data.html.trim();
+    let url = data.url.trim();
+
+    // Turn a GitHub repo link into its Pages URL so the preview has something to show.
+    const repo = /^https?:\/\/github\.com\/([^/]+)\/([^/#?]+)/i.exec(url);
+    if (repo && data.kind === "github") {
+      url = `https://${repo[1]!.toLowerCase()}.github.io/${repo[2]!.replace(/\.git$/, "")}/`;
+    }
+
+    // Try to snapshot the page so the preview keeps working even if the link dies.
+    if (!html && url) {
+      try {
+        const res = await fetch(url, { headers: { "user-agent": "PortfolioOS-Importer" } });
+        if (res.ok) {
+          const text = await res.text();
+          if (/<html[\s>]/i.test(text) && text.length < 380000) html = text;
+        }
+      } catch {
+        /* keep the live link only */
+      }
+    }
+
+    const title = /<title>([^<]{2,120})<\/title>/i.exec(html)?.[1]?.trim() ?? "";
+    const name = data.name.trim() || title || (url ? new URL(url).hostname : "Imported site");
+    let slug = slugify(name);
+    const { data: clash } = await db.from("ai_site_builds").select("id").eq("slug", slug).maybeSingle();
+    if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+
+    const { data: row, error } = await db
+      .from("ai_site_builds")
+      .insert({
+        slug,
+        name,
+        prompt: `Imported from ${data.kind}: ${data.url || "uploaded file"}`,
+        html,
+        summary: data.summary,
+        source_kind: data.kind,
+        source_url: url,
+        model: "import",
+        published: data.publish,
+        featured: data.featured,
+      })
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return { build: row };
+  });
+
+/** Public: the published sites shown in the portfolio showcase. */
+export const listShowcaseSites = createServerFn({ method: "GET" }).handler(async () => {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+  const db = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
+  });
+  const { data } = await db
+    .from("ai_site_builds")
+    .select("slug, name, summary, cover_image, source_kind, source_url, created_at, html")
+    .eq("published", true)
+    .order("created_at", { ascending: false })
+    .limit(60);
+  return {
+    sites: (data ?? []).map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      summary: s.summary ?? "",
+      cover: s.cover_image ?? "",
+      kind: s.source_kind ?? "prompt",
+      sourceUrl: s.source_url ?? "",
+      createdAt: s.created_at,
+      hasSnapshot: Boolean(s.html),
+    })),
+  };
+});
