@@ -68,6 +68,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_credentials: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          salt: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          salt?: string
+          updated_at?: string
+          username?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          salt?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       admin_devices: {
         Row: {
           created_at: string
@@ -223,7 +250,9 @@ export type Database = {
       }
       ai_site_builds: {
         Row: {
+          cover_image: string
           created_at: string
+          featured: boolean
           html: string
           id: string
           model: string
@@ -232,10 +261,15 @@ export type Database = {
           prompt: string
           published: boolean
           slug: string
+          source_kind: string
+          source_url: string
+          summary: string
           updated_at: string
         }
         Insert: {
+          cover_image?: string
           created_at?: string
+          featured?: boolean
           html?: string
           id?: string
           model?: string
@@ -244,10 +278,15 @@ export type Database = {
           prompt?: string
           published?: boolean
           slug: string
+          source_kind?: string
+          source_url?: string
+          summary?: string
           updated_at?: string
         }
         Update: {
+          cover_image?: string
           created_at?: string
+          featured?: boolean
           html?: string
           id?: string
           model?: string
@@ -256,6 +295,9 @@ export type Database = {
           prompt?: string
           published?: boolean
           slug?: string
+          source_kind?: string
+          source_url?: string
+          summary?: string
           updated_at?: string
         }
         Relationships: []
