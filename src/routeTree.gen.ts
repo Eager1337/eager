@@ -13,6 +13,7 @@ import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as SkyeliteRouteImport } from './routes/skyelite'
 import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -80,6 +81,11 @@ const SkyeliteRoute = SkyeliteRouteImport.update({
 const SkillsRoute = SkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/showcase': typeof ShowcaseRoute
   '/skills': typeof SkillsRoute
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/showcase': typeof ShowcaseRoute
   '/skills': typeof SkillsRoute
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
@@ -450,6 +458,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/showcase': typeof ShowcaseRoute
   '/skills': typeof SkillsRoute
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
@@ -506,6 +515,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/resources'
     | '/services'
+    | '/showcase'
     | '/skills'
     | '/skyelite'
     | '/testimonials'
@@ -557,6 +567,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/resources'
     | '/services'
+    | '/showcase'
     | '/skills'
     | '/testimonials'
     | '/thank-you'
@@ -610,6 +621,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/resources'
     | '/services'
+    | '/showcase'
     | '/skills'
     | '/skyelite'
     | '/testimonials'
@@ -665,6 +677,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
   ServicesRoute: typeof ServicesRoute
+  ShowcaseRoute: typeof ShowcaseRoute
   SkillsRoute: typeof SkillsRoute
   SkyeliteRoute: typeof SkyeliteRouteWithChildren
   TestimonialsRoute: typeof TestimonialsRoute
@@ -712,6 +725,13 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/skills'
       preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -1151,6 +1171,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
   ServicesRoute: ServicesRoute,
+  ShowcaseRoute: ShowcaseRoute,
   SkillsRoute: SkillsRoute,
   SkyeliteRoute: SkyeliteRouteWithChildren,
   TestimonialsRoute: TestimonialsRoute,
