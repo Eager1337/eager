@@ -683,6 +683,69 @@ export type Database = {
           },
         ]
       }
+      cv_profile: {
+        Row: {
+          certifications: Json
+          created_at: string
+          education: Json
+          email: string
+          experience: Json
+          file_name: string
+          file_url: string
+          full_name: string
+          headline: string
+          id: string
+          languages: Json
+          location: string
+          phone: string
+          ratings: Json
+          skills: Json
+          summary: string
+          updated_at: string
+          website: string
+        }
+        Insert: {
+          certifications?: Json
+          created_at?: string
+          education?: Json
+          email?: string
+          experience?: Json
+          file_name?: string
+          file_url?: string
+          full_name?: string
+          headline?: string
+          id?: string
+          languages?: Json
+          location?: string
+          phone?: string
+          ratings?: Json
+          skills?: Json
+          summary?: string
+          updated_at?: string
+          website?: string
+        }
+        Update: {
+          certifications?: Json
+          created_at?: string
+          education?: Json
+          email?: string
+          experience?: Json
+          file_name?: string
+          file_url?: string
+          full_name?: string
+          headline?: string
+          id?: string
+          languages?: Json
+          location?: string
+          phone?: string
+          ratings?: Json
+          skills?: Json
+          summary?: string
+          updated_at?: string
+          website?: string
+        }
+        Relationships: []
+      }
       intruder_events: {
         Row: {
           accuracy: number | null
