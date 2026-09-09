@@ -34,19 +34,16 @@ export const ownerLogin = createServerFn({ method: "POST" })
     const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
     const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
 
-    const missing = [
-      ...(expectedUser ? [] : ["OWNER_LOGIN_USERNAME"]),
-      ...(accepted.length ? [] : ["OWNER_LOGIN_PASSWORDS"]),
-      ...(ownerEmail ? [] : ["OWNER_ACCOUNT_EMAIL"]),
-      ...(ownerPassword ? [] : ["OWNER_ACCOUNT_PASSWORD"]),
+    // The backend connection is always required.
+    const infraMissing = [
       ...(process.env.SUPABASE_URL ? [] : ["SUPABASE_URL"]),
       ...(process.env.SUPABASE_PUBLISHABLE_KEY ? [] : ["SUPABASE_PUBLISHABLE_KEY"]),
       ...(process.env.SUPABASE_SERVICE_ROLE_KEY ? [] : ["SUPABASE_SERVICE_ROLE_KEY"]),
     ];
-    if (missing.length > 0) {
+    if (infraMissing.length > 0) {
       return {
         ok: false as const,
-        error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
+        error: `Admin sign-in is not configured on this deployment. Missing: ${infraMissing.join(", ")}.`,
       };
     }
 
@@ -58,6 +55,22 @@ export const ownerLogin = createServerFn({ method: "POST" })
       .select("username, password_hash, salt")
       .eq("id", "global")
       .maybeSingle();
+    const hasStored = Boolean(stored?.username && stored?.password_hash);
+
+    // Only when nothing is stored in the database do we need the env credentials.
+    const missing = hasStored
+      ? []
+      : [
+          ...(expectedUser ? [] : ["OWNER_LOGIN_USERNAME"]),
+          ...(accepted.length ? [] : ["OWNER_LOGIN_PASSWORDS"]),
+        ];
+    if (missing.length > 0) {
+      return {
+        ok: false as const,
+        error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
+      };
+    }
+
 
     let userOk: boolean;
     let passOk: boolean;
