@@ -28,14 +28,24 @@ Hard rules:
 - Use https://images.unsplash.com/... style placeholder image URLs or inline SVG. Never reference local files.
 - Never use em dashes anywhere in the output.`;
 
+/**
+ * Short, memorable address. We keep only the first word or two so a published
+ * site reads like hammakay.eager.app rather than a long sentence.
+ */
 function slugify(input: string) {
-  return (
-    input
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 60) || `site-${Date.now().toString(36)}`
-  );
+  const words = input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  let slug = "";
+  for (const word of words) {
+    const next = slug ? `${slug}-${word}` : word;
+    if (next.length > 18) break;
+    slug = next;
+  }
+  return (slug || words[0]?.slice(0, 18) || `site-${Date.now().toString(36).slice(-5)}`).slice(0, 24);
 }
 
 /** Admin: generate a complete website from a prompt and store it as a build. */
@@ -162,10 +172,12 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
       .object({
         id: z.string().uuid(),
         name: z.string().trim().max(120).optional(),
+        slug: z.string().trim().max(24).optional(),
         html: z.string().max(400000).optional(),
         notes: z.string().max(4000).optional(),
         summary: z.string().trim().max(400).optional(),
         cover_image: z.string().trim().max(600).optional(),
+        logo_url: z.string().trim().max(600).optional(),
         source_url: z.string().trim().max(600).optional(),
         published: z.boolean().optional(),
         featured: z.boolean().optional(),
@@ -176,9 +188,21 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const db = await adminDb(context);
     const { id, ...patch } = data;
+    if (patch.slug !== undefined) {
+      const clean = slugify(patch.slug);
+      if (!clean) throw new Error("That address is not usable. Use letters and numbers.");
+      const { data: clash } = await db
+        .from("ai_site_builds")
+        .select("id")
+        .eq("slug", clean)
+        .neq("id", id)
+        .maybeSingle();
+      if (clash) throw new Error("Another site already uses that address.");
+      patch.slug = clean;
+    }
     const { error } = await db.from("ai_site_builds").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, slug: patch.slug };
   });
 
 export const deleteSiteBuild = createServerFn({ method: "POST" })

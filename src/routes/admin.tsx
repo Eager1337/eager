@@ -64,6 +64,9 @@ import {
 import { AnalyticsCenter } from "../components/admin/AnalyticsCenter";
 import { AiWorkspacePanel } from "../components/admin/AiWorkspacePanel";
 import { SiteBuilderPanel } from "../components/admin/SiteBuilderPanel";
+import { SiteImportPanel } from "../components/admin/SiteImportPanel";
+import { CvPanel } from "../components/admin/CvPanel";
+import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
 import {
   ProductsPanel,
@@ -155,7 +158,7 @@ export type AuditRow = {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin, Portfolio content control" },
+      { title: "Eager Beaver Admin Dashboard" },
       {
         name: "description",
         content:
@@ -630,7 +633,10 @@ type TabKey =
   | "reviews"
   | "licenses"
   | "mfa"
-  | "builder";
+  | "builder"
+  | "credentials"
+  | "cveditor"
+  | "import";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -651,6 +657,9 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "seccenter", label: "Cybersecurity Center", icon: ShieldAlert },
   { key: "ai", label: "AI Workspace", icon: Sparkles },
   { key: "builder", label: "AI Website Builder", icon: Sparkles },
+  { key: "import", label: "Import & Connect Sites", icon: FolderOpen },
+  { key: "cveditor", label: "CV Editor", icon: FileText },
+  { key: "credentials", label: "Sign-in Credentials", icon: ShieldCheck },
   { key: "market", label: "Marketplace Products", icon: DollarSign },
   { key: "bundles", label: "Bundle Deals", icon: DollarSign },
   { key: "reviews", label: "Customer Reviews", icon: Inbox },
@@ -716,9 +725,9 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             </div>
             <div>
               <div className="text-[9px] uppercase tracking-[0.3em] text-white/50">
-                Portfolio OS · Admin
+                Eager Beaver
               </div>
-              <div className="text-sm font-semibold">Command Center</div>
+              <div className="text-sm font-semibold">Admin Dashboard</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -827,6 +836,9 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "seccenter" && <SecurityCenterPanel />}
               {tab === "ai" && <AiWorkspacePanel />}
               {tab === "builder" && <SiteBuilderPanel />}
+              {tab === "import" && <SiteImportPanel />}
+              {tab === "cveditor" && <CvPanel />}
+              {tab === "credentials" && <CredentialsPanel />}
               {tab === "market" && <ProductsPanel />}
               {tab === "bundles" && <BundlesPanel />}
               {tab === "reviews" && <ReviewsPanel />}

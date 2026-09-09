@@ -34,19 +34,16 @@ export const ownerLogin = createServerFn({ method: "POST" })
     const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
     const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
 
-    const missing = [
-      ...(expectedUser ? [] : ["OWNER_LOGIN_USERNAME"]),
-      ...(accepted.length ? [] : ["OWNER_LOGIN_PASSWORDS"]),
-      ...(ownerEmail ? [] : ["OWNER_ACCOUNT_EMAIL"]),
-      ...(ownerPassword ? [] : ["OWNER_ACCOUNT_PASSWORD"]),
+    // The backend connection is always required.
+    const infraMissing = [
       ...(process.env.SUPABASE_URL ? [] : ["SUPABASE_URL"]),
       ...(process.env.SUPABASE_PUBLISHABLE_KEY ? [] : ["SUPABASE_PUBLISHABLE_KEY"]),
       ...(process.env.SUPABASE_SERVICE_ROLE_KEY ? [] : ["SUPABASE_SERVICE_ROLE_KEY"]),
     ];
-    if (missing.length > 0) {
+    if (infraMissing.length > 0) {
       return {
         ok: false as const,
-        error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
+        error: `Admin sign-in is not configured on this deployment. Missing: ${infraMissing.join(", ")}.`,
       };
     }
 
@@ -58,6 +55,22 @@ export const ownerLogin = createServerFn({ method: "POST" })
       .select("username, password_hash, salt")
       .eq("id", "global")
       .maybeSingle();
+    const hasStored = Boolean(stored?.username && stored?.password_hash);
+
+    // Only when nothing is stored in the database do we need the env credentials.
+    const missing = hasStored
+      ? []
+      : [
+          ...(expectedUser ? [] : ["OWNER_LOGIN_USERNAME"]),
+          ...(accepted.length ? [] : ["OWNER_LOGIN_PASSWORDS"]),
+        ];
+    if (missing.length > 0) {
+      return {
+        ok: false as const,
+        error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
+      };
+    }
+
 
     let userOk: boolean;
     let passOk: boolean;
@@ -108,12 +121,22 @@ export const ownerLogin = createServerFn({ method: "POST" })
       }
     }
 
+    // The backing auth account. If a deployment does not carry OWNER_ACCOUNT_*,
+    // we derive a stable address and rotate a strong random password on each
+    // sign-in, so the dashboard still works on any host with only the backend
+    // keys present.
+    const accountEmail =
+      ownerEmail ||
+      `owner@${new URL(process.env.SUPABASE_URL!).hostname.split(".")[0]}.eager.local`;
+    const accountPassword =
+      ownerPassword || `${crypto.randomUUID()}${crypto.randomUUID()}Aa1!`;
+
     // Ensure the owner auth account exists (idempotent).
     let ownerId: string | null = null;
     try {
       const created = await supabaseAdmin.auth.admin.createUser({
-        email: ownerEmail,
-        password: ownerPassword,
+        email: accountEmail,
+        password: accountPassword,
         email_confirm: true,
       });
       if (created.data.user) ownerId = created.data.user.id;
@@ -129,12 +152,12 @@ export const ownerLogin = createServerFn({ method: "POST" })
         perPage: 200,
       });
       const found = list?.users.find(
-        (u) => (u.email ?? "").toLowerCase() === ownerEmail.toLowerCase(),
+        (u) => (u.email ?? "").toLowerCase() === accountEmail.toLowerCase(),
       );
       if (found) {
         ownerId = found.id;
         await supabaseAdmin.auth.admin.updateUserById(found.id, {
-          password: ownerPassword,
+          password: accountPassword,
           email_confirm: true,
         });
       }
@@ -162,8 +185,8 @@ export const ownerLogin = createServerFn({ method: "POST" })
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: ownerEmail,
-      password: ownerPassword,
+      email: accountEmail,
+      password: accountPassword,
     });
     if (error || !signIn.session) {
       return { ok: false as const, error: "Sign-in failed. Please try again." };
@@ -254,8 +277,8 @@ export const passkeyLogin = createServerFn({ method: "POST" })
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: ownerEmail,
-      password: ownerPassword,
+      email: accountEmail,
+      password: accountPassword,
     });
     if (error || !signIn.session) return { ok: false as const, error: "Sign-in failed. Please try again." };
 

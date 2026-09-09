@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CommandPalette } from "../components/portfolio-os/CommandPalette";
 import { GlobalSiteTools } from "../components/GlobalSiteTools";
 import { VisitTracker } from "../components/VisitTracker";
+import { WelcomeCapture } from "../components/WelcomeCapture";
 import { PortfolioOsSettingsProvider, bumpSession } from "../lib/portfolio-os-settings";
 import { registerPortfolioOsSw } from "../lib/register-sw";
 import { ContentStoreProvider } from "../lib/content-store";
@@ -154,6 +155,7 @@ function RootComponent() {
               <CommandPalette />
               <GlobalSiteTools />
               <VisitTracker />
+              <WelcomeCapture />
             </MotionConfig>
           </InvestorModeProvider>
         </ContentStoreProvider>

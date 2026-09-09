@@ -255,6 +255,7 @@ export type Database = {
           featured: boolean
           html: string
           id: string
+          logo_url: string
           model: string
           name: string
           notes: string
@@ -272,6 +273,7 @@ export type Database = {
           featured?: boolean
           html?: string
           id?: string
+          logo_url?: string
           model?: string
           name?: string
           notes?: string
@@ -289,6 +291,7 @@ export type Database = {
           featured?: boolean
           html?: string
           id?: string
+          logo_url?: string
           model?: string
           name?: string
           notes?: string
