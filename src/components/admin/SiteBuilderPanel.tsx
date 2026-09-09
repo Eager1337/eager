@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, ExternalLink, Loader2, RefreshCw, Sparkles, Trash2, Wand2 } from "lucide-react";
+import { Download, ExternalLink, Loader2, RefreshCw, Save, Sparkles, Trash2, Wand2 } from "lucide-react";
+import { ImageUploadField } from "./ImageUploadField";
 import {
   buildSiteFromPrompt,
   deleteSiteBuild,
@@ -34,6 +35,32 @@ export function SiteBuilderPanel() {
   const [builds, setBuilds] = useState<Row[]>([]);
   const [active, setActive] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState("");
+
+  const saveActive = async () => {
+    if (!active) return;
+    setSaving(true);
+    setSaveErr("");
+    try {
+      const res = await patch({
+        data: {
+          id: String(active.id),
+          name: String(active.name ?? ""),
+          slug: String(active.slug ?? ""),
+          summary: String(active.summary ?? ""),
+          logo_url: String(active.logo_url ?? ""),
+          html: String(active.html ?? ""),
+        },
+      });
+      if (res?.slug) setActive((prev) => (prev ? { ...prev, slug: res.slug } : prev));
+      await refreshRef.current?.();
+    } catch (e) {
+      setSaveErr(e instanceof Error ? e.message : "Could not save the changes.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -167,11 +194,77 @@ export function SiteBuilderPanel() {
 
       {active ? (
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{String(active.name)}</div>
-              <div className="text-[11px] text-white/45">/site/{String(active.slug)}</div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Site name
+              </span>
+              <input
+                value={String(active.name ?? "")}
+                onChange={(e) => setActive({ ...active, name: e.target.value })}
+                className="min-h-[40px] w-full rounded-lg border border-white/15 bg-black/50 px-3 text-sm outline-none focus:border-fuchsia-400"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Short address (kept under 24 characters)
+              </span>
+              <input
+                value={String(active.slug ?? "")}
+                onChange={(e) => setActive({ ...active, slug: e.target.value })}
+                className="min-h-[40px] w-full rounded-lg border border-white/15 bg-black/50 px-3 text-sm outline-none focus:border-fuchsia-400"
+              />
+              <span className="mt-1 block text-[10px] text-white/40">
+                Published at /site/{String(active.slug ?? "")}
+              </span>
+            </label>
+            <label className="block sm:col-span-2">
+              <span className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Short description
+              </span>
+              <input
+                value={String(active.summary ?? "")}
+                onChange={(e) => setActive({ ...active, summary: e.target.value })}
+                className="min-h-[40px] w-full rounded-lg border border-white/15 bg-black/50 px-3 text-sm outline-none focus:border-fuchsia-400"
+              />
+            </label>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Site logo"
+                keyHint={`logo-${String(active.slug ?? "site")}`}
+                value={String(active.logo_url ?? "")}
+                onChange={(url) => setActive({ ...active, logo_url: url })}
+              />
             </div>
+            <label className="block sm:col-span-2">
+              <span className="mb-1.5 block text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Edit the site code
+              </span>
+              <textarea
+                value={String(active.html ?? "")}
+                onChange={(e) => setActive({ ...active, html: e.target.value })}
+                rows={10}
+                spellCheck={false}
+                className="w-full rounded-lg border border-white/15 bg-black/60 px-3 py-2 font-mono text-[11px] outline-none focus:border-fuchsia-400"
+              />
+            </label>
+          </div>
+
+          {saveErr ? (
+            <p className="mt-3 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-xs text-red-200">
+              {saveErr}
+            </p>
+          ) : null}
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+            <button
+              onClick={() => void saveActive()}
+              disabled={saving}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-semibold disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              Save changes
+            </button>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => download(active)}
