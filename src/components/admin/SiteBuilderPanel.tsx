@@ -54,7 +54,7 @@ export function SiteBuilderPanel() {
         },
       });
       if (res?.slug) setActive((prev) => (prev ? { ...prev, slug: res.slug } : prev));
-      await refreshRef.current?.();
+      await refresh();
     } catch (e) {
       setSaveErr(e instanceof Error ? e.message : "Could not save the changes.");
     } finally {
