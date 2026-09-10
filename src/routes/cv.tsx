@@ -83,10 +83,10 @@ function CvPage() {
 
           <div className="mt-7 flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => void downloadCvPdf()}
+              onClick={startDownload}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-white/90"
             >
-              <Download className="h-4 w-4" /> Download CV (PDF)
+              <Download className="h-4 w-4" /> {uploaded ? "Download my CV" : "Download CV (PDF)"}
             </button>
             <button
               onClick={() => void downloadRateCardPdf()}
