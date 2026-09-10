@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Download, ArrowLeft, Star, FileText } from "lucide-react";
 import { downloadCvPdf, downloadRateCardPdf } from "../lib/pdf-exports";
+import { getCvProfile } from "../lib/cv.functions";
 
 export const Route = createFileRoute("/cv")({
   head: () => ({
