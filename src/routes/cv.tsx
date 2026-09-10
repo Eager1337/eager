@@ -97,7 +97,7 @@ function CvPage() {
           </div>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {RATINGS.map((r) => (
+            {ratings.map((r) => (
               <div key={r.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-white/40">{r.label}</div>
                 <div className="mt-2 flex items-center gap-2">
