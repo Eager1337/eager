@@ -33,14 +33,37 @@ const RATINGS = [
 
 function CvPage() {
   const [started, setStarted] = useState(false);
+  const loadCv = useServerFn(getCvProfile);
+  const { data, isPending } = useQuery({ queryKey: ["cv-profile"], queryFn: () => loadCv({}) });
+
+  const uploaded = data?.cv?.file_url ?? "";
+  const uploadedName = data?.cv?.file_name || "cv";
+  const ratings = (data?.cv?.ratings ?? []).length ? data!.cv.ratings : RATINGS;
+
+  /** Prefer the file uploaded in the dashboard, otherwise the generated PDF. */
+  const startDownload = () => {
+    if (uploaded) {
+      const a = document.createElement("a");
+      a.href = uploaded;
+      a.download = uploadedName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
+    void downloadCvPdf();
+  };
 
   useEffect(() => {
+    if (isPending) return;
     const t = setTimeout(() => {
       setStarted(true);
-      void downloadCvPdf();
+      startDownload();
     }, 600);
     return () => clearTimeout(t);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPending, uploaded]);
+
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] text-white px-5 py-20">
