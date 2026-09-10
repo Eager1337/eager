@@ -277,8 +277,8 @@ export const passkeyLogin = createServerFn({ method: "POST" })
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: accountEmail,
-      password: accountPassword,
+      email: ownerEmail,
+      password: ownerPassword,
     });
     if (error || !signIn.session) return { ok: false as const, error: "Sign-in failed. Please try again." };
 

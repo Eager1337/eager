@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Download, ArrowLeft, Star, FileText } from "lucide-react";
 import { downloadCvPdf, downloadRateCardPdf } from "../lib/pdf-exports";
+import { getCvProfile } from "../lib/cv.functions";
 
 export const Route = createFileRoute("/cv")({
   head: () => ({
@@ -30,14 +33,37 @@ const RATINGS = [
 
 function CvPage() {
   const [started, setStarted] = useState(false);
+  const loadCv = useServerFn(getCvProfile);
+  const { data, isPending } = useQuery({ queryKey: ["cv-profile"], queryFn: () => loadCv({}) });
+
+  const uploaded = data?.cv?.file_url ?? "";
+  const uploadedName = data?.cv?.file_name || "cv";
+  const ratings = (data?.cv?.ratings ?? []).length ? data!.cv.ratings : RATINGS;
+
+  /** Prefer the file uploaded in the dashboard, otherwise the generated PDF. */
+  const startDownload = () => {
+    if (uploaded) {
+      const a = document.createElement("a");
+      a.href = uploaded;
+      a.download = uploadedName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
+    void downloadCvPdf();
+  };
 
   useEffect(() => {
+    if (isPending) return;
     const t = setTimeout(() => {
       setStarted(true);
-      void downloadCvPdf();
+      startDownload();
     }, 600);
     return () => clearTimeout(t);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPending, uploaded]);
+
 
   return (
     <main className="min-h-screen bg-[#0A0A0A] text-white px-5 py-20">
@@ -57,10 +83,10 @@ function CvPage() {
 
           <div className="mt-7 flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => void downloadCvPdf()}
+              onClick={startDownload}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-white/90"
             >
-              <Download className="h-4 w-4" /> Download CV (PDF)
+              <Download className="h-4 w-4" /> {uploaded ? "Download my CV" : "Download CV (PDF)"}
             </button>
             <button
               onClick={() => void downloadRateCardPdf()}
@@ -71,7 +97,7 @@ function CvPage() {
           </div>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {RATINGS.map((r) => (
+            {ratings.map((r) => (
               <div key={r.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-white/40">{r.label}</div>
                 <div className="mt-2 flex items-center gap-2">
