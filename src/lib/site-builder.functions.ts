@@ -325,22 +325,11 @@ export const importSite = createServerFn({ method: "POST" })
 
 /** Public: the published sites shown in the portfolio showcase. */
 export const listShowcaseSites = createServerFn({ method: "GET" }).handler(async () => {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const db = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
-  const { data } = await db
+  const { data } = await publicDb()
     .from("ai_site_builds")
     .select("slug, name, summary, cover_image, source_kind, source_url, created_at, html")
     .eq("published", true)
+    .eq("build_type", "site")
     .order("created_at", { ascending: false })
     .limit(60);
   return {
