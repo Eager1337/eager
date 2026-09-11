@@ -170,15 +170,18 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
 
 export const listSiteBuilds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: unknown) =>
+    z
+      .object({ kind: z.enum(["site", "app", "any"]).default("any") })
+      .parse(d ?? {}),
+  )
+  .handler(async ({ context, data }) => {
     const db = await adminDb(context);
-    const { data, error } = await db
-      .from("ai_site_builds")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(100);
+    let query = db.from("ai_site_builds").select("*").order("created_at", { ascending: false }).limit(100);
+    if (data.kind !== "any") query = query.eq("build_type", data.kind);
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
-    return { builds: data ?? [] };
+    return { builds: rows ?? [] };
   });
 
 export const updateSiteBuild = createServerFn({ method: "POST" })
@@ -195,6 +198,10 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
         cover_image: z.string().trim().max(600).optional(),
         logo_url: z.string().trim().max(600).optional(),
         source_url: z.string().trim().max(600).optional(),
+        short_name: z.string().trim().max(30).optional(),
+        theme_color: z.string().trim().max(20).optional(),
+        app_icon: z.string().trim().max(600).optional(),
+        apk_url: z.string().trim().max(600).optional(),
         published: z.boolean().optional(),
         featured: z.boolean().optional(),
       })
