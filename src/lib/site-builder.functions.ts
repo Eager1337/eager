@@ -345,3 +345,212 @@ export const listShowcaseSites = createServerFn({ method: "GET" }).handler(async
     })),
   };
 });
+
+/** Admin: duplicate an existing build as an unpublished draft copy. */
+export const cloneSiteBuild = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), name: z.string().trim().max(120).default("") }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context);
+    const { data: src, error: readErr } = await db
+      .from("ai_site_builds")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+    if (readErr || !src) throw new Error("That build could not be found.");
+
+    const name = data.name.trim() || `${src.name} copy`;
+    let slug = slugify(name);
+    const { data: clash } = await db.from("ai_site_builds").select("id").eq("slug", slug).maybeSingle();
+    if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+
+    const { data: row, error } = await db
+      .from("ai_site_builds")
+      .insert({
+        slug,
+        name,
+        prompt: src.prompt,
+        html: src.html,
+        summary: src.summary,
+        logo_url: src.logo_url,
+        cover_image: src.cover_image,
+        source_kind: src.source_kind,
+        source_url: src.source_url,
+        model: src.model,
+        build_type: src.build_type ?? "site",
+        short_name: src.short_name,
+        theme_color: src.theme_color,
+        app_icon: src.app_icon,
+        cloned_from: src.id,
+        published: false,
+        featured: false,
+      })
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return { build: row };
+  });
+
+const APP_SYSTEM = `You are a senior mobile product engineer. You generate complete, installable single file web apps that feel native on Android and on desktop.
+
+Hard rules:
+- Output ONE complete HTML document and nothing else. No markdown fences, no commentary.
+- Everything inline: <style> in head, <script> at the end of body. No build step, no external JS frameworks.
+- Design for a phone first: 360px wide viewport, safe area padding, bottom tab bar with at least three tabs, and app-like screen transitions.
+- Also work on a desktop window: centre the app column and keep it usable up to 1400px.
+- Real working interactivity with client side state: navigation between screens, forms with validation, list add and delete, and data persisted in localStorage so it survives a restart.
+- Include an offline friendly empty state and never depend on a network request to render the first screen.
+- Accessible: semantic landmarks, alt text, visible focus rings, aria labels on icon buttons, respect prefers-reduced-motion, minimum 44px touch targets.
+- Do not add a manifest link or a service worker registration. The host page adds those.
+- Use a distinctive, committed visual direction. Never default purple gradients on white.
+- Use https://images.unsplash.com/... style placeholder image URLs or inline SVG. Never reference local files.
+- Never use em dashes anywhere in the output.`;
+
+/** Admin: generate an installable app from a prompt. */
+export const buildAppFromPrompt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        prompt: z.string().trim().min(8).max(6000),
+        name: z.string().trim().max(120).default(""),
+        style: z.string().trim().max(200).default(""),
+        screens: z.string().trim().max(400).default(""),
+        themeColor: z.string().trim().max(20).default("#0A0A0A"),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context);
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) throw new Error("AI is not configured on this deployment.");
+
+    const instructions = [
+      APP_SYSTEM,
+      data.style ? `Visual direction requested: ${data.style}.` : "",
+      data.screens ? `Screens that must exist: ${data.screens}.` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Lovable-API-Key": key,
+        "X-Lovable-AIG-SDK": "fetch",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-5.6-sol",
+        instructions,
+        input: [
+          {
+            role: "user",
+            content: [{ type: "input_text", text: `Build this app:\n\n${data.prompt}` }],
+          },
+        ],
+        stream: true,
+        reasoning: { effort: "low", summary: "auto" },
+      }),
+    });
+
+    if (res.status === 429) throw new Error("AI rate limit reached. Try again in a moment.");
+    if (res.status === 402) throw new Error("AI credits exhausted. Top up to continue.");
+    if (!res.ok || !res.body) throw new Error(`App generation failed (${res.status}).`);
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let text = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop() ?? "";
+      for (const frame of frames) {
+        for (const line of frame.split("\n")) {
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          try {
+            const evt = JSON.parse(payload) as { type?: string; delta?: string };
+            if (evt.type === "response.output_text.delta" && evt.delta) text += evt.delta;
+          } catch {
+            /* partial frame */
+          }
+        }
+      }
+    }
+
+    let html = text.trim();
+    const fenced = /```(?:html)?\s*([\s\S]*?)```/i.exec(html);
+    if (fenced?.[1]) html = fenced[1].trim();
+    if (!/<html[\s>]/i.test(html)) throw new Error("The model did not return a complete app. Try again.");
+    html = html.replace(/\u2014/g, "-");
+
+    const title = /<title>([^<]{2,120})<\/title>/i.exec(html)?.[1]?.trim() ?? "";
+    const name = data.name.trim() || title || data.prompt.slice(0, 60);
+    let slug = slugify(name);
+    const { data: clash } = await db.from("ai_site_builds").select("id").eq("slug", slug).maybeSingle();
+    if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+
+    const { data: row, error } = await db
+      .from("ai_site_builds")
+      .insert({
+        slug,
+        name,
+        prompt: data.prompt,
+        html,
+        model: "openai/gpt-5.6-sol",
+        build_type: "app",
+        short_name: name.split(/\s+/).slice(0, 2).join(" ").slice(0, 12),
+        theme_color: data.themeColor || "#0A0A0A",
+        published: false,
+      })
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return { build: row };
+  });
+
+/** Public: one published build of either kind, with its app metadata. */
+export const getPublishedBuild = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) =>
+    z.object({ slug: z.string().trim().max(80), kind: z.enum(["site", "app", "any"]).default("any") }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    let query = publicDb()
+      .from("ai_site_builds")
+      .select("name, short_name, html, theme_color, app_icon, logo_url, summary, apk_url, build_type")
+      .eq("slug", data.slug)
+      .eq("published", true);
+    if (data.kind !== "any") query = query.eq("build_type", data.kind);
+    const { data: row } = await query.maybeSingle();
+    return { build: row ?? null };
+  });
+
+/** Public: published installable apps. */
+export const listShowcaseApps = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicDb()
+    .from("ai_site_builds")
+    .select("slug, name, short_name, summary, app_icon, logo_url, theme_color, apk_url, created_at")
+    .eq("published", true)
+    .eq("build_type", "app")
+    .order("created_at", { ascending: false })
+    .limit(60);
+  return {
+    apps: (data ?? []).map((a) => ({
+      slug: a.slug,
+      name: a.name,
+      shortName: a.short_name ?? a.name,
+      summary: a.summary ?? "",
+      icon: a.app_icon ?? a.logo_url ?? "",
+      themeColor: a.theme_color ?? "#0A0A0A",
+      apkUrl: a.apk_url ?? "",
+      createdAt: a.created_at,
+    })),
+  };
+});
