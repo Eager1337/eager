@@ -250,6 +250,10 @@ export type Database = {
       }
       ai_site_builds: {
         Row: {
+          apk_url: string | null
+          app_icon: string | null
+          build_type: string
+          cloned_from: string | null
           cover_image: string
           created_at: string
           featured: boolean
@@ -261,13 +265,19 @@ export type Database = {
           notes: string
           prompt: string
           published: boolean
+          short_name: string | null
           slug: string
           source_kind: string
           source_url: string
           summary: string
+          theme_color: string | null
           updated_at: string
         }
         Insert: {
+          apk_url?: string | null
+          app_icon?: string | null
+          build_type?: string
+          cloned_from?: string | null
           cover_image?: string
           created_at?: string
           featured?: boolean
@@ -279,13 +289,19 @@ export type Database = {
           notes?: string
           prompt?: string
           published?: boolean
+          short_name?: string | null
           slug: string
           source_kind?: string
           source_url?: string
           summary?: string
+          theme_color?: string | null
           updated_at?: string
         }
         Update: {
+          apk_url?: string | null
+          app_icon?: string | null
+          build_type?: string
+          cloned_from?: string | null
           cover_image?: string
           created_at?: string
           featured?: boolean
@@ -297,10 +313,12 @@ export type Database = {
           notes?: string
           prompt?: string
           published?: boolean
+          short_name?: string | null
           slug?: string
           source_kind?: string
           source_url?: string
           summary?: string
+          theme_color?: string | null
           updated_at?: string
         }
         Relationships: []
