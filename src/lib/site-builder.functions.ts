@@ -13,6 +13,22 @@ async function adminDb(context: { supabase: any; userId: string }) {
   return context.supabase;
 }
 
+/** Anonymous read only client used for the public site and app routes. */
+function publicDb() {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
+  });
+}
+
 const SYSTEM = `You are a senior product designer and front-end engineer. You generate complete, production quality single file websites.
 
 Hard rules:
