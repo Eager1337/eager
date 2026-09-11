@@ -242,19 +242,7 @@ export const deleteSiteBuild = createServerFn({ method: "POST" })
 export const getPublishedSite = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().trim().max(80) }).parse(d))
   .handler(async ({ data }) => {
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const db = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-      global: {
-        fetch: (input, init) => {
-          const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-          h.set("apikey", key);
-          return fetch(input, { ...init, headers: h });
-        },
-      },
-    });
-    const { data: row } = await db
+    const { data: row } = await publicDb()
       .from("ai_site_builds")
       .select("name, html")
       .eq("slug", data.slug)
