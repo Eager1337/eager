@@ -37,7 +37,7 @@ export const Route = createFileRoute("/app/$slug")({
       links: slug ? [{ rel: "manifest", href: `/api/public/appmanifest/${slug}` }] : [],
     };
   },
-  component: InstallableApp;
+  component: InstallableApp,
 });
 
 function InstallableApp() {
