@@ -126,7 +126,7 @@ export const generateStudioImage = createServerFn({ method: "POST" })
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: "openai/gpt-image-1-mini",
-        prompt: data.prompt,
+        prompt: data.assets ? `${data.prompt}\n\n${data.assets}` : data.prompt,
         size: data.size,
         quality: "low",
         stream: false,
