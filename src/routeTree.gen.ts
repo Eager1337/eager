@@ -33,6 +33,7 @@ import { Route as CertificationsRouteImport } from './routes/certifications'
 import { Route as CaseStudiesRouteImport } from './routes/case-studies'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AppsRouteImport } from './routes/apps'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SkyeliteIndexRouteImport } from './routes/skyelite.index'
@@ -53,6 +54,7 @@ import { Route as SkyeliteFaqRouteImport } from './routes/skyelite.faq'
 import { Route as SkyeliteBookRouteImport } from './routes/skyelite.book'
 import { Route as SkyeliteBenefitsRouteImport } from './routes/skyelite.benefits'
 import { Route as SiteSlugRouteImport } from './routes/site.$slug'
+import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as PortfolioOsSuiteRouteImport } from './routes/portfolio-os.suite'
 import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug'
@@ -61,7 +63,10 @@ import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
 import { Route as InvestorSlugRouteImport } from './routes/investor.$slug'
 import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
 import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
+import { Route as AppSlugRouteImport } from './routes/app.$slug'
 import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
+import { Route as ApiPublicAppmanifestSlugRouteImport } from './routes/api/public/appmanifest.$slug'
+import { Route as ApiPublicAppdocSlugRouteImport } from './routes/api/public/appdoc.$slug'
 
 const ThankYouRoute = ThankYouRouteImport.update({
   id: '/thank-you',
@@ -183,6 +188,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsRoute = AppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -283,6 +293,11 @@ const SiteSlugRoute = SiteSlugRouteImport.update({
   path: '/site/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugRoute = SSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
@@ -323,15 +338,32 @@ const CargoxSlugRoute = CargoxSlugRouteImport.update({
   path: '/cargox/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSlugRoute = AppSlugRouteImport.update({
+  id: '/app/$slug',
+  path: '/app/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
   id: '/api/public/media/$key',
   path: '/api/public/media/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAppmanifestSlugRoute =
+  ApiPublicAppmanifestSlugRouteImport.update({
+    id: '/api/public/appmanifest/$slug',
+    path: '/api/public/appmanifest/$slug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicAppdocSlugRoute = ApiPublicAppdocSlugRouteImport.update({
+  id: '/api/public/appdoc/$slug',
+  path: '/api/public/appdoc/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -356,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -364,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/s/$slug': typeof SSlugRoute
   '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
@@ -382,11 +416,14 @@ export interface FileRoutesByFullPath {
   '/portfolio-os/': typeof PortfolioOsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/skyelite/': typeof SkyeliteIndexRoute
+  '/api/public/appdoc/$slug': typeof ApiPublicAppdocSlugRoute
+  '/api/public/appmanifest/$slug': typeof ApiPublicAppmanifestSlugRoute
   '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -407,6 +444,7 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -415,6 +453,7 @@ export interface FileRoutesByTo {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/s/$slug': typeof SSlugRoute
   '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
@@ -433,12 +472,15 @@ export interface FileRoutesByTo {
   '/portfolio-os': typeof PortfolioOsIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/skyelite': typeof SkyeliteIndexRoute
+  '/api/public/appdoc/$slug': typeof ApiPublicAppdocSlugRoute
+  '/api/public/appmanifest/$slug': typeof ApiPublicAppmanifestSlugRoute
   '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -463,6 +505,7 @@ export interface FileRoutesById {
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
   '/investor/$slug': typeof InvestorSlugRoute
@@ -471,6 +514,7 @@ export interface FileRoutesById {
   '/portfolio-os/$slug': typeof PortfolioOsSlugRoute
   '/portfolio-os/suite': typeof PortfolioOsSuiteRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/s/$slug': typeof SSlugRoute
   '/site/$slug': typeof SiteSlugRoute
   '/skyelite/benefits': typeof SkyeliteBenefitsRoute
   '/skyelite/book': typeof SkyeliteBookRoute
@@ -489,6 +533,8 @@ export interface FileRoutesById {
   '/portfolio-os/': typeof PortfolioOsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/skyelite/': typeof SkyeliteIndexRoute
+  '/api/public/appdoc/$slug': typeof ApiPublicAppdocSlugRoute
+  '/api/public/appmanifest/$slug': typeof ApiPublicAppmanifestSlugRoute
   '/api/public/media/$key': typeof ApiPublicMediaKeyRoute
 }
 export interface FileRouteTypes {
@@ -496,6 +542,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -520,6 +567,7 @@ export interface FileRouteTypes {
     | '/skyelite'
     | '/testimonials'
     | '/thank-you'
+    | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -528,6 +576,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/s/$slug'
     | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
@@ -546,11 +595,14 @@ export interface FileRouteTypes {
     | '/portfolio-os/'
     | '/projects/'
     | '/skyelite/'
+    | '/api/public/appdoc/$slug'
+    | '/api/public/appmanifest/$slug'
     | '/api/public/media/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -571,6 +623,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/testimonials'
     | '/thank-you'
+    | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -579,6 +632,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/s/$slug'
     | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
@@ -597,11 +651,14 @@ export interface FileRouteTypes {
     | '/portfolio-os'
     | '/projects'
     | '/skyelite'
+    | '/api/public/appdoc/$slug'
+    | '/api/public/appmanifest/$slug'
     | '/api/public/media/$key'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -626,6 +683,7 @@ export interface FileRouteTypes {
     | '/skyelite'
     | '/testimonials'
     | '/thank-you'
+    | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
     | '/investor/$slug'
@@ -634,6 +692,7 @@ export interface FileRouteTypes {
     | '/portfolio-os/$slug'
     | '/portfolio-os/suite'
     | '/projects/$slug'
+    | '/s/$slug'
     | '/site/$slug'
     | '/skyelite/benefits'
     | '/skyelite/book'
@@ -652,12 +711,15 @@ export interface FileRouteTypes {
     | '/portfolio-os/'
     | '/projects/'
     | '/skyelite/'
+    | '/api/public/appdoc/$slug'
+    | '/api/public/appmanifest/$slug'
     | '/api/public/media/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AppsRoute: typeof AppsRoute
   BlogRoute: typeof BlogRoute
   BookRoute: typeof BookRoute
   CaseStudiesRoute: typeof CaseStudiesRoute
@@ -682,9 +744,11 @@ export interface RootRouteChildren {
   SkyeliteRoute: typeof SkyeliteRouteWithChildren
   TestimonialsRoute: typeof TestimonialsRoute
   ThankYouRoute: typeof ThankYouRoute
+  AppSlugRoute: typeof AppSlugRoute
   CargoxSlugRoute: typeof CargoxSlugRoute
   LandingSlugRoute: typeof LandingSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
+  SSlugRoute: typeof SSlugRoute
   SiteSlugRoute: typeof SiteSlugRoute
   WorkAeonRoute: typeof WorkAeonRoute
   WorkAuraiRoute: typeof WorkAuraiRoute
@@ -694,6 +758,8 @@ export interface RootRouteChildren {
   WorkTaskoraRoute: typeof WorkTaskoraRoute
   CargoxIndexRoute: typeof CargoxIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
+  ApiPublicAppdocSlugRoute: typeof ApiPublicAppdocSlugRoute
+  ApiPublicAppmanifestSlugRoute: typeof ApiPublicAppmanifestSlugRoute
   ApiPublicMediaKeyRoute: typeof ApiPublicMediaKeyRoute
 }
 
@@ -867,6 +933,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps': {
+      id: '/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AppsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -1007,6 +1080,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof SSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$slug': {
       id: '/projects/$slug'
       path: '/projects/$slug'
@@ -1063,11 +1143,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CargoxSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/$slug': {
+      id: '/app/$slug'
+      path: '/app/$slug'
+      fullPath: '/app/$slug'
+      preLoaderRoute: typeof AppSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/media/$key': {
       id: '/api/public/media/$key'
       path: '/api/public/media/$key'
       fullPath: '/api/public/media/$key'
       preLoaderRoute: typeof ApiPublicMediaKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/appmanifest/$slug': {
+      id: '/api/public/appmanifest/$slug'
+      path: '/api/public/appmanifest/$slug'
+      fullPath: '/api/public/appmanifest/$slug'
+      preLoaderRoute: typeof ApiPublicAppmanifestSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/appdoc/$slug': {
+      id: '/api/public/appdoc/$slug'
+      path: '/api/public/appdoc/$slug'
+      fullPath: '/api/public/appdoc/$slug'
+      preLoaderRoute: typeof ApiPublicAppdocSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1152,6 +1253,7 @@ const SkyeliteRouteWithChildren = SkyeliteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AppsRoute: AppsRoute,
   BlogRoute: BlogRoute,
   BookRoute: BookRoute,
   CaseStudiesRoute: CaseStudiesRoute,
@@ -1176,9 +1278,11 @@ const rootRouteChildren: RootRouteChildren = {
   SkyeliteRoute: SkyeliteRouteWithChildren,
   TestimonialsRoute: TestimonialsRoute,
   ThankYouRoute: ThankYouRoute,
+  AppSlugRoute: AppSlugRoute,
   CargoxSlugRoute: CargoxSlugRoute,
   LandingSlugRoute: LandingSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
+  SSlugRoute: SSlugRoute,
   SiteSlugRoute: SiteSlugRoute,
   WorkAeonRoute: WorkAeonRoute,
   WorkAuraiRoute: WorkAuraiRoute,
@@ -1188,6 +1292,8 @@ const rootRouteChildren: RootRouteChildren = {
   WorkTaskoraRoute: WorkTaskoraRoute,
   CargoxIndexRoute: CargoxIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
+  ApiPublicAppdocSlugRoute: ApiPublicAppdocSlugRoute,
+  ApiPublicAppmanifestSlugRoute: ApiPublicAppmanifestSlugRoute,
   ApiPublicMediaKeyRoute: ApiPublicMediaKeyRoute,
 }
 export const routeTree = rootRouteImport
