@@ -28,6 +28,7 @@ export const askWorkspaceAi = createServerFn({ method: "POST" })
         messages: z.array(messageSchema).min(1).max(40),
         task: z.string().trim().max(200).default(""),
         context: z.string().trim().max(20000).default(""),
+        assets: z.string().trim().max(6000).default(""),
       })
       .parse(d),
   )
@@ -40,6 +41,7 @@ export const askWorkspaceAi = createServerFn({ method: "POST" })
       SYSTEM_PROMPT,
       data.task ? `Current task type: ${data.task}.` : "",
       data.context ? `Project context supplied by the owner:\n${data.context}` : "",
+      data.assets,
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -110,6 +112,7 @@ export const generateStudioImage = createServerFn({ method: "POST" })
       .object({
         prompt: z.string().trim().min(3).max(2000),
         size: z.enum(["1024x1024", "1024x1536", "1536x1024"]).default("1024x1024"),
+        assets: z.string().trim().max(4000).default(""),
       })
       .parse(d),
   )

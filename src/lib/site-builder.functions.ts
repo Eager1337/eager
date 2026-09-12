@@ -74,6 +74,7 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
         name: z.string().trim().max(120).default(""),
         style: z.string().trim().max(200).default(""),
         pages: z.string().trim().max(400).default(""),
+        assets: z.string().trim().max(6000).default(""),
       })
       .parse(d),
   )
@@ -86,6 +87,7 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
       SYSTEM,
       data.style ? `Visual direction requested: ${data.style}.` : "",
       data.pages ? `Sections or pages that must exist: ${data.pages}.` : "",
+      data.assets,
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -419,6 +421,7 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
         style: z.string().trim().max(200).default(""),
         screens: z.string().trim().max(400).default(""),
         themeColor: z.string().trim().max(20).default("#0A0A0A"),
+        assets: z.string().trim().max(6000).default(""),
       })
       .parse(d),
   )
@@ -431,6 +434,7 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
       APP_SYSTEM,
       data.style ? `Visual direction requested: ${data.style}.` : "",
       data.screens ? `Screens that must exist: ${data.screens}.` : "",
+      data.assets,
     ]
       .filter(Boolean)
       .join("\n\n");
