@@ -33,6 +33,7 @@ import { Route as CertificationsRouteImport } from './routes/certifications'
 import { Route as CaseStudiesRouteImport } from './routes/case-studies'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AppsRouteImport } from './routes/apps'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SkyeliteIndexRouteImport } from './routes/skyelite.index'
@@ -185,6 +186,11 @@ const BookRoute = BookRouteImport.update({
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsRoute = AppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -357,6 +363,7 @@ const ApiPublicAppdocSlugRoute = ApiPublicAppdocSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -416,6 +423,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -472,6 +480,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/apps': typeof AppsRoute
   '/blog': typeof BlogRoute
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -592,6 +602,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/apps'
     | '/blog'
     | '/book'
     | '/case-studies'
@@ -707,6 +719,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AppsRoute: typeof AppsRoute
   BlogRoute: typeof BlogRoute
   BookRoute: typeof BookRoute
   CaseStudiesRoute: typeof CaseStudiesRoute
@@ -918,6 +931,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps': {
+      id: '/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AppsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1233,6 +1253,7 @@ const SkyeliteRouteWithChildren = SkyeliteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AppsRoute: AppsRoute,
   BlogRoute: BlogRoute,
   BookRoute: BookRoute,
   CaseStudiesRoute: CaseStudiesRoute,
