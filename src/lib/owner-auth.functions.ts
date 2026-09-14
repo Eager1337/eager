@@ -6,13 +6,8 @@ import { z } from "zod";
  * Owner login.
  *
  * The visitor types a username + password in the admin panel. Those credentials
- * are verified here on the server against secret env values, the real Supabase
- * owner account (and its strong password) never ship to the browser.
- *
- * On success we ensure the owner account exists (creating it with the service
- * role the first time), make sure it holds the admin role, then sign in with the
- * strong account password and return the session tokens for the browser to
- * persist via supabase.auth.setSession().
+ * are verified here on the server. The real Supabase owner account never ships
+ * to the browser.
  */
 export const ownerLogin = createServerFn({ method: "POST" })
   .inputValidator(
@@ -23,9 +18,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    // No credentials live in the codebase. Every value below is read from the
-    // host environment at request time, so Lovable and Vercel behave the same
-    // as long as both carry the same variables (see .env.example).
     const expectedUser = (process.env.OWNER_LOGIN_USERNAME ?? "").trim();
     const accepted = (process.env.OWNER_LOGIN_PASSWORDS ?? "")
       .split(",")
@@ -34,7 +26,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
     const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
     const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
 
-    // The backend connection is always required.
     const infraMissing = [
       ...(process.env.SUPABASE_URL ? [] : ["SUPABASE_URL"]),
       ...(process.env.SUPABASE_PUBLISHABLE_KEY ? [] : ["SUPABASE_PUBLISHABLE_KEY"]),
@@ -47,9 +38,23 @@ export const ownerLogin = createServerFn({ method: "POST" })
       };
     }
 
+    // A stable backing Supabase account is required in production. Do not
+    // generate a random password per request: that makes Vercel/serverless
+    // deployments unable to reliably establish the owner account.
+    const accountMissing = [
+      ...(ownerEmail ? [] : ["OWNER_ACCOUNT_EMAIL"]),
+      ...(ownerPassword ? [] : ["OWNER_ACCOUNT_PASSWORD"]),
+    ];
+    if (accountMissing.length > 0) {
+      return {
+        ok: false as const,
+        error: `Admin sign-in is almost configured, but the Vercel deployment is missing: ${accountMissing.join(", ")}. Add these Production environment variables and redeploy.`,
+      };
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Credentials changed from the dashboard take priority over the env values.
+    // Credentials changed from the dashboard take priority over env values.
     const { data: stored } = await supabaseAdmin
       .from("admin_credentials")
       .select("username, password_hash, salt")
@@ -57,7 +62,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
       .maybeSingle();
     const hasStored = Boolean(stored?.username && stored?.password_hash);
 
-    // Only when nothing is stored in the database do we need the env credentials.
     const missing = hasStored
       ? []
       : [
@@ -70,7 +74,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
         error: `Admin sign-in is not configured on this deployment. Missing: ${missing.join(", ")}.`,
       };
     }
-
 
     let userOk: boolean;
     let passOk: boolean;
@@ -85,13 +88,8 @@ export const ownerLogin = createServerFn({ method: "POST" })
       passOk = accepted.includes(data.password);
     }
 
-    // Generic failure, never reveal which field was wrong.
-    if (!userOk || !passOk) {
-      return { ok: false as const };
-    }
+    if (!userOk || !passOk) return { ok: false as const };
 
-
-    // Second factor: if an authenticator is enrolled, a valid code is required.
     const { data: totp } = await supabaseAdmin
       .from("admin_totp")
       .select("secret, enabled, recovery_codes")
@@ -121,53 +119,63 @@ export const ownerLogin = createServerFn({ method: "POST" })
       }
     }
 
-    // The backing auth account. If a deployment does not carry OWNER_ACCOUNT_*,
-    // we derive a stable address and rotate a strong random password on each
-    // sign-in, so the dashboard still works on any host with only the backend
-    // keys present.
-    const accountEmail =
-      ownerEmail ||
-      `owner@${new URL(process.env.SUPABASE_URL!).hostname.split(".")[0]}.eager.local`;
-    const accountPassword =
-      ownerPassword || `${crypto.randomUUID()}${crypto.randomUUID()}Aa1!`;
-
-    // Ensure the owner auth account exists (idempotent).
+    // Ensure the stable owner auth account exists and uses the configured
+    // backing password. This is idempotent and works across Vercel instances.
     let ownerId: string | null = null;
     try {
       const created = await supabaseAdmin.auth.admin.createUser({
-        email: accountEmail,
-        password: accountPassword,
+        email: ownerEmail,
+        password: ownerPassword,
         email_confirm: true,
       });
       if (created.data.user) ownerId = created.data.user.id;
-      // If it already exists, createUser errors, fall through and look it up.
     } catch {
-      /* already exists */
+      // The account may already exist; resolve it below.
     }
 
     if (!ownerId) {
-      // Look up existing account and make sure its password matches our secret.
-      const { data: list } = await supabaseAdmin.auth.admin.listUsers({
-        page: 1,
-        perPage: 200,
-      });
-      const found = list?.users.find(
-        (u) => (u.email ?? "").toLowerCase() === accountEmail.toLowerCase(),
-      );
-      if (found) {
-        ownerId = found.id;
-        await supabaseAdmin.auth.admin.updateUserById(found.id, {
-          password: accountPassword,
-          email_confirm: true,
+      try {
+        const { data: list, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
         });
+        if (listError) {
+          return {
+            ok: false as const,
+            error: `Could not access the Supabase owner account: ${listError.message}`,
+          };
+        }
+        const found = list?.users.find(
+          (u) => (u.email ?? "").toLowerCase() === ownerEmail.toLowerCase(),
+        );
+        if (found) {
+          ownerId = found.id;
+          const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(found.id, {
+            password: ownerPassword,
+            email_confirm: true,
+          });
+          if (updateError) {
+            return {
+              ok: false as const,
+              error: `Supabase found the owner account but could not update its password: ${updateError.message}`,
+            };
+          }
+        }
+      } catch (err) {
+        return {
+          ok: false as const,
+          error: err instanceof Error ? err.message : "Could not establish owner account.",
+        };
       }
     }
 
     if (!ownerId) {
-      return { ok: false as const, error: "Could not establish owner account." };
+      return {
+        ok: false as const,
+        error: `Owner account ${ownerEmail} was not found and could not be created. Check the Production Supabase service-role configuration and OWNER_ACCOUNT_EMAIL.`,
+      };
     }
 
-    // Ensure the owner holds the admin role.
     const { data: hasRole } = await supabaseAdmin
       .from("user_roles")
       .select("id")
@@ -175,21 +183,34 @@ export const ownerLogin = createServerFn({ method: "POST" })
       .eq("role", "admin")
       .maybeSingle();
     if (!hasRole) {
-      await supabaseAdmin.from("user_roles").insert({ user_id: ownerId, role: "admin" });
+      const { error: roleError } = await supabaseAdmin.from("user_roles").insert({
+        user_id: ownerId,
+        role: "admin",
+      });
+      if (roleError) {
+        return {
+          ok: false as const,
+          error: `Owner account exists, but the admin role could not be assigned: ${roleError.message}`,
+        };
+      }
     }
 
-    // Sign in with the strong account password to mint a session for the browser.
     const anon = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_PUBLISHABLE_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: accountEmail,
-      password: accountPassword,
+      email: ownerEmail,
+      password: ownerPassword,
     });
     if (error || !signIn.session) {
-      return { ok: false as const, error: "Sign-in failed. Please try again." };
+      return {
+        ok: false as const,
+        error: error?.message
+          ? `Supabase authentication failed: ${error.message}`
+          : "Supabase authentication failed. Check OWNER_ACCOUNT_EMAIL and OWNER_ACCOUNT_PASSWORD.",
+      };
     }
 
     await supabaseAdmin.from("login_alerts").insert({
@@ -206,10 +227,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
     };
   });
 
-/**
- * Passkey sign-in. The browser runs a WebAuthn assertion against a stateless
- * challenge, the signature is verified here, and only then is a session minted.
- */
 export const passkeyLogin = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
