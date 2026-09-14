@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<siteSlug>[a-z0-9-]+)\\.eager\\.app"
+        }
+      ],
+      "destination": "/site/:siteSlug"
+    }
+  ]
+}
