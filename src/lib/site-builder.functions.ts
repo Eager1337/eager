@@ -80,8 +80,13 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const db = await adminDb(context);
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("AI is not configured on this deployment.");
+    const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
+    const provider = getAiProvider();
+    if (!provider) {
+      throw new Error(
+        "AI is not configured on this deployment. Add OPENAI_API_KEY (or LOVABLE_API_KEY inside Lovable) and redeploy.",
+      );
+    }
 
     const instructions = [
       SYSTEM,
@@ -92,15 +97,11 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    const res = await fetch(provider.chat.url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
+      headers: { "Content-Type": "application/json", ...provider.chat.headers },
       body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
+        model: provider.chat.model,
         instructions,
         input: [
           {
@@ -109,7 +110,9 @@ export const buildSiteFromPrompt = createServerFn({ method: "POST" })
           },
         ],
         stream: true,
-        reasoning: { effort: "low", summary: "auto" },
+        ...(supportsReasoning(provider.chat.model)
+          ? { reasoning: { effort: "low", summary: "auto" } }
+          : {}),
       }),
     });
 
@@ -427,8 +430,13 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const db = await adminDb(context);
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("AI is not configured on this deployment.");
+    const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
+    const provider = getAiProvider();
+    if (!provider) {
+      throw new Error(
+        "AI is not configured on this deployment. Add OPENAI_API_KEY (or LOVABLE_API_KEY inside Lovable) and redeploy.",
+      );
+    }
 
     const instructions = [
       APP_SYSTEM,
@@ -439,15 +447,11 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    const res = await fetch(provider.chat.url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
+      headers: { "Content-Type": "application/json", ...provider.chat.headers },
       body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
+        model: provider.chat.model,
         instructions,
         input: [
           {
@@ -456,7 +460,9 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
           },
         ],
         stream: true,
-        reasoning: { effort: "low", summary: "auto" },
+        ...(supportsReasoning(provider.chat.model)
+          ? { reasoning: { effort: "low", summary: "auto" } }
+          : {}),
       }),
     });
 

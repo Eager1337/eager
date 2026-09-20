@@ -34,8 +34,13 @@ export const askWorkspaceAi = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("AI is not configured yet.");
+    const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
+    const provider = getAiProvider();
+    if (!provider) {
+      throw new Error(
+        "AI is not configured on this deployment. Add OPENAI_API_KEY (or LOVABLE_API_KEY inside Lovable) and redeploy.",
+      );
+    }
 
     const instructions = [
       SYSTEM_PROMPT,
@@ -46,22 +51,20 @@ export const askWorkspaceAi = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    const res = await fetch(provider.chat.url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
+      headers: { "Content-Type": "application/json", ...provider.chat.headers },
       body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
+        model: provider.chat.model,
         instructions,
         input: data.messages.map((m) => ({
           role: m.role,
           content: [{ type: m.role === "user" ? "input_text" : "output_text", text: m.content }],
         })),
         stream: true,
-        reasoning: { effort: "low", summary: "auto" },
+        ...(supportsReasoning(provider.chat.model)
+          ? { reasoning: { effort: "low", summary: "auto" } }
+          : {}),
       }),
     });
 
@@ -118,18 +121,25 @@ export const generateStudioImage = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("AI is not configured yet.");
+    const { getAiProvider } = await import("./ai-provider.server");
+    const provider = getAiProvider();
+    if (!provider) {
+      throw new Error(
+        "AI is not configured on this deployment. Add OPENAI_API_KEY (or LOVABLE_API_KEY inside Lovable) and redeploy.",
+      );
+    }
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+    const res = await fetch(provider.image.url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: { "Content-Type": "application/json", ...provider.image.headers },
       body: JSON.stringify({
-        model: "openai/gpt-image-1-mini",
+        model: provider.image.model,
         prompt: data.assets ? `${data.prompt}\n\n${data.assets}` : data.prompt,
         size: data.size,
         quality: "low",
-        stream: false,
+        // OpenAI's Images API rejects unknown params; only the Lovable gateway
+        // accepts an explicit stream flag here.
+        ...(provider.provider === "lovable" ? { stream: false } : {}),
       }),
     });
 

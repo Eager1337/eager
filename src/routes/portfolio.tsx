@@ -158,6 +158,12 @@ function PortfolioPage() {
             <a href="#about" className="text-[#A8A8A8] hover:text-white transition-colors">
               About
             </a>
+            <Link
+              to="/about"
+              className="text-[#A8A8A8] hover:text-white transition-colors hidden sm:inline"
+            >
+              Full story
+            </Link>
             <a href="#work" className="text-[#A8A8A8] hover:text-white transition-colors">
               Work
             </a>
@@ -326,8 +332,8 @@ function PortfolioPage() {
               <p>
                 I am <span className="text-white font-semibold">Alusine G. Dumbuya</span>, known
                 professionally as Eager Beaver. I am a full-stack developer, systems builder and
-                video editor based in Sierra Leone, currently studying at Limkokwing University while
-                shipping production software for real clients.
+                video editor based in Sierra Leone, currently studying at Limkokwing University
+                while shipping production software for real clients.
               </p>
               <p>
                 My work sits where engineering meets business outcomes. I design the data model,
@@ -346,6 +352,12 @@ function PortfolioPage() {
                 tool and a revenue platform with the same rigour: define the metric, build the
                 shortest path to it, then instrument everything so the impact is provable.
               </p>
+              <Link
+                to="/about"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                Read the full story <ArrowUpRight className="h-4 w-4" />
+              </Link>
             </div>
 
             <div className="lg:col-span-5 space-y-4">
@@ -397,8 +409,8 @@ function PortfolioPage() {
               </h2>
             </div>
             <p className="max-w-md text-sm text-[#A8A8A8] leading-relaxed">
-              Every project I take on runs through the same disciplined pipeline, so you always
-              know what's happening, what's next, and what "done" looks like. No vibes, no vanishing
+              Every project I take on runs through the same disciplined pipeline, so you always know
+              what's happening, what's next, and what "done" looks like. No vibes, no vanishing
               acts.
             </p>
           </div>

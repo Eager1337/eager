@@ -30,3 +30,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (values live in Vercel / Lovable settings, never in git)
+.env
+.env.*
+!.env.example
+
+# Vercel Build Output API bundle produced by `bun run build`
+.vercel/
