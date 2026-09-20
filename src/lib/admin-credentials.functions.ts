@@ -70,6 +70,12 @@ export const resetAdminCredentials = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("admin_credentials").delete().eq("id", "global");
+    // Clear only the sign-in credentials. The backing owner account columns
+    // (account_email / account_password) are kept so the next sign-in reuses
+    // the provisioned account instead of creating another one.
+    await supabaseAdmin
+      .from("admin_credentials")
+      .update({ username: "", password_hash: "", salt: "" })
+      .eq("id", "global");
     return { ok: true as const };
   });

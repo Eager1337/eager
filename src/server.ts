@@ -7,6 +7,24 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
+// Tenant sites are served from <slug>.eager.app and rendered by /site/$slug.
+// Vercel normally provides this rewrite via vercel.json, but the Build Output
+// API bundle that Nitro produces defines its own routing, so the rewrite is
+// applied here as well — inside the app. That keeps tenant domains working on
+// every platform (Vercel, Lovable/Cloudflare, local dev) with zero platform
+// config. Mirrors vercel.json: any path on the tenant host serves the site
+// page, query string preserved. `www` and the apex domain are excluded.
+const TENANT_HOST_RE = /^([a-z0-9-]+)\.eager\.app$/i;
+
+function rewriteTenantHost(request: Request): Request {
+  const host = (request.headers.get("host") ?? "").split(":")[0].toLowerCase();
+  const match = TENANT_HOST_RE.exec(host);
+  if (!match || match[1].toLowerCase() === "www") return request;
+  const url = new URL(request.url);
+  url.pathname = `/site/${match[1].toLowerCase()}`;
+  return new Request(url, request);
+}
+
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
 async function getServerEntry(): Promise<ServerEntry> {
@@ -41,7 +59,7 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
+      const response = await handler.fetch(rewriteTenantHost(request), env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);

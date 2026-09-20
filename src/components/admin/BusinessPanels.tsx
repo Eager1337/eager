@@ -356,9 +356,9 @@ const ENV_VARS = [
   { key: "SUPABASE_URL", note: "Server side backend URL" },
   { key: "SUPABASE_PUBLISHABLE_KEY", note: "Server side public key" },
   { key: "SUPABASE_SERVICE_ROLE_KEY", note: "Server only, never expose" },
-  { key: "OWNER_LOGIN_USERNAME", note: "Admin username" },
-  { key: "OWNER_LOGIN_PASSWORDS", note: "Admin password" },
-  { key: "LOVABLE_API_KEY", note: "Server only, powers the AI workspace" },
+  { key: "OWNER_LOGIN_USERNAME", note: "Admin username, or save it in Security credentials" },
+  { key: "OWNER_LOGIN_PASSWORDS", note: "Admin password, or save it in Security credentials" },
+  { key: "OPENAI_API_KEY", note: "Server only, powers the AI workspace outside Lovable" },
 ];
 
 export function DeploymentCenterPanel() {

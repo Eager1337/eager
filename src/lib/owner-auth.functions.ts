@@ -23,8 +23,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
       .split(",")
       .map((p) => p.trim())
       .filter(Boolean);
-    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
-    const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
 
     const infraMissing = [
       ...(process.env.SUPABASE_URL ? [] : ["SUPABASE_URL"]),
@@ -35,20 +33,6 @@ export const ownerLogin = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         error: `Admin sign-in is not configured on this deployment. Missing: ${infraMissing.join(", ")}.`,
-      };
-    }
-
-    // A stable backing Supabase account is required in production. Do not
-    // generate a random password per request: that makes Vercel/serverless
-    // deployments unable to reliably establish the owner account.
-    const accountMissing = [
-      ...(ownerEmail ? [] : ["OWNER_ACCOUNT_EMAIL"]),
-      ...(ownerPassword ? [] : ["OWNER_ACCOUNT_PASSWORD"]),
-    ];
-    if (accountMissing.length > 0) {
-      return {
-        ok: false as const,
-        error: `Admin sign-in is almost configured, but the Vercel deployment is missing: ${accountMissing.join(", ")}. Add these Production environment variables and redeploy.`,
       };
     }
 
@@ -119,81 +103,11 @@ export const ownerLogin = createServerFn({ method: "POST" })
       }
     }
 
-    // Ensure the stable owner auth account exists and uses the configured
-    // backing password. This is idempotent and works across Vercel instances.
-    let ownerId: string | null = null;
-    try {
-      const created = await supabaseAdmin.auth.admin.createUser({
-        email: ownerEmail,
-        password: ownerPassword,
-        email_confirm: true,
-      });
-      if (created.data.user) ownerId = created.data.user.id;
-    } catch {
-      // The account may already exist; resolve it below.
-    }
-
-    if (!ownerId) {
-      try {
-        const { data: list, error: listError } = await supabaseAdmin.auth.admin.listUsers({
-          page: 1,
-          perPage: 1000,
-        });
-        if (listError) {
-          return {
-            ok: false as const,
-            error: `Could not access the Supabase owner account: ${listError.message}`,
-          };
-        }
-        const found = list?.users.find(
-          (u) => (u.email ?? "").toLowerCase() === ownerEmail.toLowerCase(),
-        );
-        if (found) {
-          ownerId = found.id;
-          const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(found.id, {
-            password: ownerPassword,
-            email_confirm: true,
-          });
-          if (updateError) {
-            return {
-              ok: false as const,
-              error: `Supabase found the owner account but could not update its password: ${updateError.message}`,
-            };
-          }
-        }
-      } catch (err) {
-        return {
-          ok: false as const,
-          error: err instanceof Error ? err.message : "Could not establish owner account.",
-        };
-      }
-    }
-
-    if (!ownerId) {
-      return {
-        ok: false as const,
-        error: `Owner account ${ownerEmail} was not found and could not be created. Check the Production Supabase service-role configuration and OWNER_ACCOUNT_EMAIL.`,
-      };
-    }
-
-    const { data: hasRole } = await supabaseAdmin
-      .from("user_roles")
-      .select("id")
-      .eq("user_id", ownerId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!hasRole) {
-      const { error: roleError } = await supabaseAdmin.from("user_roles").insert({
-        user_id: ownerId,
-        role: "admin",
-      });
-      if (roleError) {
-        return {
-          ok: false as const,
-          error: `Owner account exists, but the admin role could not be assigned: ${roleError.message}`,
-        };
-      }
-    }
+    // Resolve the backing owner account: env vars first, then the database,
+    // then provision one automatically. See owner-account.server.ts.
+    const { resolveOwnerAccount } = await import("./owner-account.server");
+    const owner = await resolveOwnerAccount(supabaseAdmin);
+    if (!owner.ok) return { ok: false as const, error: owner.error };
 
     const anon = createClient(
       process.env.SUPABASE_URL!,
@@ -201,15 +115,15 @@ export const ownerLogin = createServerFn({ method: "POST" })
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: ownerEmail,
-      password: ownerPassword,
+      email: owner.email,
+      password: owner.password,
     });
     if (error || !signIn.session) {
       return {
         ok: false as const,
         error: error?.message
           ? `Supabase authentication failed: ${error.message}`
-          : "Supabase authentication failed. Check OWNER_ACCOUNT_EMAIL and OWNER_ACCOUNT_PASSWORD.",
+          : "Supabase authentication failed. Check the Supabase configuration on this deployment.",
       };
     }
 
@@ -238,12 +152,6 @@ export const passkeyLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const ownerEmail = (process.env.OWNER_ACCOUNT_EMAIL ?? "").trim();
-    const ownerPassword = process.env.OWNER_ACCOUNT_PASSWORD ?? "";
-    if (!ownerEmail || !ownerPassword) {
-      return { ok: false as const, error: "Passkey sign-in is not configured on this deployment." };
-    }
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { verifyAssertion, b64uToBytes } = await import("./webauthn.server");
     const { verifyChallenge } = await import("./challenge.server");
@@ -293,9 +201,12 @@ export const passkeyLogin = createServerFn({ method: "POST" })
     const anon = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+    const { resolveOwnerAccount } = await import("./owner-account.server");
+    const owner = await resolveOwnerAccount(supabaseAdmin);
+    if (!owner.ok) return { ok: false as const, error: owner.error };
     const { data: signIn, error } = await anon.auth.signInWithPassword({
-      email: ownerEmail,
-      password: ownerPassword,
+      email: owner.email,
+      password: owner.password,
     });
     if (error || !signIn.session) return { ok: false as const, error: "Sign-in failed. Please try again." };
 
