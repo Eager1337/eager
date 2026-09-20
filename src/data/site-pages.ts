@@ -547,6 +547,245 @@ export const PAGES: Record<string, SitePage> = {
       },
     ],
   },
+  about: {
+    eyebrow: "About",
+    title: "The person behind the portfolio",
+    intro:
+      "Alusine G. Dumbuya, known as Eager Beaver. Full-stack developer, systems builder and video editor from Freetown, Sierra Leone, studying at Limkokwing University. This section holds everything about who I am, how I work, what I studied, and what I do when the editor is closed.",
+    layout: "cards",
+    seoTitle: "About Alusine G. Dumbuya (Eager Beaver) | Full-Stack Developer, Sierra Leone",
+    seoDescription:
+      "Meet Alusine G. Dumbuya, the Eager Beaver: full-stack developer, systems builder and video editor from Freetown, Sierra Leone. His story, values, education and life beyond the code.",
+    cta: { label: "Work with me", to: "/contact" },
+    blocks: [
+      {
+        meta: "About · Story",
+        title: "My story",
+        body: "From Freetown roots and first lines of code to Limkokwing University and production platforms for real clients. The chapters that shaped how I build.",
+        tags: ["Roots", "Limkokwing", "Client work"],
+        to: "/about/story",
+      },
+      {
+        meta: "About · Principles",
+        title: "How I work",
+        body: "Discovery before code, vertical slices, full ownership handover, security by default, and support that outlives the launch.",
+        tags: ["Process", "Ownership", "Security"],
+        to: "/about/values",
+      },
+      {
+        meta: "About · Learning",
+        title: "Education & learning path",
+        body: "Limkokwing University, a self-taught engineering track and the video editing craft, running side by side.",
+        tags: ["Limkokwing", "Self-taught", "Video"],
+        to: "/about/education",
+      },
+      {
+        meta: "About · Life",
+        title: "Beyond the code",
+        body: "Anime, basketball, motion design and cinema, the inspirations behind the Legends landing pages.",
+        tags: ["Anime", "Hoops", "Motion"],
+        to: "/about/beyond-code",
+      },
+      {
+        meta: "Reference",
+        title: "Skills & technologies",
+        body: "The full stack I build with, from React and TypeScript to Postgres, Supabase and the editing suite.",
+        tags: ["React", "TypeScript", "Supabase"],
+        to: "/skills",
+      },
+      {
+        meta: "Reference",
+        title: "Certifications",
+        body: "Verified credentials that back the work, plus the CV and rate card in one place.",
+        tags: ["Verified", "CV"],
+        to: "/certifications",
+      },
+    ],
+  },
+  "about-story": {
+    eyebrow: "About · Story",
+    title: "My story",
+    intro:
+      "How a student in Freetown became the engineer clients call when a system has to ship and hold. Same person, sharper tools, one standard.",
+    layout: "list",
+    seoTitle: "My Story | Alusine G. Dumbuya, Eager Beaver",
+    seoDescription:
+      "The journey of Alusine G. Dumbuya (Eager Beaver): Freetown roots, first lines of code, Limkokwing University, and production platforms for real clients.",
+    cta: { label: "Start your chapter", to: "/contact" },
+    blocks: [
+      {
+        meta: "Chapter 01 · Roots",
+        title: "Freetown, Sierra Leone",
+        body: "I grew up in Freetown with no safety net, no rich family and no big agency behind me. What I did have was curiosity, patience and a city that teaches you to fix things yourself. That is where the hunger comes from, and it never left.",
+      },
+      {
+        meta: "Chapter 02 · First lines",
+        title: "Falling for the web",
+        body: "It started with simple pages: HTML, CSS, JavaScript. The first time something I typed rendered in a browser, I was gone. I moved from static pages to real interfaces, from copying snippets to understanding systems.",
+      },
+      {
+        meta: "Chapter 03 · Campus",
+        title: "Limkokwing University",
+        body: "I study at Limkokwing University of Creative Technology in Sierra Leone, where creativity and technology share a building. Campus life even turned into client work: Limkokwing Connect, a portal that puts enrolment, results and student support in one place.",
+      },
+      {
+        meta: "Chapter 04 · Clients",
+        title: "Real systems, real users",
+        body: "DataCore gave operations teams live dashboards instead of nightly spreadsheets. Taskora tracked team work and capacity. Deck turned static slides into an interactive pitch engine. CargoX put sixteen logistics services in a mobile-first funnel. Each one shipped, and each one stayed up.",
+      },
+      {
+        meta: "Chapter 05 · The platform",
+        title: "Eager Beaver, the brand",
+        body: "This site is the proof of work: a portfolio operating system with a command center, AI site and app builders, an image studio, investor mode and analytics. I built the whole thing myself, end to end, and it runs 24/7 eager.",
+      },
+      {
+        meta: "Chapter 06 · Next",
+        title: "Where I'm headed",
+        body: "Two tracks, one direction. For clients worldwide: platforms that are secure, measurable and clean to hand over. For home: systems like the agriculture marketplace, poda-poda transport, school payments and community health tools that Sierra Leone actually needs.",
+      },
+    ],
+  },
+  "about-values": {
+    eyebrow: "About · Principles",
+    title: "How I work",
+    intro:
+      "The rules I hold on every engagement, whether it is a landing page or a full platform. They exist because every one of them was learned the hard way.",
+    layout: "cards",
+    seoTitle: "How I Work & Values | Eager Beaver, Alusine G. Dumbuya",
+    seoDescription:
+      "The working principles of Alusine G. Dumbuya (Eager Beaver): discovery before code, vertical slices, full ownership, root-cause fixes, security by default and honest communication.",
+    cta: { label: "Book a working session", to: "/book" },
+    blocks: [
+      {
+        meta: "01 · Scope",
+        title: "Discovery before code",
+        body: "Goals, users, constraints, budget and success metric are written down and confirmed before scope is locked. Cheap questions now beat expensive surprises later.",
+      },
+      {
+        meta: "02 · Delivery",
+        title: "Ship in vertical slices",
+        body: "One working slice at a time: frontend, backend, database, deployed. You click a real thing every few days instead of waiting for one big reveal.",
+      },
+      {
+        meta: "03 · Ownership",
+        title: "You own everything",
+        body: "Client-owned repositories, documented environment variables, a written runbook and a walkthrough call. No lock-in, no black boxes, no hostage code.",
+      },
+      {
+        meta: "04 · Quality",
+        title: "Fix causes, not symptoms",
+        body: "Bugs get fixed at the root, not patched. Type-safe code, real device testing, accessibility and Lighthouse passes before anything is called done.",
+      },
+      {
+        meta: "05 · Security",
+        title: "Security by default",
+        body: "Role-based access control, row-level security patterns and audit logging are baked into every delivery template, not bolted on after a scare.",
+      },
+      {
+        meta: "06 · Character",
+        title: "Eager, always",
+        body: "The name is the promise. Fast replies, honest timelines, and effort that shows up in the details. Sierra Leone to the world: just the shot, the arc, and the net.",
+      },
+      {
+        meta: "07 · After launch",
+        title: "Support that outlives launch",
+        body: "A 30-day post-launch window is included with every project. After that, retainers for features and monitoring are available, or you fly solo with the runbook.",
+      },
+      {
+        meta: "08 · Trust",
+        title: "Honesty over hype",
+        body: "If a cheaper path serves you better, I say so. If a deadline is at risk, you hear it early. Long-term clients come from telling the truth once, not selling twice.",
+      },
+    ],
+  },
+  "about-education": {
+    eyebrow: "About · Learning",
+    title: "Education & learning path",
+    intro:
+      "Formal study, a self-taught engineering track and a video editing craft, running side by side. The classroom gives me theory; the shipped systems give me judgment.",
+    layout: "list",
+    seoTitle: "Education & Learning | Alusine G. Dumbuya, Eager Beaver",
+    seoDescription:
+      "The education path of Alusine G. Dumbuya (Eager Beaver): Limkokwing University in Sierra Leone, a self-taught full-stack track, and professional video editing.",
+    cta: { label: "See certifications", to: "/certifications" },
+    blocks: [
+      {
+        meta: "Formal · Current",
+        title: "Limkokwing University of Creative Technology",
+        body: "Studying at the Sierra Leone campus in Freetown, where creative technology meets real production. University sharpened how I present and defend ideas, and campus life directly produced the Limkokwing Connect portal project.",
+      },
+      {
+        meta: "Self-taught · Engineering",
+        title: "The full-stack track",
+        body: "HTML, CSS and JavaScript first, then the professional stack: React, TypeScript, TanStack, Node.js, PostgreSQL, Supabase, Tailwind CSS and Framer Motion. Learned by building real things and shipping them, not by collecting tutorials.",
+      },
+      {
+        meta: "Craft · Video",
+        title: "The editing suite",
+        body: "Adobe Premiere Pro, After Effects and DaVinci Resolve. Story structure, pacing, motion typography and color. The same discipline I apply to interfaces: cut everything that does not serve the story.",
+      },
+      {
+        meta: "Proof · Credentials",
+        title: "Certifications",
+        body: "Verified credentials that back the client work, collected while studying and building. The full list lives on the certifications page.",
+        to: "/certifications",
+      },
+      {
+        meta: "Proof · Practice",
+        title: "Open source & public code",
+        body: "Repositories, templates and tools kept public where they can help someone else starting from the same place I did. Code you can read before you ever hire me.",
+        to: "/open-source",
+      },
+    ],
+  },
+  "about-beyond-code": {
+    eyebrow: "About · Life",
+    title: "Beyond the code",
+    intro:
+      "The things that keep the work human. Some of them even end up back in the work, as landing pages, motion design and story instinct.",
+    layout: "cards",
+    seoTitle: "Beyond the Code | Eager Beaver, Alusine G. Dumbuya",
+    seoDescription:
+      "Life beyond the code for Alusine G. Dumbuya (Eager Beaver): anime, basketball, motion design, cinema and building systems for Sierra Leone.",
+    cta: { label: "Explore the Legends pages", to: "/legends" },
+    blocks: [
+      {
+        meta: "Anime & manga",
+        title: "Shonen work ethic",
+        body: "One Punch Man for the joke that effort is invisible until it is overwhelming. One Piece for the long arc. Spider-Verse for proving style is a system. They shaped how I think about training and craft.",
+        tags: ["One Punch Man", "One Piece", "Spider-Verse"],
+        to: "/legends",
+      },
+      {
+        meta: "Basketball",
+        title: "Hoop dreams",
+        body: "Ball is rhythm, spacing and taking the shot when it matters. NBA 2K on the side. The mindset carried straight into release days: no fear of the final buzzer.",
+        tags: ["Hoops", "NBA 2K"],
+        to: "/legends",
+      },
+      {
+        meta: "Motion & cinema",
+        title: "Cars, frames and feeling",
+        body: "The Audi Nuvolari and Wooden Love pages came from loving how cinema frames metal and memory. Motion design is just engineering with timing.",
+        tags: ["Motion", "Cinema"],
+        to: "/legends",
+      },
+      {
+        meta: "Storytelling",
+        title: "The editor's eye",
+        body: "Video editing is the second craft. Cutting a launch video and cutting an interface follow the same rule: keep only what moves the story forward.",
+        tags: ["Premiere Pro", "After Effects", "DaVinci"],
+        to: "/services",
+      },
+      {
+        meta: "Purpose",
+        title: "Building for home",
+        body: "Concepts like the agriculture marketplace, poda-poda transport, school payments and community health tools exist because home deserves good software too.",
+        tags: ["Sierra Leone", "Impact"],
+        to: "/projects",
+      },
+    ],
+  },
 };
 
 export type ProjectDetail = {

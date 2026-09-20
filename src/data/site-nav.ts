@@ -3,7 +3,12 @@ export type NavItem = { label: string; to: string; note: string };
 /** The full portfolio map. Every entry resolves to a real route. */
 export const SITE_NAV: NavItem[] = [
   { label: "Home", to: "/", note: "ToonHub hero and collection" },
-  { label: "About", to: "/portfolio", note: "The portfolio book" },
+  { label: "About", to: "/about", note: "The person behind the portfolio" },
+  { label: "My Story", to: "/about/story", note: "The journey, in chapters" },
+  { label: "How I Work", to: "/about/values", note: "Principles on every engagement" },
+  { label: "Education", to: "/about/education", note: "Study and self-taught tracks" },
+  { label: "Beyond the Code", to: "/about/beyond-code", note: "Anime, hoops and motion" },
+  { label: "Portfolio Book", to: "/portfolio", note: "The portfolio book" },
   { label: "Projects", to: "/projects", note: "Everything shipped" },
   { label: "Project Details", to: "/projects/datacore", note: "Deep dive on one build" },
   { label: "Case Studies", to: "/case-studies", note: "Outcome-led write-ups" },

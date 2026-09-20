@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdminCommandCenterRouteImport } from './routes/admin-command-center'
 import { Route as AppsRouteImport } from './routes/apps'
@@ -37,6 +38,11 @@ import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as SkyeliteRouteImport } from './routes/skyelite'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
+import { Route as AboutIndexRouteImport } from './routes/about.index'
+import { Route as AboutBeyondCodeRouteImport } from './routes/about.beyond-code'
+import { Route as AboutEducationRouteImport } from './routes/about.education'
+import { Route as AboutStoryRouteImport } from './routes/about.story'
+import { Route as AboutValuesRouteImport } from './routes/about.values'
 import { Route as AppSlugRouteImport } from './routes/app.$slug'
 import { Route as CargoxIndexRouteImport } from './routes/cargox.index'
 import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
@@ -72,6 +78,11 @@ import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -208,6 +219,31 @@ const ThankYouRoute = ThankYouRouteImport.update({
   id: '/thank-you',
   path: '/thank-you',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AboutIndexRoute = AboutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutBeyondCodeRoute = AboutBeyondCodeRouteImport.update({
+  id: '/beyond-code',
+  path: '/beyond-code',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutEducationRoute = AboutEducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutStoryRoute = AboutStoryRouteImport.update({
+  id: '/story',
+  path: '/story',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutValuesRoute = AboutValuesRouteImport.update({
+  id: '/values',
+  path: '/values',
+  getParentRoute: () => AboutRoute,
 } as any)
 const AppSlugRoute = AppSlugRouteImport.update({
   id: '/app/$slug',
@@ -368,6 +404,7 @@ const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRouteWithChildren
   '/admin': typeof AdminRoute
   '/admin-command-center': typeof AdminCommandCenterRoute
   '/apps': typeof AppsRoute
@@ -395,6 +432,10 @@ export interface FileRoutesByFullPath {
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/about/beyond-code': typeof AboutBeyondCodeRoute
+  '/about/education': typeof AboutEducationRoute
+  '/about/story': typeof AboutStoryRoute
+  '/about/values': typeof AboutValuesRoute
   '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -417,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/about/': typeof AboutIndexRoute
   '/cargox/': typeof CargoxIndexRoute
   '/investor/': typeof InvestorIndexRoute
   '/legends/': typeof LegendsIndexRoute
@@ -452,6 +494,10 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/about/beyond-code': typeof AboutBeyondCodeRoute
+  '/about/education': typeof AboutEducationRoute
+  '/about/story': typeof AboutStoryRoute
+  '/about/values': typeof AboutValuesRoute
   '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -474,6 +520,7 @@ export interface FileRoutesByTo {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/about': typeof AboutIndexRoute
   '/cargox': typeof CargoxIndexRoute
   '/investor': typeof InvestorIndexRoute
   '/legends': typeof LegendsIndexRoute
@@ -487,6 +534,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRouteWithChildren
   '/admin': typeof AdminRoute
   '/admin-command-center': typeof AdminCommandCenterRoute
   '/apps': typeof AppsRoute
@@ -514,6 +562,10 @@ export interface FileRoutesById {
   '/skyelite': typeof SkyeliteRouteWithChildren
   '/testimonials': typeof TestimonialsRoute
   '/thank-you': typeof ThankYouRoute
+  '/about/beyond-code': typeof AboutBeyondCodeRoute
+  '/about/education': typeof AboutEducationRoute
+  '/about/story': typeof AboutStoryRoute
+  '/about/values': typeof AboutValuesRoute
   '/app/$slug': typeof AppSlugRoute
   '/cargox/$slug': typeof CargoxSlugRoute
   '/explore/$slug': typeof ExploreSlugRoute
@@ -536,6 +588,7 @@ export interface FileRoutesById {
   '/work/deck': typeof WorkDeckRoute
   '/work/ios': typeof WorkIosRoute
   '/work/taskora': typeof WorkTaskoraRoute
+  '/about/': typeof AboutIndexRoute
   '/cargox/': typeof CargoxIndexRoute
   '/investor/': typeof InvestorIndexRoute
   '/legends/': typeof LegendsIndexRoute
@@ -550,6 +603,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/admin'
     | '/admin-command-center'
     | '/apps'
@@ -577,6 +631,10 @@ export interface FileRouteTypes {
     | '/skyelite'
     | '/testimonials'
     | '/thank-you'
+    | '/about/beyond-code'
+    | '/about/education'
+    | '/about/story'
+    | '/about/values'
     | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
@@ -599,6 +657,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/about/'
     | '/cargox/'
     | '/investor/'
     | '/legends/'
@@ -634,6 +693,10 @@ export interface FileRouteTypes {
     | '/skills'
     | '/testimonials'
     | '/thank-you'
+    | '/about/beyond-code'
+    | '/about/education'
+    | '/about/story'
+    | '/about/values'
     | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
@@ -656,6 +719,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/about'
     | '/cargox'
     | '/investor'
     | '/legends'
@@ -668,6 +732,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/admin'
     | '/admin-command-center'
     | '/apps'
@@ -695,6 +760,10 @@ export interface FileRouteTypes {
     | '/skyelite'
     | '/testimonials'
     | '/thank-you'
+    | '/about/beyond-code'
+    | '/about/education'
+    | '/about/story'
+    | '/about/values'
     | '/app/$slug'
     | '/cargox/$slug'
     | '/explore/$slug'
@@ -717,6 +786,7 @@ export interface FileRouteTypes {
     | '/work/deck'
     | '/work/ios'
     | '/work/taskora'
+    | '/about/'
     | '/cargox/'
     | '/investor/'
     | '/legends/'
@@ -730,6 +800,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRouteWithChildren
   AdminRoute: typeof AdminRoute
   AdminCommandCenterRoute: typeof AdminCommandCenterRoute
   AppsRoute: typeof AppsRoute
@@ -783,6 +854,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -973,6 +1051,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/thank-you'
       preLoaderRoute: typeof ThankYouRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/about/': {
+      id: '/about/'
+      path: '/'
+      fullPath: '/about/'
+      preLoaderRoute: typeof AboutIndexRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/beyond-code': {
+      id: '/about/beyond-code'
+      path: '/beyond-code'
+      fullPath: '/about/beyond-code'
+      preLoaderRoute: typeof AboutBeyondCodeRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/education': {
+      id: '/about/education'
+      path: '/education'
+      fullPath: '/about/education'
+      preLoaderRoute: typeof AboutEducationRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/story': {
+      id: '/about/story'
+      path: '/story'
+      fullPath: '/about/story'
+      preLoaderRoute: typeof AboutStoryRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/values': {
+      id: '/about/values'
+      path: '/values'
+      fullPath: '/about/values'
+      preLoaderRoute: typeof AboutValuesRouteImport
+      parentRoute: typeof AboutRoute
     }
     '/app/$slug': {
       id: '/app/$slug'
@@ -1194,6 +1307,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AboutRouteChildren {
+  AboutBeyondCodeRoute: typeof AboutBeyondCodeRoute
+  AboutEducationRoute: typeof AboutEducationRoute
+  AboutStoryRoute: typeof AboutStoryRoute
+  AboutValuesRoute: typeof AboutValuesRoute
+  AboutIndexRoute: typeof AboutIndexRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutBeyondCodeRoute: AboutBeyondCodeRoute,
+  AboutEducationRoute: AboutEducationRoute,
+  AboutStoryRoute: AboutStoryRoute,
+  AboutValuesRoute: AboutValuesRoute,
+  AboutIndexRoute: AboutIndexRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
+
 interface ExploreRouteChildren {
   ExploreSlugRoute: typeof ExploreSlugRoute
 }
@@ -1272,6 +1403,7 @@ const SkyeliteRouteWithChildren = SkyeliteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRouteWithChildren,
   AdminRoute: AdminRoute,
   AdminCommandCenterRoute: AdminCommandCenterRoute,
   AppsRoute: AppsRoute,
