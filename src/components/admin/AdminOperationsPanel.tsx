@@ -23,12 +23,14 @@ import {
   Sparkles,
   Users,
   Webhook,
+  PhoneCall,
 } from "lucide-react";
 import { ClientsPanel, DevWorkspacePanel, KnowledgePanel } from "./WorkspacePanels";
 import { AnalyticsCenter } from "./AnalyticsCenter";
 import { SalesPanel, TeamPanel } from "./BusinessPanels";
 import { ReviewsPanel } from "./MarketplacePanels";
 import { MediaLibraryPanel, SiteSettingsPanel, LeadsPanel } from "./ExtraPanels";
+import { Link } from "@tanstack/react-router";
 
 type ModuleKey =
   | "users"
@@ -46,7 +48,8 @@ type ModuleKey =
   | "activity"
   | "backups"
   | "developer"
-  | "ai";
+  | "ai"
+  | "calls";
 
 type Props = {
   module: ModuleKey;
@@ -74,6 +77,7 @@ const META: Record<ModuleKey, {
   backups: { title: "Backup & Recovery", description: "Backup readiness, restore points and recovery procedures.", icon: Database, status: "configure" },
   developer: { title: "Developer Tools", description: "API documentation, keys, webhooks, feature flags and environment status.", icon: Code2, status: "partial" },
   ai: { title: "AI Control Center", description: "Providers, models, usage, prompts, generated content and API health.", icon: Sparkles, status: "partial" },
+  calls: { title: "Eager Connect", description: "Voice and video calls, screen sharing, reactions and in-call chat.", icon: PhoneCall, status: "partial" },
 };
 
 const STATUS = {
@@ -129,6 +133,7 @@ export function AdminOperationsPanel({ module }: Props) {
     backups: ["Deployment Center", "Site Settings", "Export"],
     developer: ["Developer Workspace", "Deployment Center", "AI Workspace"],
     ai: ["AI Workspace", "AI Website Builder", "Developer Workspace"],
+    calls: ["Eager Connect", "Video calls", "Screen sharing"],
   } as Record<ModuleKey, string[]>), []);
 
   if (module === "teams") return <TeamPanel />;
@@ -170,6 +175,7 @@ export function AdminOperationsPanel({ module }: Props) {
     health: <EmptyState icon={Server} title="Runtime health checks" body="Connect deployment, database and provider health endpoints to populate this panel. Until then, the dashboard reports configuration state instead of fake uptime." />,
     integrations: <EmptyState icon={Network} title="Integration registry" body="Store integration metadata server-side and keep tokens in environment secrets. GitHub, Vercel, Supabase, payment, SMS and email connections can be surfaced here." />,
     activity: <EmptyState icon={Activity} title="Unified activity stream" body="The existing audit and security logs are the trusted sources. A unified stream should aggregate those sources server-side rather than duplicating events in the browser." />,
+    calls: <Surface><div className="flex flex-wrap items-center justify-between gap-4"><div><h3 className="font-semibold">Eager Connect</h3><p className="mt-1 text-sm text-white/50">Open the real calling surface for authenticated users. WebRTC handles media; Supabase handles authenticated signaling and call state.</p></div><Link to="/connect" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-black hover:bg-white/90"><PhoneCall className="h-4 w-4" /> Open Connect</Link></div><p className="mt-4 text-[11px] text-amber-200/70">Direct peer connections are implemented. Add a TURN provider for reliable connectivity across restrictive networks and carrier NATs.</p></Surface>,
     backups: <EmptyState icon={Database} title="Backup readiness" body="Database restore operations should remain provider-controlled. This module is intentionally configuration-first until a verified backup provider and restore workflow are connected." />,
   }[module];
 
