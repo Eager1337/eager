@@ -68,6 +68,7 @@ import { SiteImportPanel } from "../components/admin/SiteImportPanel";
 import { CvPanel } from "../components/admin/CvPanel";
 import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
+import { AdminOperationsPanel } from "../components/admin/AdminOperationsPanel";
 import {
   ProductsPanel,
   BundlesPanel,
@@ -636,7 +637,22 @@ type TabKey =
   | "builder"
   | "credentials"
   | "cveditor"
-  | "import";
+  | "import"
+  | "users"
+  | "roles"
+  | "notifications"
+  | "marketing"
+  | "website"
+  | "content"
+  | "support"
+  | "moderation"
+  | "health"
+  | "integrations"
+  | "reports"
+  | "activity"
+  | "backups"
+  | "developer"
+  | "aiControl";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -681,6 +697,21 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "media", label: "Media Library", icon: FolderOpen },
   { key: "settings", label: "Site Settings", icon: Settings2 },
   { key: "leads", label: "Leads Inbox", icon: Inbox },
+  { key: "users", label: "User Management", icon: Users },
+  { key: "roles", label: "Roles & Permissions", icon: ShieldCheck },
+  { key: "notifications", label: "Notifications Center", icon: Inbox },
+  { key: "marketing", label: "Marketing Center", icon: Sparkles },
+  { key: "website", label: "Website Management", icon: Compass },
+  { key: "content", label: "Content Management", icon: FileText },
+  { key: "support", label: "Customer Support", icon: Inbox },
+  { key: "moderation", label: "Reviews & Moderation", icon: ShieldAlert },
+  { key: "health", label: "System Health", icon: Activity },
+  { key: "integrations", label: "Integrations", icon: Settings2 },
+  { key: "reports", label: "Reports & Exports", icon: FileText },
+  { key: "activity", label: "Activity Center", icon: Activity },
+  { key: "backups", label: "Backup & Recovery", icon: FolderOpen },
+  { key: "developer", label: "Developer Tools", icon: LayoutGrid },
+  { key: "aiControl", label: "AI Control Center", icon: Sparkles },
 ];
 
 
@@ -844,6 +875,21 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "reviews" && <ReviewsPanel />}
               {tab === "licenses" && <LicensesPanel />}
               {tab === "mfa" && <SecurityMfaPanel />}
+              {tab === "users" && <AdminOperationsPanel module="users" />}
+              {tab === "roles" && <AdminOperationsPanel module="roles" />}
+              {tab === "notifications" && <AdminOperationsPanel module="notifications" />}
+              {tab === "marketing" && <AdminOperationsPanel module="marketing" />}
+              {tab === "website" && <AdminOperationsPanel module="website" />}
+              {tab === "content" && <AdminOperationsPanel module="content" />}
+              {tab === "support" && <AdminOperationsPanel module="support" />}
+              {tab === "moderation" && <AdminOperationsPanel module="moderation" />}
+              {tab === "health" && <AdminOperationsPanel module="health" />}
+              {tab === "integrations" && <AdminOperationsPanel module="integrations" />}
+              {tab === "reports" && <AdminOperationsPanel module="reports" />}
+              {tab === "activity" && <AdminOperationsPanel module="activity" />}
+              {tab === "backups" && <AdminOperationsPanel module="backups" />}
+              {tab === "developer" && <AdminOperationsPanel module="developer" />}
+              {tab === "aiControl" && <AdminOperationsPanel module="ai" />}
             </motion.div>
           </AnimatePresence>
         </main>
