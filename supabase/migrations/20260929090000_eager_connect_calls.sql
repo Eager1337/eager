@@ -49,6 +49,24 @@ create table if not exists public.call_sessions (
 );
 create index if not exists call_sessions_caller_idx on public.call_sessions (caller_id, created_at desc);
 create index if not exists call_sessions_callee_idx on public.call_sessions (callee_id, created_at desc);
+create unique index if not exists call_sessions_one_active_pair_idx
+on public.call_sessions (least(caller_id, callee_id), greatest(caller_id, callee_id))
+where status in ('ringing','active');
+
+create or replace function public.protect_call_participants()
+returns trigger language plpgsql as $
+begin
+  if old.caller_id <> new.caller_id or old.callee_id <> new.callee_id then
+    raise exception 'Call participants cannot be changed';
+  end if;
+  return new;
+end;
+$;
+drop trigger if exists protect_call_participants_trigger on public.call_sessions;
+create trigger protect_call_participants_trigger
+before update on public.call_sessions
+for each row execute function public.protect_call_participants();
+
 
 create table if not exists public.call_signals (
   id uuid primary key default gen_random_uuid(),
