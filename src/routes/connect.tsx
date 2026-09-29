@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  AudioLines, Camera, CameraOff, Check, Copy, Heart, MessageCircle, Mic, MicOff,
-  MonitorUp, Phone, PhoneCall, PhoneOff, Search, ShieldCheck, Smile, Users, Video,
+  AudioLines, Camera, CameraOff, Check, Heart, Mic, MicOff, MonitorUp, PhoneCall,
+  PhoneOff, Search, ShieldCheck, Smile, Users, Video,
 } from "lucide-react";
 import { supabase } from "../integrations/supabase/client";
 
@@ -187,7 +187,7 @@ function ConnectPage() {
 }
 
 function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; remote: Profile | null; onEnd: () => void }) {
-  const local = useRef<HTMLVideoElement>(null), remoteVideo = useRef<HTMLVideoElement>(null), remoteScreen = useRef<HTMLVideoElement>(null);
+  const local = useRef<HTMLVideoElement>(null), remoteVideo = useRef<HTMLVideoElement>(null), remoteFace = useRef<HTMLVideoElement>(null), remoteScreen = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null), screen = useRef<MediaStream | null>(null), pc = useRef<RTCPeerConnection | null>(null);
   const signal = useRef<any>(null), remoteMedia = useRef(new MediaStream()), remoteScreenMedia = useRef(new MediaStream());
   const [mic, setMic] = useState(true), [cam, setCam] = useState(call.mode === "video"), [sharing, setSharing] = useState(false);
@@ -222,7 +222,10 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
           const target = videoCount.current > 1 ? remoteScreenMedia.current : remoteMedia.current;
           target.addTrack(e.track);
           if (videoCount.current > 1) { if (remoteScreen.current) remoteScreen.current.srcObject = remoteScreenMedia.current; }
-          else if (remoteVideo.current) remoteVideo.current.srcObject = remoteMedia.current;
+          else if (remoteVideo.current) {
+            remoteVideo.current.srcObject = remoteMedia.current;
+            if (remoteFace.current) remoteFace.current.srcObject = remoteMedia.current;
+          }
         };
 
         const ch = supabase.channel(`eager-call-${call.id}`);
@@ -280,7 +283,7 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
       {call.mode === "video" ? <video ref={remoteVideo} autoPlay playsInline className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center bg-gradient-to-br from-fuchsia-950/30 to-sky-950/20"><Avatar profile={remote} large /></div>}
       <video ref={remoteScreen} autoPlay playsInline className={`absolute inset-0 h-full w-full bg-black object-contain ${remoteSharing ? "block" : "hidden"}`} />
       {call.mode === "video" && <div className="absolute right-4 top-4 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl sm:h-44 sm:w-32"><video ref={local} autoPlay playsInline muted className="h-full w-full object-cover" /></div>}
-      {call.mode === "video" && remoteSharing && <div className="absolute left-4 top-16 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl sm:h-44 sm:w-32"><video ref={remoteVideo} autoPlay playsInline className="h-full w-full object-cover" /></div>}
+      {call.mode === "video" && remoteSharing && <div className="absolute left-4 top-16 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl sm:h-44 sm:w-32"><video ref={remoteFace} autoPlay playsInline className="h-full w-full object-cover" /></div>}
       <div className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur"><span className={`mr-2 inline-block h-2 w-2 rounded-full ${connected ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`} />{connected ? "Connected" : "Connecting…"}</div>
       {reaction && <div className="absolute left-1/2 top-1/3 -translate-x-1/2 text-6xl drop-shadow-2xl">{reaction}</div>}
       {error && <div className="absolute left-1/2 top-16 max-w-sm -translate-x-1/2 rounded-xl bg-red-500/15 px-4 py-3 text-xs text-red-100">{error}</div>}
