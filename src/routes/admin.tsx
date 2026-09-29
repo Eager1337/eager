@@ -45,6 +45,7 @@ import {
   LayoutGrid,
   BookOpen,
   Activity,
+  PhoneCall,
 } from "lucide-react";
 import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
