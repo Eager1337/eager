@@ -728,7 +728,7 @@ const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
   { label: "SYSTEM", keys: ["notifications", "reports", "backups", "settings", "toonhub", "legends", "pricing", "explore", "landings", "assets", "cveditor", "proposals", "esign", "contracts", "bundles", "licenses"] },
 ];
 
-function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {({ onSignOut }: { onSignOut: () => void }) {
+function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState<TabKey>("overview");
   const store = useContent();
   const navigate = useNavigate();
