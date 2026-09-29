@@ -1,15 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   AlertTriangle,
   BarChart3,
   Bell,
-  BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
   ChevronDown,
   CircleHelp,
-  Cloud,
   Code2,
   Database,
   FileBarChart,
@@ -17,11 +15,8 @@ import {
   Globe2,
   Headphones,
   KeyRound,
-  LifeBuoy,
   Megaphone,
   Network,
-  PanelTop,
-  RefreshCw,
   Server,
   Settings2,
   ShieldCheck,
@@ -87,7 +82,7 @@ const STATUS = {
   configure: { label: "Configure", className: "border-sky-400/25 bg-sky-500/10 text-sky-300" },
 } as const;
 
-function Surface({ children }: { children: React.ReactNode }) {
+function Surface({ children }: { children: ReactNode }) {
   return <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur">{children}</div>;
 }
 
