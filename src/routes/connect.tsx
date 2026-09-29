@@ -294,7 +294,7 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
         {call.mode === "video" && <button onClick={()=>void toggleScreen()} className={`grid h-11 w-11 place-items-center rounded-full ${sharing ? "bg-emerald-400 text-black" : "bg-white/10"}`}><MonitorUp /></button>}
         <button onClick={()=>void react("❤️")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Heart /></button>
         <button onClick={()=>void react("👍")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Smile /></button>
-        <button onClick={onEnd} className="grid h-11 w-14 place-items-center rounded-full bg-red-500"><PhoneOff /></button>
+        <button onClick={() => void end()} className="grid h-11 w-14 place-items-center rounded-full bg-red-500"><PhoneOff /></button>
       </div>
       <div className="absolute bottom-20 right-4 flex max-w-[calc(100vw-2rem)] gap-2 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl">
         <input value={message} onChange={(e)=>setMessage(e.target.value)} onKeyDown={(e)=>{if(e.key==="Enter")void chat()}} placeholder="Message…" className="w-32 bg-transparent px-2 text-xs outline-none sm:w-48" />
