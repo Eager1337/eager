@@ -652,7 +652,8 @@ type TabKey =
   | "activity"
   | "backups"
   | "developer"
-  | "aiControl";
+  | "aiControl"
+  | "calls";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -712,6 +713,7 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "backups", label: "Backup & Recovery", icon: FolderOpen },
   { key: "developer", label: "Developer Tools", icon: LayoutGrid },
   { key: "aiControl", label: "AI Control Center", icon: Sparkles },
+  { key: "calls", label: "Eager Connect", icon: PhoneCall },
 ];
 
 
@@ -721,7 +723,7 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
 const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
   { label: "COMMAND CENTER", keys: ["overview", "activity", "bi"] },
   { label: "BUSINESS", keys: ["clients", "leads", "sales", "market", "bookings", "finance", "marketing"] },
-  { label: "USERS", keys: ["users", "team", "roles", "support", "reviews", "moderation"] },
+  { label: "USERS", keys: ["users", "team", "roles", "support", "reviews", "moderation", "calls"] },
   { label: "CONTENT", keys: ["website", "content", "media", "knowledge", "portfolio", "themes", "sections"] },
   { label: "DEVELOPER", keys: ["projects", "workspace", "integrations", "developer", "deploy", "health", "aiControl", "ai", "builder", "import"] },
   { label: "SECURITY", keys: ["seccenter", "seclogin", "intruders", "audit", "privacy", "mfa", "credentials"] },
@@ -911,6 +913,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "backups" && <AdminOperationsPanel module="backups" />}
               {tab === "developer" && <AdminOperationsPanel module="developer" />}
               {tab === "aiControl" && <AdminOperationsPanel module="ai" />}
+              {tab === "calls" && <AdminOperationsPanel module="calls" />}
             </motion.div>
           </AnimatePresence>
         </main>
