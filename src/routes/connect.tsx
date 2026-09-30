@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  AudioLines, Camera, CameraOff, Check, Copy, Heart, Mic, MicOff, MonitorUp, PhoneCall,
+  AudioLines, Camera, CameraOff, Check, Copy, Heart, Maximize2, Mic, MicOff, MonitorUp, PhoneCall,
+  SwitchCamera,
   PhoneOff, Search, ShieldCheck, Smile, Users, Video,
 } from "lucide-react";
 import { supabase } from "../integrations/supabase/client";
@@ -227,10 +228,12 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
   const local = useRef<HTMLVideoElement>(null), remoteVideo = useRef<HTMLVideoElement>(null), remoteFace = useRef<HTMLVideoElement>(null), remoteScreen = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null), screen = useRef<MediaStream | null>(null), pc = useRef<RTCPeerConnection | null>(null);
   const signal = useRef<any>(null), remoteMedia = useRef(new MediaStream()), remoteScreenMedia = useRef(new MediaStream());
+  const cameraSender = useRef<RTCRtpSender | null>(null);
   const [mic, setMic] = useState(true), [cam, setCam] = useState(call.mode === "video"), [sharing, setSharing] = useState(false);
   const [remoteSharing, setRemoteSharing] = useState(false), [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<{text:string;mine:boolean}[]>([]), [message, setMessage] = useState("");
   const [reaction, setReaction] = useState<string | null>(null), [error, setError] = useState<string | null>(null);
+  const [duration, setDuration] = useState(0);
   const pendingIce = useRef<RTCIceCandidateInit[]>([]);
 
   const send = useCallback(async (kind: string, payload: any) => {
@@ -250,6 +253,7 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
         const camera = connection.addTransceiver("video", { direction: "sendrecv" });
         const screenTx = connection.addTransceiver("video", { direction: "sendrecv" });
         if (media.getAudioTracks()[0]) await audio.sender.replaceTrack(media.getAudioTracks()[0]);
+        cameraSender.current = camera.sender;
         if (media.getVideoTracks()[0]) await camera.sender.replaceTrack(media.getVideoTracks()[0]);
         connection.onicecandidate = (e) => { if (e.candidate) void send("ice", { candidate: e.candidate.toJSON() }); };
         connection.onconnectionstatechange = () => {
@@ -329,8 +333,54 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
   }, [call.id, call.status, onEnd]);
 
   const end = async () => { await db().from("call_sessions").update({ status:"ended", ended_at:new Date().toISOString(), updated_at:new Date().toISOString() }).eq("id", call.id); onEnd(); };
+  useEffect(() => {
+    const start = Date.parse(call.started_at || call.created_at);
+    const tick = () => setDuration(Math.max(0, Math.floor((Date.now() - start) / 1000)));
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [call.created_at, call.started_at]);
+
   const toggleMic = () => { const t=stream.current?.getAudioTracks()[0]; if(!t)return; t.enabled=!t.enabled; setMic(t.enabled); };
   const toggleCam = () => { const t=stream.current?.getVideoTracks()[0]; if(!t)return; t.enabled=!t.enabled; setCam(t.enabled); };
+  const switchCamera = async () => {
+    if (call.mode !== "video" || !cameraSender.current) return;
+    const current = stream.current?.getVideoTracks()[0];
+    if (!current) return;
+    const nextFacing = current.getSettings().facingMode === "environment" ? "user" : "environment";
+    current.stop();
+    try {
+      const next = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: nextFacing } }, audio: false });
+      const track = next.getVideoTracks()[0];
+      if (!track) return;
+      stream.current?.removeTrack(current);
+      stream.current?.addTrack(track);
+      await cameraSender.current.replaceTrack(track);
+      if (local.current && stream.current) local.current.srcObject = stream.current;
+      setCam(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not switch camera.");
+    }
+  };
+  const fullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {}
+  };
+  const togglePiP = async () => {
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (remoteVideo.current && document.pictureInPictureEnabled) {
+        await remoteVideo.current.requestPictureInPicture();
+      } else {
+        setError("Picture-in-picture is not supported in this browser.");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Picture-in-picture is unavailable.");
+    }
+  };
   const toggleScreen = async () => {
     const tx = pc.current?.getTransceivers().find((t) => t.receiver.track.kind === "video" && !t.sender.track);
     if (!tx) return;
@@ -349,16 +399,16 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
       <video ref={remoteScreen} autoPlay playsInline className={`absolute inset-0 h-full w-full bg-black object-contain ${remoteSharing ? "block" : "hidden"}`} />
       {call.mode === "video" && <div className="absolute right-4 top-4 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl sm:h-44 sm:w-32"><video ref={local} autoPlay playsInline muted className="h-full w-full object-cover" /></div>}
       {call.mode === "video" && remoteSharing && <div className="absolute left-4 top-16 h-36 w-28 overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl sm:h-44 sm:w-32"><video ref={remoteFace} autoPlay playsInline className="h-full w-full object-cover" /></div>}
-      <div className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur"><span className={`mr-2 inline-block h-2 w-2 rounded-full ${connected ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`} />{connected ? "Connected" : "Connecting…"}</div>
+      <div className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur"><span className={`mr-2 inline-block h-2 w-2 rounded-full ${connected ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`} />{connected ? "Connected" : "Connecting…"} · {String(Math.floor(duration / 60)).padStart(2, "0")}:{String(duration % 60).padStart(2, "0")}</div>
       {reaction && <div className="absolute left-1/2 top-1/3 -translate-x-1/2 text-6xl drop-shadow-2xl">{reaction}</div>}
       {error && <div className="absolute left-1/2 top-16 max-w-sm -translate-x-1/2 rounded-xl bg-red-500/15 px-4 py-3 text-xs text-red-100">{error}</div>}
       <div className="absolute bottom-24 left-4 max-w-xs space-y-2">{messages.slice(-4).map((m,i)=><div key={i} className={`rounded-2xl px-3 py-2 text-xs ${m.mine ? "ml-8 bg-white text-black" : "mr-8 bg-black/60 text-white"}`}>{m.text}</div>)}</div>
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-3xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl">
         <button onClick={toggleMic} className="grid h-11 w-11 place-items-center rounded-full bg-white/10">{mic ? <Mic /> : <MicOff className="text-red-300" />}</button>
         {call.mode === "video" && <button onClick={toggleCam} className="grid h-11 w-11 place-items-center rounded-full bg-white/10">{cam ? <Camera /> : <CameraOff className="text-red-300" />}</button>}
-        {call.mode === "video" && <button onClick={()=>void toggleScreen()} className={`grid h-11 w-11 place-items-center rounded-full ${sharing ? "bg-emerald-400 text-black" : "bg-white/10"}`}><MonitorUp /></button>}
+        {call.mode === "video" && <button onClick={()=>void toggleScreen()} className={`grid h-11 w-11 place-items-center rounded-full ${sharing ? "bg-emerald-400 text-black" : "bg-white/10"}`}><MonitorUp /></button><button onClick={()=>void switchCamera()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><SwitchCamera /></button><button onClick={()=>void togglePiP()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Maximize2 /></button>}
         <button onClick={()=>void react("❤️")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Heart /></button>
-        <button onClick={()=>void react("👍")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Smile /></button>
+        <button onClick={()=>void react("👍")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Smile /></button><button onClick={()=>void fullscreen()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Maximize2 /></button>
         <button onClick={() => void end()} className="grid h-11 w-14 place-items-center rounded-full bg-red-500"><PhoneOff /></button>
       </div>
       <div className="absolute bottom-20 right-4 flex max-w-[calc(100vw-2rem)] gap-2 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl">
