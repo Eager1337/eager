@@ -45,6 +45,7 @@ import {
   LayoutGrid,
   BookOpen,
   Activity,
+  PhoneCall,
 } from "lucide-react";
 import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
@@ -68,6 +69,7 @@ import { SiteImportPanel } from "../components/admin/SiteImportPanel";
 import { CvPanel } from "../components/admin/CvPanel";
 import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
+import { AdminOperationsPanel } from "../components/admin/AdminOperationsPanel";
 import {
   ProductsPanel,
   BundlesPanel,
@@ -636,7 +638,23 @@ type TabKey =
   | "builder"
   | "credentials"
   | "cveditor"
-  | "import";
+  | "import"
+  | "users"
+  | "roles"
+  | "notifications"
+  | "marketing"
+  | "website"
+  | "content"
+  | "support"
+  | "moderation"
+  | "health"
+  | "integrations"
+  | "reports"
+  | "activity"
+  | "backups"
+  | "developer"
+  | "aiControl"
+  | "calls";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -681,9 +699,37 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "media", label: "Media Library", icon: FolderOpen },
   { key: "settings", label: "Site Settings", icon: Settings2 },
   { key: "leads", label: "Leads Inbox", icon: Inbox },
+  { key: "users", label: "User Management", icon: Users },
+  { key: "roles", label: "Roles & Permissions", icon: ShieldCheck },
+  { key: "notifications", label: "Notifications Center", icon: Inbox },
+  { key: "marketing", label: "Marketing Center", icon: Sparkles },
+  { key: "website", label: "Website Management", icon: Compass },
+  { key: "content", label: "Content Management", icon: FileText },
+  { key: "support", label: "Customer Support", icon: Inbox },
+  { key: "moderation", label: "Reviews & Moderation", icon: ShieldAlert },
+  { key: "health", label: "System Health", icon: Activity },
+  { key: "integrations", label: "Integrations", icon: Settings2 },
+  { key: "reports", label: "Reports & Exports", icon: FileText },
+  { key: "activity", label: "Activity Center", icon: Activity },
+  { key: "backups", label: "Backup & Recovery", icon: FolderOpen },
+  { key: "developer", label: "Developer Tools", icon: LayoutGrid },
+  { key: "aiControl", label: "AI Control Center", icon: Sparkles },
+  { key: "calls", label: "Eager Connect", icon: PhoneCall },
 ];
 
 
+
+
+
+const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
+  { label: "COMMAND CENTER", keys: ["overview", "activity", "bi"] },
+  { label: "BUSINESS", keys: ["clients", "leads", "sales", "market", "bookings", "finance", "marketing"] },
+  { label: "USERS", keys: ["users", "team", "roles", "support", "reviews", "moderation", "calls"] },
+  { label: "CONTENT", keys: ["website", "content", "media", "knowledge", "portfolio", "themes", "sections"] },
+  { label: "DEVELOPER", keys: ["projects", "workspace", "integrations", "developer", "deploy", "health", "aiControl", "ai", "builder", "import"] },
+  { label: "SECURITY", keys: ["seccenter", "seclogin", "intruders", "audit", "privacy", "mfa", "credentials"] },
+  { label: "SYSTEM", keys: ["notifications", "reports", "backups", "settings", "toonhub", "legends", "pricing", "explore", "landings", "assets", "cveditor", "proposals", "esign", "contracts", "bundles", "licenses"] },
+];
 
 function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState<TabKey>("overview");
@@ -772,24 +818,33 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-5 py-6 sm:px-8 lg:grid-cols-[240px_1fr]">
         {/* Sidebar */}
-        <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const active = tab === t.key;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`group inline-flex items-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2.5 text-sm transition-all ${
-                  active
-                    ? "border-fuchsia-400/50 bg-gradient-to-r from-fuchsia-500/20 to-sky-500/20 text-white shadow-lg shadow-fuchsia-500/10"
-                    : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-                }`}
-              >
-                <Icon className="h-4 w-4" /> {t.label}
-              </button>
-            );
-          })}
+        <nav className="min-w-0 space-y-4">
+          {NAV_GROUPS.map((group) => (
+            <section key={group.label} className="min-w-0">
+              <div className="mb-2 px-2 text-[9px] font-bold tracking-[0.24em] text-white/30">{group.label}</div>
+              <div className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+                {group.keys.map((key) => {
+                  const t = TABS.find((item) => item.key === key);
+                  if (!t) return null;
+                  const Icon = t.icon;
+                  const active = tab === t.key;
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setTab(t.key)}
+                      className={`group inline-flex items-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2.5 text-sm transition-all ${
+                        active
+                          ? "border-fuchsia-400/50 bg-gradient-to-r from-fuchsia-500/20 to-sky-500/20 text-white shadow-lg shadow-fuchsia-500/10"
+                          : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" /> {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </nav>
 
         {/* Content */}
@@ -844,6 +899,22 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "reviews" && <ReviewsPanel />}
               {tab === "licenses" && <LicensesPanel />}
               {tab === "mfa" && <SecurityMfaPanel />}
+              {tab === "users" && <AdminOperationsPanel module="users" />}
+              {tab === "roles" && <AdminOperationsPanel module="roles" />}
+              {tab === "notifications" && <AdminOperationsPanel module="notifications" />}
+              {tab === "marketing" && <AdminOperationsPanel module="marketing" />}
+              {tab === "website" && <AdminOperationsPanel module="website" />}
+              {tab === "content" && <AdminOperationsPanel module="content" />}
+              {tab === "support" && <AdminOperationsPanel module="support" />}
+              {tab === "moderation" && <AdminOperationsPanel module="moderation" />}
+              {tab === "health" && <AdminOperationsPanel module="health" />}
+              {tab === "integrations" && <AdminOperationsPanel module="integrations" />}
+              {tab === "reports" && <AdminOperationsPanel module="reports" />}
+              {tab === "activity" && <AdminOperationsPanel module="activity" />}
+              {tab === "backups" && <AdminOperationsPanel module="backups" />}
+              {tab === "developer" && <AdminOperationsPanel module="developer" />}
+              {tab === "aiControl" && <AdminOperationsPanel module="ai" />}
+              {tab === "calls" && <AdminOperationsPanel module="calls" />}
             </motion.div>
           </AnimatePresence>
         </main>
