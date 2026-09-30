@@ -14,7 +14,7 @@ type Profile = {
 type Call = {
   id: string; caller_id: string; callee_id: string;
   mode: "voice" | "video"; status: "ringing" | "active" | "declined" | "missed" | "ended";
-  created_at: string;
+  created_at: string; started_at?: string | null; ended_at?: string | null;
 };
 type Signal = { id: string; sender_id: string; kind: string; payload: any };
 
@@ -302,8 +302,21 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
         }).subscribe(async (status) => {
           if (status !== "SUBSCRIBED") return;
           const { data } = await db().from("call_signals").select("*").eq("call_id", call.id).order("created_at", { ascending: true });
-          for (const s of (data || []) as Signal[]) if (s.sender_id !== meId && s.kind === "offer") {
-            await connection.setRemoteDescription(s.payload); const answer = await connection.createAnswer(); await connection.setLocalDescription(answer); await send("answer", answer);
+          for (const s of (data || []) as Signal[]) {
+            if (s.sender_id === meId) continue;
+            if (s.kind === "ice" && s.payload?.candidate) {
+              const candidate = s.payload.candidate as RTCIceCandidateInit;
+              if (connection.remoteDescription) await connection.addIceCandidate(candidate).catch(() => undefined);
+              else pendingIce.current.push(candidate);
+            }
+            if (s.kind === "offer") {
+              await connection.setRemoteDescription(s.payload);
+              const queued = pendingIce.current.splice(0);
+              for (const candidate of queued) await connection.addIceCandidate(candidate).catch(() => undefined);
+              const answer = await connection.createAnswer();
+              await connection.setLocalDescription(answer);
+              await send("answer", answer);
+            }
           }
           if (call.caller_id === meId) { const offer = await connection.createOffer(); await connection.setLocalDescription(offer); await send("offer", offer); }
         });
