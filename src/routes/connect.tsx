@@ -112,7 +112,7 @@ function ConnectPage() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "call_sessions", filter: `callee_id=eq.${user.id}` },
         (p) => { const c = p.new as Call; if (c.status === "ringing") setIncoming(c); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "call_sessions", filter: `callee_id=eq.${user.id}` },
-        (p) => { const c = p.new as Call; if (c.id === incoming?.id && c.status !== "ringing") setIncoming(null); })
+        (p) => { const c = p.new as Call; if (c.status !== "ringing") setIncoming((prev) => prev?.id === c.id ? null : prev); })
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [user]);
@@ -231,7 +231,7 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
   const [remoteSharing, setRemoteSharing] = useState(false), [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<{text:string;mine:boolean}[]>([]), [message, setMessage] = useState("");
   const [reaction, setReaction] = useState<string | null>(null), [error, setError] = useState<string | null>(null);
-  const videoCount = useRef(0);
+  const pendingIce = useRef<RTCIceCandidateInit[]>([]);
 
   const send = useCallback(async (kind: string, payload: any) => {
     await db().from("call_signals").insert({ call_id: call.id, sender_id: meId, kind, payload });
@@ -252,15 +252,22 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
         if (media.getAudioTracks()[0]) await audio.sender.replaceTrack(media.getAudioTracks()[0]);
         if (media.getVideoTracks()[0]) await camera.sender.replaceTrack(media.getVideoTracks()[0]);
         connection.onicecandidate = (e) => { if (e.candidate) void send("ice", { candidate: e.candidate.toJSON() }); };
-        connection.onconnectionstatechange = () => setConnected(connection.connectionState === "connected");
+        connection.onconnectionstatechange = () => {
+          setConnected(connection.connectionState === "connected");
+          if (connection.connectionState === "failed") setError("Connection failed. Try ending the call and calling again.");
+        };
         connection.ontrack = (e) => {
-          if (e.track.kind === "audio") { remoteMedia.current.addTrack(e.track); if (remoteVideo.current) remoteVideo.current.srcObject = remoteMedia.current; return; }
-          videoCount.current += 1;
-          const target = videoCount.current > 1 ? remoteScreenMedia.current : remoteMedia.current;
-          target.addTrack(e.track);
-          if (videoCount.current > 1) { if (remoteScreen.current) remoteScreen.current.srcObject = remoteScreenMedia.current; }
-          else if (remoteVideo.current) {
-            remoteVideo.current.srcObject = remoteMedia.current;
+          if (e.track.kind === "audio") {
+            remoteMedia.current.addTrack(e.track);
+            if (remoteVideo.current) remoteVideo.current.srcObject = remoteMedia.current;
+            return;
+          }
+          if (e.transceiver === screenTx) {
+            remoteScreenMedia.current.addTrack(e.track);
+            if (remoteScreen.current) remoteScreen.current.srcObject = remoteScreenMedia.current;
+          } else {
+            remoteMedia.current.addTrack(e.track);
+            if (remoteVideo.current) remoteVideo.current.srcObject = remoteMedia.current;
             if (remoteFace.current) remoteFace.current.srcObject = remoteMedia.current;
           }
         };
@@ -271,10 +278,19 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
           const s = p.new as Signal; if (s.sender_id === meId) return;
           if (s.kind === "offer" || s.kind === "renegotiate-offer") {
             await connection.setRemoteDescription(s.payload);
+            const queued = pendingIce.current.splice(0);
+            for (const candidate of queued) await connection.addIceCandidate(candidate).catch(() => undefined);
             const answer = await connection.createAnswer(); await connection.setLocalDescription(answer);
             await send(s.kind === "offer" ? "answer" : "renegotiate-answer", answer);
-          } else if (s.kind === "answer" || s.kind === "renegotiate-answer") await connection.setRemoteDescription(s.payload);
-          else if (s.kind === "ice" && s.payload?.candidate) await connection.addIceCandidate(s.payload.candidate).catch(() => undefined);
+          } else if (s.kind === "answer" || s.kind === "renegotiate-answer") {
+            await connection.setRemoteDescription(s.payload);
+            const queued = pendingIce.current.splice(0);
+            for (const candidate of queued) await connection.addIceCandidate(candidate).catch(() => undefined);
+          } else if (s.kind === "ice" && s.payload?.candidate) {
+            const candidate = s.payload.candidate as RTCIceCandidateInit;
+            if (connection.remoteDescription) await connection.addIceCandidate(candidate).catch(() => undefined);
+            else pendingIce.current.push(candidate);
+          }
           else if (s.kind === "screen-start") setRemoteSharing(true);
           else if (s.kind === "screen-stop") setRemoteSharing(false);
           else if (s.kind === "chat") setMessages((m) => [...m, { text: String(s.payload?.text || ""), mine: false }]);
@@ -299,6 +315,18 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
     }).subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [call.id, onEnd]);
+
+  useEffect(() => {
+    if (call.status !== "ringing") return;
+    const timer = window.setTimeout(async () => {
+      const { data } = await db().from("call_sessions").select("status").eq("id", call.id).maybeSingle();
+      if (data?.status === "ringing") {
+        await db().from("call_sessions").update({ status: "missed", ended_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", call.id);
+        onEnd();
+      }
+    }, 45000);
+    return () => window.clearTimeout(timer);
+  }, [call.id, call.status, onEnd]);
 
   const end = async () => { await db().from("call_sessions").update({ status:"ended", ended_at:new Date().toISOString(), updated_at:new Date().toISOString() }).eq("id", call.id); onEnd(); };
   const toggleMic = () => { const t=stream.current?.getAudioTracks()[0]; if(!t)return; t.enabled=!t.enabled; setMic(t.enabled); };
