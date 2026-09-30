@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  AudioLines, Camera, CameraOff, Check, Heart, Mic, MicOff, MonitorUp, PhoneCall,
+  AudioLines, Camera, CameraOff, Check, Copy, Heart, Mic, MicOff, MonitorUp, PhoneCall,
   PhoneOff, Search, ShieldCheck, Smile, Users, Video,
 } from "lucide-react";
 import { supabase } from "../integrations/supabase/client";
@@ -54,6 +54,7 @@ function ConnectPage() {
   const [email, setEmail] = useState(""); const [password, setPassword] = useState("");
   const [name, setName] = useState(""); const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  const [recentCalls, setRecentCalls] = useState<Array<Call & { other?: Profile; direction: "incoming" | "outgoing" }>>([]);
 
   const loadPeople = useCallback(async (uid: string, term = "") => {
     let q = db().from("profiles").select("id,username,display_name,avatar_url,bio,is_verified,last_seen_at")
@@ -64,6 +65,22 @@ function ConnectPage() {
     }
     const { data } = await q;
     setPeople(data ?? []);
+  }, []);
+
+  const loadRecentCalls = useCallback(async (uid: string) => {
+    const { data } = await db().from("call_sessions").select("*")
+      .or(`caller_id.eq.${uid},callee_id.eq.${uid}`)
+      .order("created_at", { ascending: false }).limit(20);
+    const rows = (data || []) as Call[];
+    const ids = [...new Set(rows.map((r) => r.caller_id === uid ? r.callee_id : r.caller_id))];
+    if (!ids.length) { setRecentCalls([]); return; }
+    const { data: profiles } = await db().from("profiles").select("*").in("id", ids);
+    const map = new Map((profiles || []).map((p: Profile) => [p.id, p]));
+    setRecentCalls(rows.map((r) => ({
+      ...r,
+      other: map.get(r.caller_id === uid ? r.callee_id : r.caller_id),
+      direction: r.caller_id === uid ? "outgoing" : "incoming",
+    })));
   }, []);
 
   const hydrate = useCallback(async (u: any) => {
@@ -79,7 +96,8 @@ function ConnectPage() {
     const { data } = await db().from("profiles").select("*").eq("id", u.id).maybeSingle();
     setMe(data);
     await loadPeople(u.id);
-  }, [loadPeople]);
+    await loadRecentCalls(u.id);
+  }, [loadPeople, loadRecentCalls]);
 
   useEffect(() => {
     let alive = true;
@@ -97,7 +115,15 @@ function ConnectPage() {
         (p) => { const c = p.new as Call; if (c.id === incoming?.id && c.status !== "ringing") setIncoming(null); })
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [user, incoming?.id]);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const beat = async () => { await db().from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", user.id); };
+    void beat();
+    const timer = window.setInterval(() => void beat(), 30000);
+    return () => window.clearInterval(timer);
+  }, [user]);
 
   const auth = async () => {
     setBusy(true); setError(null);
@@ -123,19 +149,20 @@ function ConnectPage() {
     const { data, error: e } = await db().from("call_sessions")
       .insert({ caller_id: user.id, callee_id: person.id, mode, status: "ringing" }).select("*").single();
     if (e) { setError(e.message); return; }
-    setRemote(person); setActive(data);
+    setRemote(person); setActive(data); await loadRecentCalls(user.id);
   };
 
   const answer = async () => {
     if (!incoming || !user) return;
     const { data: p } = await db().from("profiles").select("*").eq("id", incoming.caller_id).maybeSingle();
     await db().from("call_sessions").update({ status: "active", started_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", incoming.id);
-    setRemote(p); setActive({ ...incoming, status: "active" }); setIncoming(null);
+    setRemote(p); setActive({ ...incoming, status: "active" }); setIncoming(null); await loadRecentCalls(user.id);
   };
 
   const decline = async () => {
     if (!incoming) return;
     await db().from("call_sessions").update({ status: "declined", ended_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", incoming.id);
+    await loadRecentCalls(user.id);
     setIncoming(null);
   };
 
@@ -172,6 +199,16 @@ function ConnectPage() {
               {people.map((p) => <article key={p.id} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="flex gap-3"><Avatar profile={p} /><div className="min-w-0"><div className="flex items-center gap-1"><h3 className="truncate font-semibold">{p.display_name}</h3>{p.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-sky-300" />}</div><p className="text-xs text-white/35">@{p.username}</p><p className="mt-2 line-clamp-2 text-xs text-white/45">{p.bio || "Available for an Eager call."}</p></div></div><div className="mt-4 grid grid-cols-2 gap-2"><button onClick={() => void call(p,"voice")} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs"><AudioLines className="h-4 w-4" /> Voice</button><button onClick={() => void call(p,"video")} className="flex items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-xs font-semibold text-black"><Video className="h-4 w-4" /> Video</button></div></article>)}
             </div>
             {!people.length && <div className="mt-5 rounded-2xl border border-dashed border-white/10 py-14 text-center text-sm text-white/35">No other users found.</div>}
+            {!!recentCalls.length && <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.03] p-5">
+              <div className="flex items-center justify-between"><h3 className="font-semibold">Recent calls</h3><span className="text-[11px] text-white/35">{recentCalls.length} recent</span></div>
+              <div className="mt-4 space-y-2">
+                {recentCalls.slice(0, 8).map((r) => <div key={r.id} className="flex items-center gap-3 rounded-xl bg-black/20 p-3">
+                  <Avatar profile={r.other} />
+                  <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{r.other?.display_name || "Eager user"}</p><p className="text-[11px] text-white/35">{r.direction === "outgoing" ? "Outgoing" : "Incoming"} · {r.mode} · {r.status}</p></div>
+                  <span className="text-[10px] text-white/30">{new Date(r.created_at).toLocaleDateString()}</span>
+                </div>)}
+              </div>
+            </div>}
           </section>
           <aside className="space-y-4">
             <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><div className="flex items-center gap-2"><Users className="h-4 w-4" /><b>Calling toolkit</b></div><ul className="mt-4 space-y-3 text-xs text-white/55"><li>HD voice + video</li><li>Screen + face at the same time</li><li>Mic / camera controls</li><li>In-call messages + reactions</li><li>Authenticated signaling</li></ul></div>
