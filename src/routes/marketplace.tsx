@@ -289,7 +289,7 @@ function MarketplacePage() {
   );
 }
 
-type ClaimResult = { licenseKey: string; fileUrl: string; version: string; name: string };
+type ClaimResult = { licenseKey?: string; fileUrl?: string; version?: string; name?: string; ok?: boolean; error?: string };
 
 function ProductDialog({
   product,

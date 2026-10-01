@@ -76,7 +76,7 @@ function ConnectPage() {
     const ids = [...new Set(rows.map((r) => r.caller_id === uid ? r.callee_id : r.caller_id))];
     if (!ids.length) { setRecentCalls([]); return; }
     const { data: profiles } = await db().from("profiles").select("*").in("id", ids);
-    const map = new Map((profiles || []).map((p: Profile) => [p.id, p]));
+    const map = new Map<string, Profile>(((profiles || []) as Profile[]).map((p) => [p.id, p]));
     setRecentCalls(rows.map((r) => ({
       ...r,
       other: map.get(r.caller_id === uid ? r.callee_id : r.caller_id),
