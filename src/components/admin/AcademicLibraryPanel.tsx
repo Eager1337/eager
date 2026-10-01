@@ -54,7 +54,8 @@ function fileIcon(mime: string) {
   return FileText;
 }
 
-// Academic AI library: upload, classify, folder, preview and timetable workflow.\nexport function AcademicLibraryPanel() {
+// Academic AI library: upload, classify, folder, preview and timetable workflow.
+export function AcademicLibraryPanel() {
   const list = useServerFn(listAcademicLibrary);
   const upload = useServerFn(uploadAcademicDocument);
   const remove = useServerFn(deleteAcademicDocument);
