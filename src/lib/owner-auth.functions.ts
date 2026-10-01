@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { enforceRateLimit } from "./rate-limit.server";
 
 /**
  * Owner login.
@@ -18,6 +19,8 @@ export const ownerLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
+    const loginLimit = await enforceRateLimit("admin-login", data.username.trim().toLowerCase(), 8, 600, 900);
+    if (!loginLimit.allowed) return { ok: false as const, error: "Too many sign-in attempts. Please try again later." };
     const expectedUser = (process.env.OWNER_LOGIN_USERNAME ?? "").trim();
     const accepted = (process.env.OWNER_LOGIN_PASSWORDS ?? "")
       .split(",")
@@ -152,6 +155,8 @@ export const passkeyLogin = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
+    const passkeyLimit = await enforceRateLimit("admin-passkey", data.credentialId, 10, 600, 900);
+    if (!passkeyLimit.allowed) return { ok: false as const, error: "Too many passkey attempts. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { verifyAssertion, b64uToBytes } = await import("./webauthn.server");
     const { verifyChallenge } = await import("./challenge.server");
