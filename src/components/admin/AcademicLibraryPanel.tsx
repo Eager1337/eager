@@ -54,7 +54,7 @@ function fileIcon(mime: string) {
   return FileText;
 }
 
-// Academic AI library: upload, classify, folder, preview and timetable workflow.
+// Academic AI library: upload, classify, folder, preview and timetable workflow. Build check.
 export function AcademicLibraryPanel() {
   const list = useServerFn(listAcademicLibrary);
   const upload = useServerFn(uploadAcademicDocument);
