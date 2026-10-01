@@ -70,6 +70,8 @@ export type Database = {
       }
       admin_credentials: {
         Row: {
+          account_email: string
+          account_password: string
           created_at: string
           id: string
           password_hash: string
@@ -78,6 +80,8 @@ export type Database = {
           username: string
         }
         Insert: {
+          account_email?: string
+          account_password?: string
           created_at?: string
           id?: string
           password_hash?: string
@@ -86,6 +90,8 @@ export type Database = {
           username?: string
         }
         Update: {
+          account_email?: string
+          account_password?: string
           created_at?: string
           id?: string
           password_hash?: string
