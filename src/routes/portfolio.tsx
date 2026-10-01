@@ -1,9 +1,13 @@
 import { SmartImage } from "../lib/assets";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
   ArrowUpRight,
   ArrowLeft,
+  Download,
+  Smartphone,
   ArrowRight,
   Github,
   Linkedin,
@@ -28,6 +32,7 @@ import portraitRed from "../assets/portrait-red.jpg.asset.json";
 import portraitBlackSit from "../assets/portrait-black-sitting.jpg.asset.json";
 import portraitBlackStand from "../assets/portrait-black-standing.jpg.asset.json";
 import { useContent } from "../lib/content-store";
+import { listShowcaseApps } from "../lib/site-builder.functions";
 
 const PORTRAITS = [portraitRed, portraitBlackStand, portraitBlackSit];
 
@@ -142,6 +147,9 @@ const PROCESS = [
 function PortfolioPage() {
   const [pIdx, setPIdx] = useState(0);
   const { pricing } = useContent();
+  const listApps = useServerFn(listShowcaseApps);
+  const { data: appData } = useQuery({ queryKey: ["portfolio-published-apps"], queryFn: () => listApps({}) });
+  const publishedApps = appData?.apps ?? [];
   const nextP = () => setPIdx((i) => (i + 1) % PORTRAITS.length);
   const prevP = () => setPIdx((i) => (i - 1 + PORTRAITS.length) % PORTRAITS.length);
   const current = PORTRAITS[pIdx];
@@ -553,6 +561,66 @@ function PortfolioPage() {
               </Link>
             ))}
           </div>
+
+
+          <section className="mt-16 border-t border-white/5 pt-16">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-[#E63946]">Published apps</p>
+                <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
+                  Built to install.
+                </h2>
+                <p className="mt-4 max-w-2xl text-sm text-[#A8A8A8]">
+                  Apps published from the Eager AI App Builder appear here automatically with their live install page and CI-generated Android APK.
+                </p>
+              </div>
+              <Link
+                to="/apps"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white hover:text-[#0C0C0C] transition-colors"
+              >
+                All installable apps <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </div>
+            {publishedApps.length ? (
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {publishedApps.map((app) => (
+                  <article key={app.slug} className="rounded-2xl border border-white/10 bg-[#111111] p-5">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10"
+                        style={{ background: app.themeColor }}
+                      >
+                        {app.icon ? (
+                          <img src={app.icon} alt={`${app.name} icon`} className="h-full w-full object-cover" loading="lazy" />
+                        ) : (
+                          <Smartphone className="h-6 w-6 text-white/70" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-semibold text-white">{app.name}</h3>
+                        <p className="text-xs text-white/40">{app.shortName}</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-[#A8A8A8]">{app.summary || "Installable Android and desktop app."}</p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <a href={`/app/${app.slug}`} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-black hover:bg-[#E63946] hover:text-white transition-colors">
+                        <Smartphone className="h-3.5 w-3.5" /> Install
+                      </a>
+                      {app.apkUrl ? (
+                        <a href={app.apkUrl} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-xs text-white hover:border-white transition-colors">
+                          <Download className="h-3.5 w-3.5" /> APK
+                        </a>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-8 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center text-sm text-white/45">
+                No published apps yet. Build and publish one from the dashboard AI App Builder.
+              </div>
+            )}
+          </section>
 
           <p className="mt-16 text-xs uppercase tracking-[0.3em] text-[#E63946]">Toolbox</p>
           <h2 className="mt-3 font-[Anton,sans-serif] uppercase text-4xl sm:text-6xl leading-none">
