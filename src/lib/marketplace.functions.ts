@@ -122,14 +122,17 @@ export const claimDownload = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-download", data.customerEmail.toLowerCase(), 5, 3600, 3600);
+    if (!limit.allowed) return { ok: false as const, error: "Download limit reached. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: product } = await supabaseAdmin
       .from("products")
       .select("id, name, slug, file_url, version, downloads_count, product_type:category")
       .eq("slug", data.productSlug)
+      .eq("active", true)
       .maybeSingle();
-    if (!product) throw new Error("That product is no longer available.");
+    if (!product || !product.file_url) throw new Error("That product is no longer available.");
 
     const block = () =>
       Array.from(crypto.getRandomValues(new Uint8Array(4)))
