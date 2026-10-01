@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { enforceRateLimit } from "./rate-limit.server";
 
 async function adminDb(context: { supabase: any; userId: string }) {
   const { data: isAdmin } = await context.supabase.rpc("has_role", {
@@ -92,6 +93,8 @@ export const disableTotp = createServerFn({ method: "POST" })
 
 /** Stateless, signed challenge so no server memory is needed between requests. */
 export const getPasskeyChallenge = createServerFn({ method: "GET" }).handler(async () => {
+  const limit = await enforceRateLimit("passkey-challenge", "global", 12, 600, 600);
+  if (!limit.allowed) throw new Error("Too many passkey challenges. Please try again later.");
   const { createChallenge } = await import("./challenge.server");
   return { challenge: await createChallenge() };
 });
