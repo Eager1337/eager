@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { enforceRateLimit } from "./rate-limit.server";
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
