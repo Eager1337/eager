@@ -85,6 +85,12 @@ GRANT ALL ON public.admin_totp TO service_role;
 REVOKE ALL ON public.wishlist_items FROM authenticated, anon, public;
 GRANT ALL ON public.wishlist_items TO service_role;
 
+-- Published builder rows may contain prompts, source URLs and generated HTML.
+-- Public routes now use the server-only client and return only selected fields.
+DROP POLICY IF EXISTS "Anyone can view published builds" ON public.ai_site_builds;
+REVOKE SELECT ON public.ai_site_builds FROM anon;
+
+
 CREATE INDEX IF NOT EXISTS rate_limit_buckets_updated_at_idx ON public.rate_limit_buckets(updated_at);
 
 CREATE OR REPLACE FUNCTION public.purge_old_rate_limit_buckets()
