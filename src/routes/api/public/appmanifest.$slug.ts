@@ -8,6 +8,13 @@ export const Route = createFileRoute("/api/public/appmanifest/$slug")({
     handlers: {
       GET: async ({ params }) => {
         const slug = String((params as { slug?: string }).slug ?? "").slice(0, 80);
+        if (slug === "__index") {
+          const { listShowcaseApps } = await import("@/lib/site-builder.functions");
+          const { apps } = await listShowcaseApps({});
+          return new Response(JSON.stringify({ apps: apps.map((app) => ({ slug: app.slug, name: app.name, updatedAt: app.updatedAt, apkUrl: app.apkUrl })) }), {
+            headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=60" },
+          });
+        }
         const { build } = await getPublishedBuild({ data: { slug, kind: "app" } });
         if (!build) return new Response("Not found", { status: 404 });
 
