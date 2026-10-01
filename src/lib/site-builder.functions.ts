@@ -386,6 +386,12 @@ export const cloneSiteBuild = createServerFn({ method: "POST" })
     return { build: row };
   });
 
+const APK_RELEASE_BASE = "https://github.com/Eager1337/eager/releases/download";
+
+function apkReleaseUrl(slug: string) {
+  return `${APK_RELEASE_BASE}/app-${encodeURIComponent(slug)}/${encodeURIComponent(slug)}.apk`;
+}
+
 const APP_SYSTEM = `You are a senior mobile product engineer. You generate complete, installable single file web apps that feel native on Android and on desktop.
 
 Hard rules:
@@ -522,19 +528,19 @@ export const getPublishedBuild = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     let query = (await serverDb())
       .from("ai_site_builds")
-      .select("name, short_name, html, theme_color, app_icon, logo_url, summary, apk_url, build_type")
+      .select("name, short_name, html, theme_color, app_icon, logo_url, summary, apk_url, build_type, updated_at")
       .eq("slug", data.slug)
       .eq("published", true);
     if (data.kind !== "any") query = query.eq("build_type", data.kind);
     const { data: row } = await query.maybeSingle();
-    return { build: row ?? null };
+    return { build: row ? { ...row, apk_url: row.apk_url || (data.kind === "app" ? apkReleaseUrl(data.slug) : "") } : null };
   });
 
 /** Public: published installable apps. */
 export const listShowcaseApps = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await (await serverDb())
     .from("ai_site_builds")
-    .select("slug, name, short_name, summary, app_icon, logo_url, theme_color, apk_url, created_at")
+    .select("slug, name, short_name, summary, app_icon, logo_url, theme_color, apk_url, created_at, updated_at")
     .eq("published", true)
     .eq("build_type", "app")
     .order("created_at", { ascending: false })
@@ -547,8 +553,9 @@ export const listShowcaseApps = createServerFn({ method: "GET" }).handler(async 
       summary: a.summary ?? "",
       icon: a.app_icon ?? a.logo_url ?? "",
       themeColor: a.theme_color ?? "#0A0A0A",
-      apkUrl: a.apk_url ?? "",
+      apkUrl: a.apk_url || apkReleaseUrl(a.slug),
       createdAt: a.created_at,
+      updatedAt: a.updated_at,
     })),
   };
 });

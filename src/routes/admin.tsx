@@ -46,6 +46,7 @@ import {
   BookOpen,
   Activity,
   PhoneCall,
+  Smartphone,
 } from "lucide-react";
 import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
@@ -70,6 +71,7 @@ import { CvPanel } from "../components/admin/CvPanel";
 import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
 import { AdminOperationsPanel } from "../components/admin/AdminOperationsPanel";
+import { AppBuilderPanel } from "../components/admin/AppBuilderPanel";
 import {
   ProductsPanel,
   BundlesPanel,
@@ -172,6 +174,25 @@ export const Route = createFileRoute("/admin")({
   component: AdminGate,
 });
 
+function InstallableAppsPanel({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  return (
+    <div className="space-y-5">
+      <SectionHeader title="Installable Apps" subtitle="Published apps from the AI App Builder are listed here for portfolio visitors." />
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold">Public app library</h3>
+            <p className="mt-1 max-w-2xl text-sm text-white/55">Open the public install page to see published apps, PWA install controls and downloadable APK buttons when a CI build is ready.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => navigate({ to: "/apps" })} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black hover:bg-white/90">Open installable apps</button>
+            <button onClick={() => navigate({ to: "/portfolio" })} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 text-xs hover:bg-white/10">View portfolio</button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
 function FullScreenLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#050510] text-white">
@@ -654,7 +675,9 @@ type TabKey =
   | "backups"
   | "developer"
   | "aiControl"
-  | "calls";
+  | "calls"
+  | "appBuilder"
+  | "apps";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -715,6 +738,8 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "developer", label: "Developer Tools", icon: LayoutGrid },
   { key: "aiControl", label: "AI Control Center", icon: Sparkles },
   { key: "calls", label: "Eager Connect", icon: PhoneCall },
+  { key: "appBuilder", label: "AI App Builder", icon: Smartphone },
+  { key: "apps", label: "Installable Apps", icon: Smartphone },
 ];
 
 
@@ -726,7 +751,7 @@ const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
   { label: "BUSINESS", keys: ["clients", "leads", "sales", "market", "bookings", "finance", "marketing"] },
   { label: "USERS", keys: ["users", "team", "roles", "support", "reviews", "moderation", "calls"] },
   { label: "CONTENT", keys: ["website", "content", "media", "knowledge", "portfolio", "themes", "sections"] },
-  { label: "DEVELOPER", keys: ["projects", "workspace", "integrations", "developer", "deploy", "health", "aiControl", "ai", "builder", "import"] },
+  { label: "DEVELOPER", keys: ["projects", "workspace", "integrations", "developer", "deploy", "health", "aiControl", "ai", "builder", "appBuilder", "apps", "import"] },
   { label: "SECURITY", keys: ["seccenter", "seclogin", "intruders", "audit", "privacy", "mfa", "credentials"] },
   { label: "SYSTEM", keys: ["notifications", "reports", "backups", "settings", "toonhub", "legends", "pricing", "explore", "landings", "assets", "cveditor", "proposals", "esign", "contracts", "bundles", "licenses"] },
 ];
@@ -915,6 +940,8 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "developer" && <AdminOperationsPanel module="developer" />}
               {tab === "aiControl" && <AdminOperationsPanel module="ai" />}
               {tab === "calls" && <AdminOperationsPanel module="calls" />}
+              {tab === "appBuilder" && <AppBuilderPanel />}
+              {tab === "apps" && <InstallableAppsPanel navigate={navigate} />}
             </motion.div>
           </AnimatePresence>
         </main>

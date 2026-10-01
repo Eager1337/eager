@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, ExternalLink, Loader2, RefreshCw, Save, Sparkles, Trash2, Wand2, Globe2 } from "lucide-react";
+import { Copy, Download, ExternalLink, Loader2, RefreshCw, Save, Sparkles, Trash2, Wand2, Globe2 } from "lucide-react";
 import { ImageUploadField } from "./ImageUploadField";
 import { ProjectConnectionsPanel } from "./ProjectConnectionsPanel";
-import { buildSiteFromPrompt, deleteSiteBuild, listSiteBuilds, updateSiteBuild } from "../../lib/site-builder.functions";
+import { buildSiteFromPrompt, cloneSiteBuild, deleteSiteBuild, listSiteBuilds, updateSiteBuild } from "../../lib/site-builder.functions";
 
 type Row = Record<string, any>;
 
@@ -33,6 +33,7 @@ export function SiteBuilderPanel() {
   const load = useServerFn(listSiteBuilds);
   const patch = useServerFn(updateSiteBuild);
   const remove = useServerFn(deleteSiteBuild);
+  const clone = useServerFn(cloneSiteBuild);
   const [prompt, setPrompt] = useState("");
   const [name, setName] = useState("");
   const [style, setStyle] = useState("");
@@ -78,6 +79,20 @@ export function SiteBuilderPanel() {
     finally { setSaving(false); }
   };
 
+  const cloneActive = async () => {
+    if (!active) return;
+    setSaving(true); setSaveErr("");
+    try {
+      const res = await clone({ data: { id: String(active.id), name: String(active.name || "Website") + " copy" } });
+      const row = res.build as Row;
+      openBuild(row);
+      await refresh();
+    } catch (e) {
+      setSaveErr(e instanceof Error ? e.message : "Could not clone the website.");
+    } finally {
+      setSaving(false);
+    }
+  };
   const download = (row: Row) => { const blob = new Blob([String(row.html ?? "")], { type: "text/html" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${row.slug ?? "site"}.html`; a.click(); URL.revokeObjectURL(url); };
 
   return (
@@ -105,7 +120,7 @@ export function SiteBuilderPanel() {
             <label className="sm:col-span-2"><span className="mb-1.5 block text-[10px] uppercase tracking-[0.18em] text-white/45">Edit website code</span><textarea value={String(active.html ?? "")} onChange={(e) => setActive({ ...active, html: e.target.value })} rows={12} spellCheck={false} className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 font-mono text-[11px] outline-none focus:border-fuchsia-400" /></label>
           </div>
           {saveErr ? <p className="mt-3 rounded-xl border border-red-400/25 bg-red-400/10 px-3 py-2 text-xs text-red-200">{saveErr}</p> : null}
-          <div className="mt-4 flex flex-wrap gap-2"><button disabled={saving} onClick={() => void saveActive()} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 text-xs font-semibold text-black disabled:opacity-40"><Save className="h-3.5 w-3.5" /> Save project</button><button disabled={saving} onClick={() => void saveActive(true)} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-white px-4 text-xs font-semibold text-black disabled:opacity-40"><Globe2 className="h-3.5 w-3.5" /> Publish</button><button onClick={() => download(active)} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs"><Download className="h-3.5 w-3.5" /> Download</button>{active.published ? <a href={`/site/${String(active.slug)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs"><ExternalLink className="h-3.5 w-3.5" /> Open published</a> : null}</div>
+          <div className="mt-4 flex flex-wrap gap-2"><button disabled={saving} onClick={() => void saveActive()} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 text-xs font-semibold text-black disabled:opacity-40"><Save className="h-3.5 w-3.5" /> Save project</button><button disabled={saving} onClick={() => void saveActive(true)} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-white px-4 text-xs font-semibold text-black disabled:opacity-40"><Globe2 className="h-3.5 w-3.5" /> Publish</button><button disabled={saving} onClick={() => void cloneActive()} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-sky-400/25 bg-sky-400/10 px-4 text-xs text-sky-100 disabled:opacity-40"><Copy className="h-3.5 w-3.5" /> Clone</button><button onClick={() => download(active)} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs"><Download className="h-3.5 w-3.5" /> Download</button>{active.published ? <a href={`/site/${String(active.slug)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs"><ExternalLink className="h-3.5 w-3.5" /> Open published</a> : null}</div>
           <iframe title="Website preview" srcDoc={decorateHtml(String(active.html ?? ""), String(active.name ?? ""), String(active.logo_url ?? ""), welcome)} className="mt-4 h-[560px] w-full rounded-2xl border border-white/10 bg-white" sandbox="allow-scripts allow-popups allow-forms" />
         </section>
       ) : null}

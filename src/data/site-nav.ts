@@ -15,6 +15,7 @@ export const SITE_NAV: NavItem[] = [
   { label: "Services", to: "/services", note: "How I work with clients" },
   { label: "Digital Marketplace", to: "/marketplace", note: "Templates and systems" },
   { label: "AI Build Showcase", to: "/showcase", note: "Live AI-built sites" },
+  { label: "Installable Apps", to: "/apps", note: "Apps built with the AI app builder" },
   { label: "Book a Consultation", to: "/book", note: "Pick a session" },
   { label: "Resume", to: "/cv", note: "Download the CV" },
   { label: "Skills & Technologies", to: "/skills", note: "The full stack" },
