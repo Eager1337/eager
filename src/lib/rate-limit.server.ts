@@ -13,7 +13,7 @@ export async function enforceRateLimit(
   const material = scope + "|" + ip + "|" + extraKey;
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(material));
   const hash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
-  const { data, error } = await supabaseAdmin.rpc("consume_rate_limit", {
+  const { data, error } = await (supabaseAdmin as any).rpc("consume_rate_limit", {
     p_key: scope + ":" + hash,
     p_limit: limit,
     p_window_seconds: windowSeconds,
