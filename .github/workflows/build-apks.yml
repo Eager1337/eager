@@ -1,0 +1,212 @@
+name: Build published Android APKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Optional app slug. Leave empty to build every published app whose APK is missing or stale."
+        required: false
+        type: string
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: eager-apk-builder
+  cancel-in-progress: false
+
+env:
+  APP_BASE_URL: ${{ vars.EAGER_APP_BASE_URL || 'https://eager.lovable.app' }}
+  CAPACITOR_VERSION: "8.5.2"
+
+jobs:
+  build-apks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
+      - name: Discover published apps
+        id: discover
+        env:
+          REQUESTED_SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location "$APP_BASE_URL/api/public/appmanifest/__index" -o apps.json
+          python3 - <<'PY'
+          import json, os
+          data=json.load(open("apps.json"))
+          requested=os.environ.get("REQUESTED_SLUG","").strip()
+          apps=data.get("apps",[])
+          if requested:
+              apps=[a for a in apps if a.get("slug")==requested]
+              if not apps:
+                  raise SystemExit(f"Published app not found: {requested}")
+          with open("build-list.txt","w") as f:
+              for app in apps:
+                  f.write(json.dumps(app,separators=(",",":"))+"\n")
+          print(f"Found {len(apps)} published app(s).")
+          PY
+
+      - name: Build apps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          mkdir -p .apk-output
+          touch .apk-output/built.txt
+
+          while IFS= read -r app_json; do
+            [ -z "$app_json" ] && continue
+            slug=$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["slug"])' "$app_json")
+            name=$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("name","Eager App"))' "$app_json")
+            updated_at=$(python3 -c 'import json,sys; print(json.loads(sys.argv[1]).get("updatedAt",""))' "$app_json")
+            tag="app-$slug"
+
+            if [ -n "$updated_at" ] && gh release view "$tag" --json publishedAt -q '.publishedAt' >/tmp/published-at 2>/dev/null; then
+              published_at=$(cat /tmp/published-at)
+              updated_epoch=$(date -d "$updated_at" +%s || echo 0)
+              published_epoch=$(date -d "$published_at" +%s || echo 0)
+              if [ "$published_epoch" -ge "$updated_epoch" ]; then
+                echo "Skipping $slug: APK release is current."
+                continue
+              fi
+            fi
+
+            safe_slug=$(printf '%s' "$slug" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/^-*//;s/-*$//')
+            [ -n "$safe_slug" ] || safe_slug="app"
+            app_id="dev.eagerbeaver.app.${safe_slug//-/_}"
+            work="$RUNNER_TEMP/eager-apk-$safe_slug"
+            rm -rf "$work"
+            mkdir -p "$work/www"
+            cd "$work"
+
+            curl --fail --silent --show-error --location "$APP_BASE_URL/api/public/appdoc/$slug" -o www/index.html
+
+            cat > package.json <<EOF
+          {
+            "name": "eager-${safe_slug}-android",
+            "private": true,
+            "dependencies": {
+              "@capacitor/core": "^${CAPACITOR_VERSION}"
+            },
+            "devDependencies": {
+              "@capacitor/cli": "^${CAPACITOR_VERSION}",
+              "@capacitor/android": "^${CAPACITOR_VERSION}"
+            }
+          }
+          EOF
+
+            cat > capacitor.config.ts <<EOF
+          import type { CapacitorConfig } from "@capacitor/cli";
+          const config: CapacitorConfig = {
+            appId: "${app_id}",
+            appName: $(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$name"),
+            webDir: "www"
+          };
+          export default config;
+          EOF
+
+            npm install --no-audit --no-fund
+            npx cap add android
+            npx cap sync android
+
+            if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ] && [ -n "${ANDROID_KEYSTORE_PASSWORD:-}" ] && [ -n "${ANDROID_KEY_ALIAS:-}" ] && [ -n "${ANDROID_KEY_PASSWORD:-}" ]; then
+              echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$work/release.jks"
+              export KEYSTORE_PATH="$work/release.jks"
+              export KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+              export KEY_ALIAS="$ANDROID_KEY_ALIAS"
+              export KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+              signing_mode="repository secret"
+            else
+              export KEYSTORE_PATH="$work/eager-ci.jks"
+              export KEYSTORE_PASSWORD="$(python3 - <<'PY'
+import secrets
+print(secrets.token_urlsafe(24))
+PY
+)"
+              export KEY_ALIAS="eager-ci"
+              export KEY_PASSWORD="$KEYSTORE_PASSWORD"
+              keytool -genkeypair -v \
+                -keystore "$KEYSTORE_PATH" \
+                -storepass "$KEYSTORE_PASSWORD" \
+                -keypass "$KEY_PASSWORD" \
+                -alias "$KEY_ALIAS" \
+                -keyalg RSA -keysize 2048 -validity 10000 \
+                -dname "CN=Eager Beaver CI,O=Eager Beaver,C=SL"
+              signing_mode="ephemeral CI key"
+            fi
+
+            python3 - "$work/android/app/build.gradle" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1])
+s=p.read_text()
+block='''
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("KEYSTORE_PATH"))
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
+    }
+'''
+if "signingConfigs {" not in s:
+    s=s.replace("\n    buildTypes {", "\n"+block+"\n    buildTypes {", 1)
+if "signingConfig signingConfigs.release" not in s:
+    s=s.replace("        release {\n", "        release {\n            signingConfig signingConfigs.release\n", 1)
+p.write_text(s)
+PY
+
+            cd "$work/android"
+            ./gradlew assembleRelease --no-daemon --stacktrace
+            apk="$work/android/app/build/outputs/apk/release/app-release.apk"
+            test -s "$apk"
+
+            out="$GITHUB_WORKSPACE/.apk-output/${safe_slug}.apk"
+            cp "$apk" "$out"
+
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release upload "$tag" "$out" --clobber
+            else
+              gh release create "$tag" "$out" --title "$name Android APK" --notes "Built from the Eager Beaver AI App Builder. Signing mode: $signing_mode." --latest=false
+            fi
+
+            printf '%s\n' "$slug" >> "$GITHUB_WORKSPACE/.apk-output/built.txt"
+            echo "Built and published $slug ($signing_mode)."
+          done < "$GITHUB_WORKSPACE/build-list.txt"
+
+      - name: Upload APK artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eager-android-apks
+          path: .apk-output/*.apk
+          if-no-files-found: ignore
+          retention-days: 14
