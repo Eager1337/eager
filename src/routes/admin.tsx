@@ -72,6 +72,7 @@ import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
 import { AdminOperationsPanel } from "../components/admin/AdminOperationsPanel";
 import { AppBuilderPanel } from "../components/admin/AppBuilderPanel";
+import { AcademicLibraryPanel } from "../components/admin/AcademicLibraryPanel";
 import {
   ProductsPanel,
   BundlesPanel,
@@ -677,7 +678,8 @@ type TabKey =
   | "aiControl"
   | "calls"
   | "appBuilder"
-  | "apps";
+  | "apps"
+  | "academicAI";
 
 const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
@@ -740,6 +742,7 @@ const TABS: { key: TabKey; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "calls", label: "Eager Connect", icon: PhoneCall },
   { key: "appBuilder", label: "AI App Builder", icon: Smartphone },
   { key: "apps", label: "Installable Apps", icon: Smartphone },
+  { key: "academicAI", label: "Academic AI Library", icon: BookOpen },
 ];
 
 
@@ -750,7 +753,7 @@ const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
   { label: "COMMAND CENTER", keys: ["overview", "activity", "bi"] },
   { label: "BUSINESS", keys: ["clients", "leads", "sales", "market", "bookings", "finance", "marketing"] },
   { label: "USERS", keys: ["users", "team", "roles", "support", "reviews", "moderation", "calls"] },
-  { label: "CONTENT", keys: ["website", "content", "media", "knowledge", "portfolio", "themes", "sections"] },
+  { label: "CONTENT", keys: ["website", "content", "media", "knowledge", "portfolio", "academicAI", "themes", "sections"] },
   { label: "DEVELOPER", keys: ["projects", "workspace", "integrations", "developer", "deploy", "health", "aiControl", "ai", "builder", "appBuilder", "apps", "import"] },
   { label: "SECURITY", keys: ["seccenter", "seclogin", "intruders", "audit", "privacy", "mfa", "credentials"] },
   { label: "SYSTEM", keys: ["notifications", "reports", "backups", "settings", "toonhub", "legends", "pricing", "explore", "landings", "assets", "cveditor", "proposals", "esign", "contracts", "bundles", "licenses"] },
@@ -942,6 +945,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "calls" && <AdminOperationsPanel module="calls" />}
               {tab === "appBuilder" && <AppBuilderPanel />}
               {tab === "apps" && <InstallableAppsPanel navigate={navigate} />}
+              {tab === "academicAI" && <AcademicLibraryPanel />}
             </motion.div>
           </AnimatePresence>
         </main>
