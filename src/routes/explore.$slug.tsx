@@ -26,7 +26,7 @@ export const Route = createFileRoute("/explore/$slug")({
   ),
   errorComponent: ({ error }) => (
     <div className="flex min-h-screen items-center justify-center bg-black text-white">
-      <div className="text-center text-sm text-white/70">{error.message}</div>
+      <div className="text-center text-sm text-white/70">{(error as Error).message}</div>
     </div>
   ),
   component: ProjectPage,

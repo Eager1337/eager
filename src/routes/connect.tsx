@@ -76,7 +76,7 @@ function ConnectPage() {
     const ids = [...new Set(rows.map((r) => r.caller_id === uid ? r.callee_id : r.caller_id))];
     if (!ids.length) { setRecentCalls([]); return; }
     const { data: profiles } = await db().from("profiles").select("*").in("id", ids);
-    const map = new Map((profiles || []).map((p: Profile) => [p.id, p]));
+    const map = new Map<string, Profile>(((profiles || []) as Profile[]).map((p) => [p.id, p]));
     setRecentCalls(rows.map((r) => ({
       ...r,
       other: map.get(r.caller_id === uid ? r.callee_id : r.caller_id),
@@ -419,7 +419,7 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-3xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl">
         <button onClick={toggleMic} className="grid h-11 w-11 place-items-center rounded-full bg-white/10">{mic ? <Mic /> : <MicOff className="text-red-300" />}</button>
         {call.mode === "video" && <button onClick={toggleCam} className="grid h-11 w-11 place-items-center rounded-full bg-white/10">{cam ? <Camera /> : <CameraOff className="text-red-300" />}</button>}
-        {call.mode === "video" && <button onClick={()=>void toggleScreen()} className={`grid h-11 w-11 place-items-center rounded-full ${sharing ? "bg-emerald-400 text-black" : "bg-white/10"}`}><MonitorUp /></button><button onClick={()=>void switchCamera()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><SwitchCamera /></button><button onClick={()=>void togglePiP()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Maximize2 /></button>}
+        {call.mode === "video" && <><button onClick={()=>void toggleScreen()} className={`grid h-11 w-11 place-items-center rounded-full ${sharing ? "bg-emerald-400 text-black" : "bg-white/10"}`}><MonitorUp /></button><button onClick={()=>void switchCamera()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><SwitchCamera /></button><button onClick={()=>void togglePiP()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Maximize2 /></button></>}
         <button onClick={()=>void react("❤️")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Heart /></button>
         <button onClick={()=>void react("👍")} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Smile /></button><button onClick={()=>void fullscreen()} className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Maximize2 /></button>
         <button onClick={() => void end()} className="grid h-11 w-14 place-items-center rounded-full bg-red-500"><PhoneOff /></button>

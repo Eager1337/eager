@@ -9,205 +9,76 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AdminCommandCenterRouteImport } from './routes/admin-command-center'
-import { Route as AppsRouteImport } from './routes/apps'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as BookRouteImport } from './routes/book'
-import { Route as CaseStudiesRouteImport } from './routes/case-studies'
-import { Route as CertificationsRouteImport } from './routes/certifications'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CvRouteImport } from './routes/cv'
-import { Route as ExploreRouteImport } from './routes/explore'
-import { Route as FaqsRouteImport } from './routes/faqs'
-import { Route as HaloRouteImport } from './routes/halo'
-import { Route as InvestorRouteImport } from './routes/investor'
-import { Route as LegendsRouteImport } from './routes/legends'
-import { Route as MarketplaceRouteImport } from './routes/marketplace'
-import { Route as OpenSourceRouteImport } from './routes/open-source'
-import { Route as PortfolioRouteImport } from './routes/portfolio'
-import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
-import { Route as PressKitRouteImport } from './routes/press-kit'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ResourcesRouteImport } from './routes/resources'
-import { Route as ServicesRouteImport } from './routes/services'
-import { Route as ShowcaseRouteImport } from './routes/showcase'
-import { Route as SkillsRouteImport } from './routes/skills'
-import { Route as SkyeliteRouteImport } from './routes/skyelite'
-import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
-import { Route as AboutIndexRouteImport } from './routes/about.index'
-import { Route as AboutBeyondCodeRouteImport } from './routes/about.beyond-code'
-import { Route as AboutEducationRouteImport } from './routes/about.education'
-import { Route as AboutStoryRouteImport } from './routes/about.story'
-import { Route as AboutValuesRouteImport } from './routes/about.values'
-import { Route as AppSlugRouteImport } from './routes/app.$slug'
-import { Route as CargoxIndexRouteImport } from './routes/cargox.index'
-import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
-import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
-import { Route as InvestorIndexRouteImport } from './routes/investor.index'
-import { Route as InvestorSlugRouteImport } from './routes/investor.$slug'
-import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
-import { Route as LegendsIndexRouteImport } from './routes/legends.index'
-import { Route as LegendsSlugRouteImport } from './routes/legends.$slug'
-import { Route as PortfolioOsIndexRouteImport } from './routes/portfolio-os.index'
-import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug'
-import { Route as PortfolioOsSuiteRouteImport } from './routes/portfolio-os.suite'
-import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
-import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
-import { Route as SSlugRouteImport } from './routes/s.$slug'
-import { Route as SiteSlugRouteImport } from './routes/site.$slug'
+import { Route as TestimonialsRouteImport } from './routes/testimonials'
+import { Route as SkyeliteRouteImport } from './routes/skyelite'
+import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PressKitRouteImport } from './routes/press-kit'
+import { Route as PortfolioOsRouteImport } from './routes/portfolio-os'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as OpenSourceRouteImport } from './routes/open-source'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as LegendsRouteImport } from './routes/legends'
+import { Route as InvestorRouteImport } from './routes/investor'
+import { Route as HaloRouteImport } from './routes/halo'
+import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as CvRouteImport } from './routes/cv'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as CertificationsRouteImport } from './routes/certifications'
+import { Route as CaseStudiesRouteImport } from './routes/case-studies'
+import { Route as BookRouteImport } from './routes/book'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AppsRouteImport } from './routes/apps'
+import { Route as AdminCommandCenterRouteImport } from './routes/admin-command-center'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as SkyeliteIndexRouteImport } from './routes/skyelite.index'
-import { Route as SkyeliteBenefitsRouteImport } from './routes/skyelite.benefits'
-import { Route as SkyeliteBookRouteImport } from './routes/skyelite.book'
-import { Route as SkyeliteFaqRouteImport } from './routes/skyelite.faq'
-import { Route as SkyeliteRatesRouteImport } from './routes/skyelite.rates'
-import { Route as SkyeliteStoryRouteImport } from './routes/skyelite.story'
-import { Route as WorkAeonRouteImport } from './routes/work.aeon'
-import { Route as WorkAuraiRouteImport } from './routes/work.aurai'
-import { Route as WorkDatacoreRouteImport } from './routes/work.datacore'
-import { Route as WorkDeckRouteImport } from './routes/work.deck'
-import { Route as WorkIosRouteImport } from './routes/work.ios'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as PortfolioOsIndexRouteImport } from './routes/portfolio-os.index'
+import { Route as LegendsIndexRouteImport } from './routes/legends.index'
+import { Route as InvestorIndexRouteImport } from './routes/investor.index'
+import { Route as CargoxIndexRouteImport } from './routes/cargox.index'
+import { Route as AboutIndexRouteImport } from './routes/about.index'
 import { Route as WorkTaskoraRouteImport } from './routes/work.taskora'
-import { Route as ApiPublicAppdocSlugRouteImport } from './routes/api/public/appdoc.$slug'
-import { Route as ApiPublicAppmanifestSlugRouteImport } from './routes/api/public/appmanifest.$slug'
+import { Route as WorkIosRouteImport } from './routes/work.ios'
+import { Route as WorkDeckRouteImport } from './routes/work.deck'
+import { Route as WorkDatacoreRouteImport } from './routes/work.datacore'
+import { Route as WorkAuraiRouteImport } from './routes/work.aurai'
+import { Route as WorkAeonRouteImport } from './routes/work.aeon'
+import { Route as SkyeliteStoryRouteImport } from './routes/skyelite.story'
+import { Route as SkyeliteRatesRouteImport } from './routes/skyelite.rates'
+import { Route as SkyeliteFaqRouteImport } from './routes/skyelite.faq'
+import { Route as SkyeliteBookRouteImport } from './routes/skyelite.book'
+import { Route as SkyeliteBenefitsRouteImport } from './routes/skyelite.benefits'
+import { Route as SiteSlugRouteImport } from './routes/site.$slug'
+import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as PortfolioOsSuiteRouteImport } from './routes/portfolio-os.suite'
+import { Route as PortfolioOsSlugRouteImport } from './routes/portfolio-os.$slug'
+import { Route as LegendsSlugRouteImport } from './routes/legends.$slug'
+import { Route as LandingSlugRouteImport } from './routes/landing.$slug'
+import { Route as InvestorSlugRouteImport } from './routes/investor.$slug'
+import { Route as ExploreSlugRouteImport } from './routes/explore.$slug'
+import { Route as CargoxSlugRouteImport } from './routes/cargox.$slug'
+import { Route as AppSlugRouteImport } from './routes/app.$slug'
+import { Route as AboutValuesRouteImport } from './routes/about.values'
+import { Route as AboutStoryRouteImport } from './routes/about.story'
+import { Route as AboutEducationRouteImport } from './routes/about.education'
+import { Route as AboutBeyondCodeRouteImport } from './routes/about.beyond-code'
 import { Route as ApiPublicMediaKeyRouteImport } from './routes/api/public/media.$key'
+import { Route as ApiPublicAppmanifestSlugRouteImport } from './routes/api/public/appmanifest.$slug'
+import { Route as ApiPublicAppdocSlugRouteImport } from './routes/api/public/appdoc.$slug'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminCommandCenterRoute = AdminCommandCenterRouteImport.update({
-  id: '/admin-command-center',
-  path: '/admin-command-center',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppsRoute = AppsRouteImport.update({
-  id: '/apps',
-  path: '/apps',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookRoute = BookRouteImport.update({
-  id: '/book',
-  path: '/book',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CaseStudiesRoute = CaseStudiesRouteImport.update({
-  id: '/case-studies',
-  path: '/case-studies',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CertificationsRoute = CertificationsRouteImport.update({
-  id: '/certifications',
-  path: '/certifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CvRoute = CvRouteImport.update({
-  id: '/cv',
-  path: '/cv',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreRoute = ExploreRouteImport.update({
-  id: '/explore',
-  path: '/explore',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FaqsRoute = FaqsRouteImport.update({
-  id: '/faqs',
-  path: '/faqs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HaloRoute = HaloRouteImport.update({
-  id: '/halo',
-  path: '/halo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InvestorRoute = InvestorRouteImport.update({
-  id: '/investor',
-  path: '/investor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegendsRoute = LegendsRouteImport.update({
-  id: '/legends',
-  path: '/legends',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplaceRoute = MarketplaceRouteImport.update({
-  id: '/marketplace',
-  path: '/marketplace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpenSourceRoute = OpenSourceRouteImport.update({
-  id: '/open-source',
-  path: '/open-source',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PortfolioRoute = PortfolioRouteImport.update({
-  id: '/portfolio',
-  path: '/portfolio',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PortfolioOsRoute = PortfolioOsRouteImport.update({
-  id: '/portfolio-os',
-  path: '/portfolio-os',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PressKitRoute = PressKitRouteImport.update({
-  id: '/press-kit',
-  path: '/press-kit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResourcesRoute = ResourcesRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShowcaseRoute = ShowcaseRouteImport.update({
-  id: '/showcase',
-  path: '/showcase',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkillsRoute = SkillsRouteImport.update({
-  id: '/skills',
-  path: '/skills',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkyeliteRoute = SkyeliteRouteImport.update({
-  id: '/skyelite',
-  path: '/skyelite',
+const ThankYouRoute = ThankYouRouteImport.update({
+  id: '/thank-you',
+  path: '/thank-you',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestimonialsRoute = TestimonialsRouteImport.update({
@@ -215,114 +86,144 @@ const TestimonialsRoute = TestimonialsRouteImport.update({
   path: '/testimonials',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThankYouRoute = ThankYouRouteImport.update({
-  id: '/thank-you',
-  path: '/thank-you',
+const SkyeliteRoute = SkyeliteRouteImport.update({
+  id: '/skyelite',
+  path: '/skyelite',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutIndexRoute = AboutIndexRouteImport.update({
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PressKitRoute = PressKitRouteImport.update({
+  id: '/press-kit',
+  path: '/press-kit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioOsRoute = PortfolioOsRouteImport.update({
+  id: '/portfolio-os',
+  path: '/portfolio-os',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpenSourceRoute = OpenSourceRouteImport.update({
+  id: '/open-source',
+  path: '/open-source',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegendsRoute = LegendsRouteImport.update({
+  id: '/legends',
+  path: '/legends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorRoute = InvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HaloRoute = HaloRouteImport.update({
+  id: '/halo',
+  path: '/halo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CvRoute = CvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificationsRoute = CertificationsRouteImport.update({
+  id: '/certifications',
+  path: '/certifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaseStudiesRoute = CaseStudiesRouteImport.update({
+  id: '/case-studies',
+  path: '/case-studies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsRoute = AppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCommandCenterRoute = AdminCommandCenterRouteImport.update({
+  id: '/admin-command-center',
+  path: '/admin-command-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutBeyondCodeRoute = AboutBeyondCodeRouteImport.update({
-  id: '/beyond-code',
-  path: '/beyond-code',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutEducationRoute = AboutEducationRouteImport.update({
-  id: '/education',
-  path: '/education',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutStoryRoute = AboutStoryRouteImport.update({
-  id: '/story',
-  path: '/story',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutValuesRoute = AboutValuesRouteImport.update({
-  id: '/values',
-  path: '/values',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AppSlugRoute = AppSlugRouteImport.update({
-  id: '/app/$slug',
-  path: '/app/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CargoxIndexRoute = CargoxIndexRouteImport.update({
-  id: '/cargox/',
-  path: '/cargox/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CargoxSlugRoute = CargoxSlugRouteImport.update({
-  id: '/cargox/$slug',
-  path: '/cargox/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreSlugRoute = ExploreSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ExploreRoute,
-} as any)
-const InvestorIndexRoute = InvestorIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => InvestorRoute,
-} as any)
-const InvestorSlugRoute = InvestorSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => InvestorRoute,
-} as any)
-const LandingSlugRoute = LandingSlugRouteImport.update({
-  id: '/landing/$slug',
-  path: '/landing/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegendsIndexRoute = LegendsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LegendsRoute,
-} as any)
-const LegendsSlugRoute = LegendsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => LegendsRoute,
-} as any)
-const PortfolioOsIndexRoute = PortfolioOsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PortfolioOsRoute,
-} as any)
-const PortfolioOsSlugRoute = PortfolioOsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => PortfolioOsRoute,
-} as any)
-const PortfolioOsSuiteRoute = PortfolioOsSuiteRouteImport.update({
-  id: '/suite',
-  path: '/suite',
-  getParentRoute: () => PortfolioOsRoute,
-} as any)
-const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
-  id: '/projects/$slug',
-  path: '/projects/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SSlugRoute = SSlugRouteImport.update({
-  id: '/s/$slug',
-  path: '/s/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SiteSlugRoute = SiteSlugRouteImport.update({
-  id: '/site/$slug',
-  path: '/site/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SkyeliteIndexRoute = SkyeliteIndexRouteImport.update({
@@ -330,49 +231,39 @@ const SkyeliteIndexRoute = SkyeliteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SkyeliteRoute,
 } as any)
-const SkyeliteBenefitsRoute = SkyeliteBenefitsRouteImport.update({
-  id: '/benefits',
-  path: '/benefits',
-  getParentRoute: () => SkyeliteRoute,
-} as any)
-const SkyeliteBookRoute = SkyeliteBookRouteImport.update({
-  id: '/book',
-  path: '/book',
-  getParentRoute: () => SkyeliteRoute,
-} as any)
-const SkyeliteFaqRoute = SkyeliteFaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
-  getParentRoute: () => SkyeliteRoute,
-} as any)
-const SkyeliteRatesRoute = SkyeliteRatesRouteImport.update({
-  id: '/rates',
-  path: '/rates',
-  getParentRoute: () => SkyeliteRoute,
-} as any)
-const SkyeliteStoryRoute = SkyeliteStoryRouteImport.update({
-  id: '/story',
-  path: '/story',
-  getParentRoute: () => SkyeliteRoute,
-} as any)
-const WorkAeonRoute = WorkAeonRouteImport.update({
-  id: '/work/aeon',
-  path: '/work/aeon',
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkAuraiRoute = WorkAuraiRouteImport.update({
-  id: '/work/aurai',
-  path: '/work/aurai',
+const PortfolioOsIndexRoute = PortfolioOsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const LegendsIndexRoute = LegendsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LegendsRoute,
+} as any)
+const InvestorIndexRoute = InvestorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const CargoxIndexRoute = CargoxIndexRouteImport.update({
+  id: '/cargox/',
+  path: '/cargox/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkDatacoreRoute = WorkDatacoreRouteImport.update({
-  id: '/work/datacore',
-  path: '/work/datacore',
-  getParentRoute: () => rootRouteImport,
+const AboutIndexRoute = AboutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AboutRoute,
 } as any)
-const WorkDeckRoute = WorkDeckRouteImport.update({
-  id: '/work/deck',
-  path: '/work/deck',
+const WorkTaskoraRoute = WorkTaskoraRouteImport.update({
+  id: '/work/taskora',
+  path: '/work/taskora',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkIosRoute = WorkIosRouteImport.update({
@@ -380,14 +271,129 @@ const WorkIosRoute = WorkIosRouteImport.update({
   path: '/work/ios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkTaskoraRoute = WorkTaskoraRouteImport.update({
-  id: '/work/taskora',
-  path: '/work/taskora',
+const WorkDeckRoute = WorkDeckRouteImport.update({
+  id: '/work/deck',
+  path: '/work/deck',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicAppdocSlugRoute = ApiPublicAppdocSlugRouteImport.update({
-  id: '/api/public/appdoc/$slug',
-  path: '/api/public/appdoc/$slug',
+const WorkDatacoreRoute = WorkDatacoreRouteImport.update({
+  id: '/work/datacore',
+  path: '/work/datacore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkAuraiRoute = WorkAuraiRouteImport.update({
+  id: '/work/aurai',
+  path: '/work/aurai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkAeonRoute = WorkAeonRouteImport.update({
+  id: '/work/aeon',
+  path: '/work/aeon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkyeliteStoryRoute = SkyeliteStoryRouteImport.update({
+  id: '/story',
+  path: '/story',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteRatesRoute = SkyeliteRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteFaqRoute = SkyeliteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteBookRoute = SkyeliteBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SkyeliteBenefitsRoute = SkyeliteBenefitsRouteImport.update({
+  id: '/benefits',
+  path: '/benefits',
+  getParentRoute: () => SkyeliteRoute,
+} as any)
+const SiteSlugRoute = SiteSlugRouteImport.update({
+  id: '/site/$slug',
+  path: '/site/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugRoute = SSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioOsSuiteRoute = PortfolioOsSuiteRouteImport.update({
+  id: '/suite',
+  path: '/suite',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const PortfolioOsSlugRoute = PortfolioOsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PortfolioOsRoute,
+} as any)
+const LegendsSlugRoute = LegendsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LegendsRoute,
+} as any)
+const LandingSlugRoute = LandingSlugRouteImport.update({
+  id: '/landing/$slug',
+  path: '/landing/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorSlugRoute = InvestorSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const ExploreSlugRoute = ExploreSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ExploreRoute,
+} as any)
+const CargoxSlugRoute = CargoxSlugRouteImport.update({
+  id: '/cargox/$slug',
+  path: '/cargox/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppSlugRoute = AppSlugRouteImport.update({
+  id: '/app/$slug',
+  path: '/app/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutValuesRoute = AboutValuesRouteImport.update({
+  id: '/values',
+  path: '/values',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutStoryRoute = AboutStoryRouteImport.update({
+  id: '/story',
+  path: '/story',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutEducationRoute = AboutEducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutBeyondCodeRoute = AboutBeyondCodeRouteImport.update({
+  id: '/beyond-code',
+  path: '/beyond-code',
+  getParentRoute: () => AboutRoute,
+} as any)
+const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
+  id: '/api/public/media/$key',
+  path: '/api/public/media/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAppmanifestSlugRoute =
@@ -396,9 +402,9 @@ const ApiPublicAppmanifestSlugRoute =
     path: '/api/public/appmanifest/$slug',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicMediaKeyRoute = ApiPublicMediaKeyRouteImport.update({
-  id: '/api/public/media/$key',
-  path: '/api/public/media/$key',
+const ApiPublicAppdocSlugRoute = ApiPublicAppdocSlugRouteImport.update({
+  id: '/api/public/appdoc/$slug',
+  path: '/api/public/appdoc/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
   '/certifications': typeof CertificationsRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
@@ -478,6 +485,7 @@ export interface FileRoutesByTo {
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
   '/certifications': typeof CertificationsRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
@@ -542,6 +550,7 @@ export interface FileRoutesById {
   '/book': typeof BookRoute
   '/case-studies': typeof CaseStudiesRoute
   '/certifications': typeof CertificationsRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/explore': typeof ExploreRouteWithChildren
@@ -611,6 +620,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/case-studies'
     | '/certifications'
+    | '/connect'
     | '/contact'
     | '/cv'
     | '/explore'
@@ -677,6 +687,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/case-studies'
     | '/certifications'
+    | '/connect'
     | '/contact'
     | '/cv'
     | '/explore'
@@ -740,6 +751,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/case-studies'
     | '/certifications'
+    | '/connect'
     | '/contact'
     | '/cv'
     | '/explore'
@@ -808,6 +820,7 @@ export interface RootRouteChildren {
   BookRoute: typeof BookRoute
   CaseStudiesRoute: typeof CaseStudiesRoute
   CertificationsRoute: typeof CertificationsRoute
+  ConnectRoute: typeof ConnectRoute
   ContactRoute: typeof ContactRoute
   CvRoute: typeof CvRoute
   ExploreRoute: typeof ExploreRouteWithChildren
@@ -849,193 +862,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin-command-center': {
-      id: '/admin-command-center'
-      path: '/admin-command-center'
-      fullPath: '/admin-command-center'
-      preLoaderRoute: typeof AdminCommandCenterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/apps': {
-      id: '/apps'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AppsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/book': {
-      id: '/book'
-      path: '/book'
-      fullPath: '/book'
-      preLoaderRoute: typeof BookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/case-studies': {
-      id: '/case-studies'
-      path: '/case-studies'
-      fullPath: '/case-studies'
-      preLoaderRoute: typeof CaseStudiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/certifications': {
-      id: '/certifications'
-      path: '/certifications'
-      fullPath: '/certifications'
-      preLoaderRoute: typeof CertificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cv': {
-      id: '/cv'
-      path: '/cv'
-      fullPath: '/cv'
-      preLoaderRoute: typeof CvRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore': {
-      id: '/explore'
-      path: '/explore'
-      fullPath: '/explore'
-      preLoaderRoute: typeof ExploreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/faqs': {
-      id: '/faqs'
-      path: '/faqs'
-      fullPath: '/faqs'
-      preLoaderRoute: typeof FaqsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/halo': {
-      id: '/halo'
-      path: '/halo'
-      fullPath: '/halo'
-      preLoaderRoute: typeof HaloRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/investor': {
-      id: '/investor'
-      path: '/investor'
-      fullPath: '/investor'
-      preLoaderRoute: typeof InvestorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legends': {
-      id: '/legends'
-      path: '/legends'
-      fullPath: '/legends'
-      preLoaderRoute: typeof LegendsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace': {
-      id: '/marketplace'
-      path: '/marketplace'
-      fullPath: '/marketplace'
-      preLoaderRoute: typeof MarketplaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/open-source': {
-      id: '/open-source'
-      path: '/open-source'
-      fullPath: '/open-source'
-      preLoaderRoute: typeof OpenSourceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/portfolio': {
-      id: '/portfolio'
-      path: '/portfolio'
-      fullPath: '/portfolio'
-      preLoaderRoute: typeof PortfolioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/portfolio-os': {
-      id: '/portfolio-os'
-      path: '/portfolio-os'
-      fullPath: '/portfolio-os'
-      preLoaderRoute: typeof PortfolioOsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/press-kit': {
-      id: '/press-kit'
-      path: '/press-kit'
-      fullPath: '/press-kit'
-      preLoaderRoute: typeof PressKitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/resources': {
-      id: '/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof ResourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase': {
-      id: '/showcase'
-      path: '/showcase'
-      fullPath: '/showcase'
-      preLoaderRoute: typeof ShowcaseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skills': {
-      id: '/skills'
-      path: '/skills'
-      fullPath: '/skills'
-      preLoaderRoute: typeof SkillsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skyelite': {
-      id: '/skyelite'
-      path: '/skyelite'
-      fullPath: '/skyelite'
-      preLoaderRoute: typeof SkyeliteRouteImport
+    '/thank-you': {
+      id: '/thank-you'
+      path: '/thank-you'
+      fullPath: '/thank-you'
+      preLoaderRoute: typeof ThankYouRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/testimonials': {
@@ -1045,158 +876,200 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestimonialsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/thank-you': {
-      id: '/thank-you'
-      path: '/thank-you'
-      fullPath: '/thank-you'
-      preLoaderRoute: typeof ThankYouRouteImport
+    '/skyelite': {
+      id: '/skyelite'
+      path: '/skyelite'
+      fullPath: '/skyelite'
+      preLoaderRoute: typeof SkyeliteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about/': {
-      id: '/about/'
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/press-kit': {
+      id: '/press-kit'
+      path: '/press-kit'
+      fullPath: '/press-kit'
+      preLoaderRoute: typeof PressKitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-os': {
+      id: '/portfolio-os'
+      path: '/portfolio-os'
+      fullPath: '/portfolio-os'
+      preLoaderRoute: typeof PortfolioOsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/open-source': {
+      id: '/open-source'
+      path: '/open-source'
+      fullPath: '/open-source'
+      preLoaderRoute: typeof OpenSourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legends': {
+      id: '/legends'
+      path: '/legends'
+      fullPath: '/legends'
+      preLoaderRoute: typeof LegendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor': {
+      id: '/investor'
+      path: '/investor'
+      fullPath: '/investor'
+      preLoaderRoute: typeof InvestorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/halo': {
+      id: '/halo'
+      path: '/halo'
+      fullPath: '/halo'
+      preLoaderRoute: typeof HaloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv': {
+      id: '/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof CvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certifications': {
+      id: '/certifications'
+      path: '/certifications'
+      fullPath: '/certifications'
+      preLoaderRoute: typeof CertificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/case-studies': {
+      id: '/case-studies'
+      path: '/case-studies'
+      fullPath: '/case-studies'
+      preLoaderRoute: typeof CaseStudiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps': {
+      id: '/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AppsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-command-center': {
+      id: '/admin-command-center'
+      path: '/admin-command-center'
+      fullPath: '/admin-command-center'
+      preLoaderRoute: typeof AdminCommandCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
       path: '/'
-      fullPath: '/about/'
-      preLoaderRoute: typeof AboutIndexRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/beyond-code': {
-      id: '/about/beyond-code'
-      path: '/beyond-code'
-      fullPath: '/about/beyond-code'
-      preLoaderRoute: typeof AboutBeyondCodeRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/education': {
-      id: '/about/education'
-      path: '/education'
-      fullPath: '/about/education'
-      preLoaderRoute: typeof AboutEducationRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/story': {
-      id: '/about/story'
-      path: '/story'
-      fullPath: '/about/story'
-      preLoaderRoute: typeof AboutStoryRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/values': {
-      id: '/about/values'
-      path: '/values'
-      fullPath: '/about/values'
-      preLoaderRoute: typeof AboutValuesRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/app/$slug': {
-      id: '/app/$slug'
-      path: '/app/$slug'
-      fullPath: '/app/$slug'
-      preLoaderRoute: typeof AppSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cargox/': {
-      id: '/cargox/'
-      path: '/cargox'
-      fullPath: '/cargox/'
-      preLoaderRoute: typeof CargoxIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cargox/$slug': {
-      id: '/cargox/$slug'
-      path: '/cargox/$slug'
-      fullPath: '/cargox/$slug'
-      preLoaderRoute: typeof CargoxSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore/$slug': {
-      id: '/explore/$slug'
-      path: '/$slug'
-      fullPath: '/explore/$slug'
-      preLoaderRoute: typeof ExploreSlugRouteImport
-      parentRoute: typeof ExploreRoute
-    }
-    '/investor/': {
-      id: '/investor/'
-      path: '/'
-      fullPath: '/investor/'
-      preLoaderRoute: typeof InvestorIndexRouteImport
-      parentRoute: typeof InvestorRoute
-    }
-    '/investor/$slug': {
-      id: '/investor/$slug'
-      path: '/$slug'
-      fullPath: '/investor/$slug'
-      preLoaderRoute: typeof InvestorSlugRouteImport
-      parentRoute: typeof InvestorRoute
-    }
-    '/landing/$slug': {
-      id: '/landing/$slug'
-      path: '/landing/$slug'
-      fullPath: '/landing/$slug'
-      preLoaderRoute: typeof LandingSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legends/': {
-      id: '/legends/'
-      path: '/'
-      fullPath: '/legends/'
-      preLoaderRoute: typeof LegendsIndexRouteImport
-      parentRoute: typeof LegendsRoute
-    }
-    '/legends/$slug': {
-      id: '/legends/$slug'
-      path: '/$slug'
-      fullPath: '/legends/$slug'
-      preLoaderRoute: typeof LegendsSlugRouteImport
-      parentRoute: typeof LegendsRoute
-    }
-    '/portfolio-os/': {
-      id: '/portfolio-os/'
-      path: '/'
-      fullPath: '/portfolio-os/'
-      preLoaderRoute: typeof PortfolioOsIndexRouteImport
-      parentRoute: typeof PortfolioOsRoute
-    }
-    '/portfolio-os/$slug': {
-      id: '/portfolio-os/$slug'
-      path: '/$slug'
-      fullPath: '/portfolio-os/$slug'
-      preLoaderRoute: typeof PortfolioOsSlugRouteImport
-      parentRoute: typeof PortfolioOsRoute
-    }
-    '/portfolio-os/suite': {
-      id: '/portfolio-os/suite'
-      path: '/suite'
-      fullPath: '/portfolio-os/suite'
-      preLoaderRoute: typeof PortfolioOsSuiteRouteImport
-      parentRoute: typeof PortfolioOsRoute
-    }
-    '/projects/': {
-      id: '/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$slug': {
-      id: '/projects/$slug'
-      path: '/projects/$slug'
-      fullPath: '/projects/$slug'
-      preLoaderRoute: typeof ProjectsSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/s/$slug': {
-      id: '/s/$slug'
-      path: '/s/$slug'
-      fullPath: '/s/$slug'
-      preLoaderRoute: typeof SSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/site/$slug': {
-      id: '/site/$slug'
-      path: '/site/$slug'
-      fullPath: '/site/$slug'
-      preLoaderRoute: typeof SiteSlugRouteImport
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/skyelite/': {
@@ -1206,67 +1079,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkyeliteIndexRouteImport
       parentRoute: typeof SkyeliteRoute
     }
-    '/skyelite/benefits': {
-      id: '/skyelite/benefits'
-      path: '/benefits'
-      fullPath: '/skyelite/benefits'
-      preLoaderRoute: typeof SkyeliteBenefitsRouteImport
-      parentRoute: typeof SkyeliteRoute
-    }
-    '/skyelite/book': {
-      id: '/skyelite/book'
-      path: '/book'
-      fullPath: '/skyelite/book'
-      preLoaderRoute: typeof SkyeliteBookRouteImport
-      parentRoute: typeof SkyeliteRoute
-    }
-    '/skyelite/faq': {
-      id: '/skyelite/faq'
-      path: '/faq'
-      fullPath: '/skyelite/faq'
-      preLoaderRoute: typeof SkyeliteFaqRouteImport
-      parentRoute: typeof SkyeliteRoute
-    }
-    '/skyelite/rates': {
-      id: '/skyelite/rates'
-      path: '/rates'
-      fullPath: '/skyelite/rates'
-      preLoaderRoute: typeof SkyeliteRatesRouteImport
-      parentRoute: typeof SkyeliteRoute
-    }
-    '/skyelite/story': {
-      id: '/skyelite/story'
-      path: '/story'
-      fullPath: '/skyelite/story'
-      preLoaderRoute: typeof SkyeliteStoryRouteImport
-      parentRoute: typeof SkyeliteRoute
-    }
-    '/work/aeon': {
-      id: '/work/aeon'
-      path: '/work/aeon'
-      fullPath: '/work/aeon'
-      preLoaderRoute: typeof WorkAeonRouteImport
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/work/aurai': {
-      id: '/work/aurai'
-      path: '/work/aurai'
-      fullPath: '/work/aurai'
-      preLoaderRoute: typeof WorkAuraiRouteImport
+    '/portfolio-os/': {
+      id: '/portfolio-os/'
+      path: '/'
+      fullPath: '/portfolio-os/'
+      preLoaderRoute: typeof PortfolioOsIndexRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/legends/': {
+      id: '/legends/'
+      path: '/'
+      fullPath: '/legends/'
+      preLoaderRoute: typeof LegendsIndexRouteImport
+      parentRoute: typeof LegendsRoute
+    }
+    '/investor/': {
+      id: '/investor/'
+      path: '/'
+      fullPath: '/investor/'
+      preLoaderRoute: typeof InvestorIndexRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/cargox/': {
+      id: '/cargox/'
+      path: '/cargox'
+      fullPath: '/cargox/'
+      preLoaderRoute: typeof CargoxIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/work/datacore': {
-      id: '/work/datacore'
-      path: '/work/datacore'
-      fullPath: '/work/datacore'
-      preLoaderRoute: typeof WorkDatacoreRouteImport
-      parentRoute: typeof rootRouteImport
+    '/about/': {
+      id: '/about/'
+      path: '/'
+      fullPath: '/about/'
+      preLoaderRoute: typeof AboutIndexRouteImport
+      parentRoute: typeof AboutRoute
     }
-    '/work/deck': {
-      id: '/work/deck'
-      path: '/work/deck'
-      fullPath: '/work/deck'
-      preLoaderRoute: typeof WorkDeckRouteImport
+    '/work/taskora': {
+      id: '/work/taskora'
+      path: '/work/taskora'
+      fullPath: '/work/taskora'
+      preLoaderRoute: typeof WorkTaskoraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/work/ios': {
@@ -1276,18 +1135,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkIosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/work/taskora': {
-      id: '/work/taskora'
-      path: '/work/taskora'
-      fullPath: '/work/taskora'
-      preLoaderRoute: typeof WorkTaskoraRouteImport
+    '/work/deck': {
+      id: '/work/deck'
+      path: '/work/deck'
+      fullPath: '/work/deck'
+      preLoaderRoute: typeof WorkDeckRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/appdoc/$slug': {
-      id: '/api/public/appdoc/$slug'
-      path: '/api/public/appdoc/$slug'
-      fullPath: '/api/public/appdoc/$slug'
-      preLoaderRoute: typeof ApiPublicAppdocSlugRouteImport
+    '/work/datacore': {
+      id: '/work/datacore'
+      path: '/work/datacore'
+      fullPath: '/work/datacore'
+      preLoaderRoute: typeof WorkDatacoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/aurai': {
+      id: '/work/aurai'
+      path: '/work/aurai'
+      fullPath: '/work/aurai'
+      preLoaderRoute: typeof WorkAuraiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/aeon': {
+      id: '/work/aeon'
+      path: '/work/aeon'
+      fullPath: '/work/aeon'
+      preLoaderRoute: typeof WorkAeonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skyelite/story': {
+      id: '/skyelite/story'
+      path: '/story'
+      fullPath: '/skyelite/story'
+      preLoaderRoute: typeof SkyeliteStoryRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/rates': {
+      id: '/skyelite/rates'
+      path: '/rates'
+      fullPath: '/skyelite/rates'
+      preLoaderRoute: typeof SkyeliteRatesRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/faq': {
+      id: '/skyelite/faq'
+      path: '/faq'
+      fullPath: '/skyelite/faq'
+      preLoaderRoute: typeof SkyeliteFaqRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/book': {
+      id: '/skyelite/book'
+      path: '/book'
+      fullPath: '/skyelite/book'
+      preLoaderRoute: typeof SkyeliteBookRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/skyelite/benefits': {
+      id: '/skyelite/benefits'
+      path: '/benefits'
+      fullPath: '/skyelite/benefits'
+      preLoaderRoute: typeof SkyeliteBenefitsRouteImport
+      parentRoute: typeof SkyeliteRoute
+    }
+    '/site/$slug': {
+      id: '/site/$slug'
+      path: '/site/$slug'
+      fullPath: '/site/$slug'
+      preLoaderRoute: typeof SiteSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof SSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$slug': {
+      id: '/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/projects/$slug'
+      preLoaderRoute: typeof ProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-os/suite': {
+      id: '/portfolio-os/suite'
+      path: '/suite'
+      fullPath: '/portfolio-os/suite'
+      preLoaderRoute: typeof PortfolioOsSuiteRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/portfolio-os/$slug': {
+      id: '/portfolio-os/$slug'
+      path: '/$slug'
+      fullPath: '/portfolio-os/$slug'
+      preLoaderRoute: typeof PortfolioOsSlugRouteImport
+      parentRoute: typeof PortfolioOsRoute
+    }
+    '/legends/$slug': {
+      id: '/legends/$slug'
+      path: '/$slug'
+      fullPath: '/legends/$slug'
+      preLoaderRoute: typeof LegendsSlugRouteImport
+      parentRoute: typeof LegendsRoute
+    }
+    '/landing/$slug': {
+      id: '/landing/$slug'
+      path: '/landing/$slug'
+      fullPath: '/landing/$slug'
+      preLoaderRoute: typeof LandingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor/$slug': {
+      id: '/investor/$slug'
+      path: '/$slug'
+      fullPath: '/investor/$slug'
+      preLoaderRoute: typeof InvestorSlugRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/explore/$slug': {
+      id: '/explore/$slug'
+      path: '/$slug'
+      fullPath: '/explore/$slug'
+      preLoaderRoute: typeof ExploreSlugRouteImport
+      parentRoute: typeof ExploreRoute
+    }
+    '/cargox/$slug': {
+      id: '/cargox/$slug'
+      path: '/cargox/$slug'
+      fullPath: '/cargox/$slug'
+      preLoaderRoute: typeof CargoxSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/$slug': {
+      id: '/app/$slug'
+      path: '/app/$slug'
+      fullPath: '/app/$slug'
+      preLoaderRoute: typeof AppSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about/values': {
+      id: '/about/values'
+      path: '/values'
+      fullPath: '/about/values'
+      preLoaderRoute: typeof AboutValuesRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/story': {
+      id: '/about/story'
+      path: '/story'
+      fullPath: '/about/story'
+      preLoaderRoute: typeof AboutStoryRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/education': {
+      id: '/about/education'
+      path: '/education'
+      fullPath: '/about/education'
+      preLoaderRoute: typeof AboutEducationRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/beyond-code': {
+      id: '/about/beyond-code'
+      path: '/beyond-code'
+      fullPath: '/about/beyond-code'
+      preLoaderRoute: typeof AboutBeyondCodeRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/api/public/media/$key': {
+      id: '/api/public/media/$key'
+      path: '/api/public/media/$key'
+      fullPath: '/api/public/media/$key'
+      preLoaderRoute: typeof ApiPublicMediaKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/appmanifest/$slug': {
@@ -1297,11 +1317,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAppmanifestSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/media/$key': {
-      id: '/api/public/media/$key'
-      path: '/api/public/media/$key'
-      fullPath: '/api/public/media/$key'
-      preLoaderRoute: typeof ApiPublicMediaKeyRouteImport
+    '/api/public/appdoc/$slug': {
+      id: '/api/public/appdoc/$slug'
+      path: '/api/public/appdoc/$slug'
+      fullPath: '/api/public/appdoc/$slug'
+      preLoaderRoute: typeof ApiPublicAppdocSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1411,6 +1431,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRoute,
   CaseStudiesRoute: CaseStudiesRoute,
   CertificationsRoute: CertificationsRoute,
+  ConnectRoute: ConnectRoute,
   ContactRoute: ContactRoute,
   CvRoute: CvRoute,
   ExploreRoute: ExploreRouteWithChildren,

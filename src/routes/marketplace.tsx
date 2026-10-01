@@ -289,7 +289,7 @@ function MarketplacePage() {
   );
 }
 
-type ClaimResult = { licenseKey: string; fileUrl: string; version: string; name: string };
+type ClaimResult = { licenseKey?: string; fileUrl?: string; version?: string; name?: string; ok?: boolean; error?: string };
 
 function ProductDialog({
   product,
@@ -377,7 +377,7 @@ function ProductDialog({
               <code className="rounded-lg bg-black/50 px-3 py-2 text-sm">{result.licenseKey}</code>
               <button
                 onClick={() => {
-                  void navigator.clipboard.writeText(result.licenseKey);
+                  void navigator.clipboard.writeText(result.licenseKey ?? "");
                   setCopied(true);
                 }}
                 className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 px-3 text-sm"

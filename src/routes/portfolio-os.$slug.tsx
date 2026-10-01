@@ -22,7 +22,7 @@ export const Route = createFileRoute("/portfolio-os/$slug")({
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-8 text-white/70">{error.message}</div>
+    <div className="p-8 text-white/70">{(error as Error).message}</div>
   ),
   component: GenericPage,
 });
