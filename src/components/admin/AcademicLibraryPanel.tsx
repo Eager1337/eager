@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Brain,
   CalendarDays,
@@ -77,9 +77,9 @@ export function AcademicLibraryPanel() {
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     void refresh();
-  });
+  }, []);
 
   const subjects = library?.subjects ?? [];
   const documents = library?.documents ?? [];
