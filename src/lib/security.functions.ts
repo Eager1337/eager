@@ -60,8 +60,8 @@ async function writeAudit(
 export const logIntruder = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
-      reason: z.string().max(200),
-      usernameTried: z.string().max(200),
+      reason: z.string().trim().max(200),
+      usernameTried: z.string().trim().max(200),
       photo: z.string().max(1_000_000).nullable(),
       userAgent: z.string().max(1000).default(""),
       language: z.string().max(100).default(""),
@@ -69,9 +69,9 @@ export const logIntruder = createServerFn({ method: "POST" })
       screen: z.string().max(50).default(""),
       timezone: z.string().max(100).default(""),
       deviceId: z.string().max(100).default(""),
-      latitude: z.number().nullable().default(null),
-      longitude: z.number().nullable().default(null),
-      accuracy: z.number().nullable().default(null),
+      latitude: z.number().finite().min(-90).max(90).nullable().default(null),
+      longitude: z.number().finite().min(-180).max(180).nullable().default(null),
+      accuracy: z.number().finite().min(0).max(1_000_000).nullable().default(null),
       locationLabel: z.string().max(300).default(""),
     }),
   )
