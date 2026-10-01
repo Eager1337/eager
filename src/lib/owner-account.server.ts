@@ -12,10 +12,9 @@
  *   3. Provision a fresh random account once: create it with the service role,
  *      grant the admin role, persist the credentials for subsequent sign-ins.
  *
- * The stored credentials are only readable by service-role code and signed-in
- * admins (RLS on admin_credentials), and the session they produce is handed to
- * the admin anyway — the security boundary is the username + password + MFA
- * check that happens before this runs.
+ * The stored backing credentials are server-only and are readable through the
+ * service-role client only. The admin session they produce is handed to the
+ * authenticated dashboard after the username + password + MFA checks pass.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";

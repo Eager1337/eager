@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { enforceRateLimit } from "./rate-limit.server";
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -36,7 +37,10 @@ export const loadMarketplace = createServerFn({ method: "GET" }).handler(async (
 export const getWishlist = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ sessionId: z.string().trim().min(4).max(80) }).parse(d))
   .handler(async ({ data }) => {
-    const { data: rows } = await publicClient()
+    const limit = await enforceRateLimit("wishlist-read", data.sessionId, 60, 300, 300);
+    if (!limit.allowed) throw new Error("Too many wishlist requests. Please try again later.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
       .from("wishlist_items")
       .select("product_slug")
       .eq("session_id", data.sessionId);
@@ -54,7 +58,9 @@ export const toggleWishlist = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    const db = publicClient();
+    const limit = await enforceRateLimit("wishlist-write", data.sessionId, 30, 300, 300);
+    if (!limit.allowed) return { ok: false as const, error: "Too many wishlist requests. Please try again later." };
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     if (data.wanted) {
       await db
         .from("wishlist_items")
@@ -83,7 +89,11 @@ export const submitReview = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-review", data.authorEmail.toLowerCase() || data.authorName.toLowerCase(), 3, 900, 900);
+    if (!limit.allowed) return { ok: false as const, error: "Too many review submissions. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: product } = await supabaseAdmin.from("products").select("slug").eq("slug", data.productSlug).eq("active", true).maybeSingle();
+    if (!product) return { ok: false as const, error: "That product is not available." };
     const { error } = await supabaseAdmin.from("product_reviews").insert({
       product_slug: data.productSlug,
       author_name: data.authorName,
@@ -112,14 +122,17 @@ export const claimDownload = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-download", data.customerEmail.toLowerCase(), 5, 3600, 3600);
+    if (!limit.allowed) return { ok: false as const, error: "Download limit reached. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: product } = await supabaseAdmin
       .from("products")
       .select("id, name, slug, file_url, version, downloads_count, product_type:category")
       .eq("slug", data.productSlug)
+      .eq("active", true)
       .maybeSingle();
-    if (!product) throw new Error("That product is no longer available.");
+    if (!product || !product.file_url) throw new Error("That product is no longer available.");
 
     const block = () =>
       Array.from(crypto.getRandomValues(new Uint8Array(4)))

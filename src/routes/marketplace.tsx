@@ -47,8 +47,8 @@ export const Route = createFileRoute("/marketplace")({
 function sessionId() {
   if (typeof window === "undefined") return "server";
   let id = window.localStorage.getItem("eb-shop-session");
-  if (!id) {
-    id = `s-${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  if (!id || id.length < 32) {
+    id = `s-${crypto.randomUUID()}-${crypto.randomUUID()}`;
     window.localStorage.setItem("eb-shop-session", id);
   }
   return id;

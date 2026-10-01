@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { enforceRateLimit } from "./rate-limit.server";
 
 const leadSchema = z.object({
   name: z.string().trim().max(120).optional().default(""),
@@ -37,6 +38,8 @@ function publicClient() {
 export const submitLead = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => leadSchema.parse(data))
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-lead", data.email.toLowerCase(), 5, 600, 600);
+    if (!limit.allowed) return { ok: false as const, error: "Too many requests. Please try again later." };
     const { error } = await publicClient()
       .from("leads")
       .insert({
