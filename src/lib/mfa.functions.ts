@@ -18,8 +18,9 @@ export const getMfaState = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: totp }, { data: keys }, { data: alerts }, { data: settings }] = await Promise.all([
-      db.from("admin_totp").select("enabled, confirmed_at, recovery_codes").eq("id", "global").maybeSingle(),
+      supabaseAdmin.from("admin_totp").select("enabled, confirmed_at, recovery_codes").eq("id", "global").maybeSingle(),
       db.from("admin_passkeys").select("id, label, created_at, last_used_at, algorithm").order("created_at", { ascending: false }),
       db.from("login_alerts").select("*").order("created_at", { ascending: false }).limit(100),
       db.from("admin_alert_settings").select("*").eq("id", "global").maybeSingle(),
@@ -42,9 +43,10 @@ export const beginTotpEnrolment = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const db = await adminDb(context);
     const { randomBase32Secret, otpAuthUri } = await import("./webauthn.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const secret = randomBase32Secret(32);
     const account = (process.env["OWNER_ACCOUNT_EMAIL"] ?? "owner").trim() || "owner";
-    const { error } = await db
+    const { error } = await supabaseAdmin
       .from("admin_totp")
       .update({ secret, enabled: false, confirmed_at: null })
       .eq("id", "global");
@@ -57,8 +59,9 @@ export const confirmTotpEnrolment = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ code: z.string().trim().max(10) }).parse(d))
   .handler(async ({ context, data }) => {
     const db = await adminDb(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { verifyTotp } = await import("./webauthn.server");
-    const { data: row } = await db.from("admin_totp").select("secret").eq("id", "global").maybeSingle();
+    const { data: row } = await supabaseAdmin.from("admin_totp").select("secret").eq("id", "global").maybeSingle();
     const secret = (row?.secret as string | undefined) ?? "";
     if (!(await verifyTotp(secret, data.code))) throw new Error("That code did not match. Try the next one.");
 
@@ -69,7 +72,7 @@ export const confirmTotpEnrolment = createServerFn({ method: "POST" })
         .slice(0, 10)
         .toUpperCase(),
     );
-    const { error } = await db
+    const { error } = await supabaseAdmin
       .from("admin_totp")
       .update({ enabled: true, confirmed_at: new Date().toISOString(), recovery_codes: codes })
       .eq("id", "global");
@@ -81,7 +84,8 @@ export const disableTotp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context);
-    const { error } = await db
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
       .from("admin_totp")
       .update({ enabled: false, secret: "", confirmed_at: null, recovery_codes: [] })
       .eq("id", "global");
