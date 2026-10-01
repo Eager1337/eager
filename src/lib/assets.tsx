@@ -59,7 +59,9 @@ export function useAssetOverrides(): Record<string, string> {
     const rerender = () => force((n) => n + 1);
     listeners.add(rerender);
     if (!loaded) void loadOverrides();
-    return () => listeners.delete(rerender);
+    return () => {
+      listeners.delete(rerender);
+    };
   }, []);
   return cache;
 }

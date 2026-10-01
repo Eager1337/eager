@@ -48,7 +48,7 @@ export function SiteBuilderPanel() {
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    try { const res = await load({ kind: "site" }); setBuilds(res.builds as Row[]); setErr(""); }
+    try { const res = await load({ data: { kind: "site" } }); setBuilds(res.builds as Row[]); setErr(""); }
     catch (e) { setErr(e instanceof Error ? e.message : "Could not load builds."); }
     finally { setLoading(false); }
   }, [load]);
