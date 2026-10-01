@@ -37,7 +37,10 @@ export const loadMarketplace = createServerFn({ method: "GET" }).handler(async (
 export const getWishlist = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ sessionId: z.string().trim().min(4).max(80) }).parse(d))
   .handler(async ({ data }) => {
-    const { data: rows } = await publicClient()
+    const limit = await enforceRateLimit("wishlist-read", data.sessionId, 60, 300, 300);
+    if (!limit.allowed) throw new Error("Too many wishlist requests. Please try again later.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
       .from("wishlist_items")
       .select("product_slug")
       .eq("session_id", data.sessionId);
@@ -55,7 +58,9 @@ export const toggleWishlist = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    const db = publicClient();
+    const limit = await enforceRateLimit("wishlist-write", data.sessionId, 30, 300, 300);
+    if (!limit.allowed) return { ok: false as const, error: "Too many wishlist requests. Please try again later." };
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     if (data.wanted) {
       await db
         .from("wishlist_items")
