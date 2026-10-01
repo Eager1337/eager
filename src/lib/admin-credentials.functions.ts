@@ -15,7 +15,8 @@ export const getAdminCredentialState = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
       .from("admin_credentials")
       .select("username, updated_at, password_hash")
       .eq("id", "global")
