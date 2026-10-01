@@ -89,7 +89,11 @@ export const submitReview = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-review", data.authorEmail.toLowerCase() || data.authorName.toLowerCase(), 3, 900, 900);
+    if (!limit.allowed) return { ok: false as const, error: "Too many review submissions. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: product } = await supabaseAdmin.from("products").select("slug").eq("slug", data.productSlug).eq("active", true).maybeSingle();
+    if (!product) return { ok: false as const, error: "That product is not available." };
     const { error } = await supabaseAdmin.from("product_reviews").insert({
       product_slug: data.productSlug,
       author_name: data.authorName,
