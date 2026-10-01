@@ -235,7 +235,7 @@ export const deleteSiteBuild = createServerFn({ method: "POST" })
 export const getPublishedSite = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().trim().max(80) }).parse(d))
   .handler(async ({ data }) => {
-    const { data: row } = await await serverDb()
+    const { data: row } = await serverDb()
       .from("ai_site_builds")
       .select("name, html")
       .eq("slug", data.slug)
