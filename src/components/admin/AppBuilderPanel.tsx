@@ -127,9 +127,14 @@ export function AppBuilderPanel() {
   return (
     <div className="space-y-5">
       <header className="min-w-0">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Smartphone className="h-4 w-4 text-sky-300" /> AI app builder
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <Smartphone className="h-4 w-4 text-sky-300" /> AI app builder
+          </h2>
+          <a href="/apps" target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-[11px] text-white/70 hover:bg-white/10 hover:text-white">
+            <ExternalLink className="h-3.5 w-3.5" /> Installable apps
+          </a>
+        </div>
         <p className="mt-1 max-w-2xl text-xs text-white/55">
           Describe an app and get a phone-first installable build. Every app you start is kept here so you
           can reopen, tweak and republish it later, and each published app gets an install page for Android
