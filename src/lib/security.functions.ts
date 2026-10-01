@@ -3,6 +3,7 @@ import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { enforceRateLimit } from "./rate-limit.server";
 
 /* ---------------- Config ---------------- */
 
@@ -61,7 +62,7 @@ export const logIntruder = createServerFn({ method: "POST" })
     z.object({
       reason: z.string().max(200),
       usernameTried: z.string().max(200),
-      photo: z.string().max(4_000_000).nullable(),
+      photo: z.string().max(1_000_000).nullable(),
       userAgent: z.string().max(1000).default(""),
       language: z.string().max(100).default(""),
       platform: z.string().max(200).default(""),
@@ -75,6 +76,8 @@ export const logIntruder = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-intruder", data.usernameTried.toLowerCase(), 10, 600, 600);
+    if (!limit.allowed) return { ok: false as const, id: null };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const ip = clientIdentifier(data.deviceId);
     const { data: inserted, error } = await supabaseAdmin
@@ -105,6 +108,8 @@ export const logIntruder = createServerFn({ method: "POST" })
 export const checkAdminLockout = createServerFn({ method: "POST" })
   .inputValidator(z.object({ deviceId: z.string().max(100).default("") }))
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("admin-lockout-check", data.deviceId, 30, 300, 300);
+    if (!limit.allowed) throw new Error("Too many lockout checks. Please try again later.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { maxFails } = await readSecurityConfig(supabaseAdmin);
     const identifier = clientIdentifier(data.deviceId);
@@ -137,6 +142,8 @@ export const checkAdminLockout = createServerFn({ method: "POST" })
 export const recordAdminFailure = createServerFn({ method: "POST" })
   .inputValidator(z.object({ deviceId: z.string().max(100).default("") }))
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("admin-lockout-record", data.deviceId, 10, 300, 300);
+    if (!limit.allowed) return { locked: true, lockedUntil: null, secondsLeft: 60, attemptsRemaining: 0, maxFails: DEFAULT_MAX_FAILS };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { maxFails, lockMinutes } = await readSecurityConfig(supabaseAdmin);
     const identifier = clientIdentifier(data.deviceId);
