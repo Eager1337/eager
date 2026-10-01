@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { enforceRateLimit } from "./rate-limit.server";
 
 async function adminDb(context: { supabase: any; userId: string }) {
   const { data: isAdmin } = await context.supabase.rpc("has_role", {
@@ -138,6 +139,8 @@ export const recordDownload = createServerFn({ method: "POST" })
       .parse(d ?? {}),
   )
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("record-download", data.sessionId || data.productName, 30, 600, 600);
+    if (!limit.allowed) return { ok: false as const, error: "Too many download events. Please try again later." };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const country = getRequestHeader("cf-ipcountry") ?? "";
     await supabaseAdmin.from("product_downloads").insert({
