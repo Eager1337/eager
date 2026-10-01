@@ -235,7 +235,7 @@ export const deleteSiteBuild = createServerFn({ method: "POST" })
 export const getPublishedSite = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().trim().max(80) }).parse(d))
   .handler(async ({ data }) => {
-    const { data: row } = await serverDb()
+    const { data: row } = await (await serverDb())
       .from("ai_site_builds")
       .select("name, html")
       .eq("slug", data.slug)
@@ -318,7 +318,7 @@ export const importSite = createServerFn({ method: "POST" })
 
 /** Public: the published sites shown in the portfolio showcase. */
 export const listShowcaseSites = createServerFn({ method: "GET" }).handler(async () => {
-  const { data } = await publicDb()
+  const { data } = await (await serverDb())
     .from("ai_site_builds")
     .select("slug, name, summary, cover_image, source_kind, source_url, created_at, html")
     .eq("published", true)
@@ -520,7 +520,7 @@ export const getPublishedBuild = createServerFn({ method: "GET" })
     z.object({ slug: z.string().trim().max(80), kind: z.enum(["site", "app", "any"]).default("any") }).parse(d),
   )
   .handler(async ({ data }) => {
-    let query = publicDb()
+    let query = (await serverDb())
       .from("ai_site_builds")
       .select("name, short_name, html, theme_color, app_icon, logo_url, summary, apk_url, build_type")
       .eq("slug", data.slug)
@@ -532,7 +532,7 @@ export const getPublishedBuild = createServerFn({ method: "GET" })
 
 /** Public: published installable apps. */
 export const listShowcaseApps = createServerFn({ method: "GET" }).handler(async () => {
-  const { data } = await publicDb()
+  const { data } = await (await serverDb())
     .from("ai_site_builds")
     .select("slug, name, short_name, summary, app_icon, logo_url, theme_color, apk_url, created_at")
     .eq("published", true)
