@@ -75,11 +75,11 @@ export function AcademicLibraryPanel() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load academic library.");
     }
-  };
+  }, [list]);
 
   useEffect(() => {
     void refresh();
-  }, []);
+  }, [refresh]);
 
   const subjects = library?.subjects ?? [];
   const documents = library?.documents ?? [];
