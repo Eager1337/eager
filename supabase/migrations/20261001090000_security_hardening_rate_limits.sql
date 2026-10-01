@@ -109,3 +109,7 @@ $$;
 
 REVOKE ALL ON FUNCTION public.purge_old_rate_limit_buckets() FROM public, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.purge_old_rate_limit_buckets() TO service_role;
+
+SELECT cron.unschedule('purge-old-rate-limit-buckets')
+  WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'purge-old-rate-limit-buckets');
+SELECT cron.schedule('purge-old-rate-limit-buckets', '15 3 * * *', $$ SELECT public.purge_old_rate_limit_buckets(); $$);
