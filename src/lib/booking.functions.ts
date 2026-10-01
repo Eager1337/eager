@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { enforceRateLimit } from "./rate-limit.server";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -37,6 +38,8 @@ function publicClient() {
 export const requestBooking = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => schema.parse(d))
   .handler(async ({ data }) => {
+    const limit = await enforceRateLimit("public-booking", data.email.toLowerCase(), 3, 900, 1800);
+    if (!limit.allowed) return { ok: false as const, error: "Too many booking requests. Please try again later." };
     const when = new Date(data.scheduledFor);
     if (Number.isNaN(when.getTime())) {
       return { ok: false as const, error: "That date and time could not be read." };
