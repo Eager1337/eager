@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Brain,
   CalendarDays,
@@ -68,7 +68,7 @@ export function AcademicLibraryPanel() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [error, setError] = useState("");
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     try {
       setError("");
       setLibrary(await list({}));
