@@ -38,6 +38,7 @@ const aiResultSchema = z.object({
   due_date: z.string().max(40).default(""),
   summary: z.string().max(1200).default(""),
   tags: z.array(z.string().max(60)).max(20).default([]),
+  extracted_text: z.string().max(20000).default(""),
   confidence: z.number().min(0).max(1).default(0),
   schedule: z.array(z.object({
     day_of_week: z.number().int().min(0).max(6),
@@ -48,7 +49,7 @@ const aiResultSchema = z.object({
     note: z.string().max(300).default(""),
     subject_code: z.string().max(80).default(""),
     subject_name: z.string().max(180).default(""),
-  })).max(200).default([]),
+  })).max(500).default([]),
 });
 
 function dataUrl(mime: string, base64: string) {
@@ -70,70 +71,128 @@ async function analyzeFile(input: {
   fileName: string;
   mimeType: string;
   base64: string;
+  knownSubjects: Array<{ code: string; name: string; department?: string; semester?: string }>;
 }) {
   const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
   const provider = getAiProvider();
   if (!provider) throw new Error("AI is not configured. Add OPENAI_API_KEY or the Lovable AI key and redeploy.");
 
-  const prompt = `You are an academic document librarian. Analyze the uploaded university file and return ONLY valid JSON matching this schema:
-{
-  "title": "short title",
-  "document_type": "assignment|project|notebook|slides|lecture_notes|timetable|exam|syllabus|reading|other",
-  "subject_code": "",
-  "subject_name": "",
-  "department": "",
-  "semester": "",
-  "academic_year": "",
-  "lecturer": "",
-  "due_date": "YYYY-MM-DD or empty",
-  "summary": "concise useful summary",
-  "tags": ["..."],
-  "confidence": 0.0,
-  "schedule": [
-    {"day_of_week":0,"start_time":"08:00","end_time":"10:00","room":"","lecturer":"","note":"","subject_code":"","subject_name":""}
-  ]
-}
-For schedule day_of_week use 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday.
-Infer the academic subject/module from the timetable, assignment header, filename and document content. Do not invent details. If the file is a timetable, extract as many class rows as can be read. If it is not a timetable, schedule must be [].
-If multiple subjects appear, use the primary subject for the document and put the other subjects in tags. Use empty strings when unknown. Keep confidence between 0 and 1.`;
+  const knownSubjects = input.knownSubjects
+    .filter((subject) => subject.name || subject.code)
+    .slice(0, 100)
+    .map((subject) => ({
+      code: subject.code || "",
+      name: subject.name || "",
+      department: subject.department || "",
+      semester: subject.semester || "",
+    }));
+
+  const prompt = `You are the document-reading engine for a university academic library.
+Read the uploaded file carefully, including small text inside images and timetable cells. Return ONLY data matching the requested JSON schema.
+
+TIMETABLE RULES:
+- If this is a timetable/class schedule, treat it as a table, not ordinary prose.
+- Inspect every visible row, day header and time cell. Preserve every visible class as a separate schedule entry.
+- Read subject codes/names, lecturer names, room numbers and notes exactly when visible.
+- Do not skip dense or small rows. If a time has no minutes, use :00.
+- Use 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday.
+- A timetable can contain many modules; create an entry for every clearly readable class.
+
+MODULE/FOLDER RULES:
+- Assign every document to the best matching university module.
+- Prefer an exact match from EXISTING MODULES when the file contains or clearly implies that module.
+- Create a new module only when the file clearly identifies a module not already listed.
+- Never invent a module just to fill a field.
+- For assignments, projects, notes, slides and exams, use the course heading/code, filename, lecturer and document content together.
+
+READER RULES:
+- Extract useful readable text into extracted_text so the admin dashboard can display it without a download.
+- For image-only timetables, extracted_text should contain a concise transcription of the visible timetable and important headers.
+- Do not hallucinate unreadable text; use [unclear] where necessary.
+
+EXISTING MODULES:
+${JSON.stringify(knownSubjects)}
+
+FILENAME: ${input.fileName}
+
+Return the complete classification and extraction. Use empty strings or [] only when a value genuinely cannot be determined.`;
 
   const isImage = /^image\/(png|jpe?g|webp|gif)$/i.test(input.mimeType);
   const content = isImage
     ? [
-        { type: "input_image", image_url: dataUrl(input.mimeType, input.base64) },
-        { type: "input_text", text: `${prompt}\nFilename: ${input.fileName}` },
+        { type: "input_image", image_url: dataUrl(input.mimeType, input.base64), detail: "high" },
+        { type: "input_text", text: prompt },
       ]
     : [
-        {
-          type: "input_file",
-          filename: input.fileName,
-          file_data: dataUrl(input.mimeType, input.base64),
-        },
+        { type: "input_file", filename: input.fileName, file_data: dataUrl(input.mimeType, input.base64) },
         { type: "input_text", text: prompt },
       ];
 
-  const res = await fetch(provider.chat.url, {
+  const jsonSchema = {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      title: { type: "string" },
+      document_type: { type: "string", enum: ["assignment","project","notebook","slides","lecture_notes","timetable","exam","syllabus","reading","other"] },
+      subject_code: { type: "string" },
+      subject_name: { type: "string" },
+      department: { type: "string" },
+      semester: { type: "string" },
+      academic_year: { type: "string" },
+      lecturer: { type: "string" },
+      due_date: { type: "string" },
+      summary: { type: "string" },
+      tags: { type: "array", items: { type: "string" }, maxItems: 20 },
+      extracted_text: { type: "string" },
+      confidence: { type: "number", minimum: 0, maximum: 1 },
+      schedule: {
+        type: "array",
+        maxItems: 500,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            day_of_week: { type: "integer", minimum: 0, maximum: 6 },
+            start_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" },
+            end_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" },
+            room: { type: "string" },
+            lecturer: { type: "string" },
+            note: { type: "string" },
+            subject_code: { type: "string" },
+            subject_name: { type: "string" },
+          },
+          required: ["day_of_week","start_time","end_time","room","lecturer","note","subject_code","subject_name"],
+        },
+      },
+    },
+    required: ["title","document_type","subject_code","subject_name","department","semester","academic_year","lecturer","due_date","summary","tags","extracted_text","confidence","schedule"],
+  };
+
+  const request = async (withSchema: boolean) => fetch(provider.chat.url, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...provider.chat.headers },
     body: JSON.stringify({
       model: provider.chat.model,
       input: [{ role: "user", content }],
-      ...(supportsReasoning(provider.chat.model)
-        ? { reasoning: { effort: "low", summary: "auto" } }
-        : {}),
+      ...(supportsReasoning(provider.chat.model) ? { reasoning: { effort: "medium", summary: "auto" } } : {}),
+      ...(withSchema ? { text: { format: { type: "json_schema", name: "academic_document_analysis", strict: true, schema: jsonSchema } } } : {}),
     }),
   });
+
+  let res = await request(true);
+  // Compatible gateways that do not support structured output can still use the same vision prompt.
+  if (res.status === 400) res = await request(false);
   if (res.status === 429) throw new Error("AI rate limit reached. Try again shortly.");
   if (res.status === 402) throw new Error("AI credits exhausted. Top up to continue.");
   if (!res.ok) throw new Error(`Academic AI failed (${res.status}).`);
+
   const payload = await res.json();
   let text = responseText(payload).trim();
-  const fenced = /\`\`\`(?:json)?\s*([\s\S]*?)\`\`\`/i.exec(text);
-  if (fenced?.[1]) text = fenced[1].trim();
+  text = text.replaceAll(String.fromCharCode(96), "").trim();
   try {
     return aiResultSchema.parse(JSON.parse(text));
   } catch {
-    throw new Error("The AI returned an unreadable classification. Try the document again.");
+    throw new Error("The AI could read the file but returned an unreadable classification. Use Re-analyze to try again.");
   }
 }
 
@@ -180,7 +239,18 @@ async function processAcademicDocument(
   docId: string,
   input: { fileName: string; mimeType: string; base64: string },
 ) {
-  const ai = await analyzeFile(input);
+  const { data: subjectRows, error: subjectError } = await db
+    .from("academic_subjects")
+    .select("code,name,department,semester")
+    .eq("owner_id", ownerId)
+    .order("name")
+    .limit(100);
+  if (subjectError) throw new Error(subjectError.message);
+
+  const ai = await analyzeFile({
+    ...input,
+    knownSubjects: subjectRows ?? [],
+  });
   const subject = await findOrCreateSubject(db, ownerId, {
     code: ai.subject_code,
     name: ai.subject_name,
@@ -195,6 +265,7 @@ async function processAcademicDocument(
     document_type: ai.document_type,
     title: ai.title || input.fileName,
     summary: ai.summary,
+    extracted_text: ai.extracted_text,
     tags: ai.tags,
     lecturer: ai.lecturer,
     due_date: dueDate,
