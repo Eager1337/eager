@@ -316,6 +316,19 @@ export function AcademicLibraryPanel() {
               {selected.summary && <p className="mt-4 text-xs leading-5 text-white/55">{selected.summary}</p>}
               {selected.tags?.length ? <div className="mt-3 flex flex-wrap gap-1.5">{selected.tags.map((tag: string) => <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white/50">#{tag}</span>)}</div> : null}
 
+              {selected.extracted_text && (
+                <div className="mt-4 overflow-hidden rounded-xl border border-sky-300/10 bg-sky-400/[.03]">
+                  <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+                    <div>
+                      <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-sky-200/60">AI-readable text</div>
+                      <div className="mt-0.5 text-[10px] text-white/35">Read the document here without downloading it.</div>
+                    </div>
+                    <span className="rounded-full border border-white/10 px-2 py-1 text-[9px] text-white/35">Extracted</span>
+                  </div>
+                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap px-3 py-3 text-[11px] leading-5 text-white/65">{selected.extracted_text}</pre>
+                </div>
+              )}
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {selected.preview_url && <a href={selected.preview_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-[11px] font-semibold text-black"><Download className="h-3.5 w-3.5" /> Open / download</a>}
                 <button onClick={() => void handleReprocess(selected.id)} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70 hover:bg-white/10"><RefreshCw className="h-3.5 w-3.5" /> Re-analyze</button>
@@ -333,12 +346,15 @@ export function AcademicLibraryPanel() {
       </div>
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-4 w-4 text-sky-300" />
-          <div>
-            <h3 className="font-semibold">AI timetable</h3>
-            <p className="text-xs text-white/40">Upload a timetable and the AI automatically extracts classes into this schedule.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-sky-300" />
+            <div>
+              <h3 className="font-semibold">AI weekly timetable</h3>
+              <p className="text-xs text-white/40">Every readable class from an uploaded timetable is placed into the correct day, time and module folder.</p>
+            </div>
           </div>
+          <span className="rounded-full border border-emerald-300/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] text-emerald-200/70">AI organized</span>
         </div>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs">
@@ -350,7 +366,7 @@ export function AcademicLibraryPanel() {
               })}
             </tbody>
           </table>
-          {!library?.schedule?.length && <p className="py-8 text-center text-xs text-white/35">No timetable entries yet. Upload your timetable to populate this automatically.</p>}
+          {!library?.schedule?.length && <p className="py-8 text-center text-xs text-white/35">No timetable entries yet. Upload your timetable image/PDF to populate this automatically.</p>}
         </div>
       </section>
     </div>
