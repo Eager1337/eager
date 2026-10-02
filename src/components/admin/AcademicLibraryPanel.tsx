@@ -24,7 +24,14 @@ import {
   uploadAcademicDocument,
 } from "../../lib/academic-library.functions";
 
-type LibraryData = Awaited<ReturnType<typeof listAcademicLibrary>>;
+// Rows come back untyped from the server, so describe the shape the panel uses.
+type AcademicRow = Record<string, any>;
+type LibraryData = {
+  subjects: AcademicRow[];
+  documents: AcademicRow[];
+  schedule: AcademicRow[];
+  folders: { subjectId: string; documents: AcademicRow[] }[];
+};
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -307,7 +314,7 @@ export function AcademicLibraryPanel() {
               </div>
 
               {selected.summary && <p className="mt-4 text-xs leading-5 text-white/55">{selected.summary}</p>}
-              {selected.tags?.length ? <div className="mt-3 flex flex-wrap gap-1.5">{selected.tags.map((tag) => <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white/50">#{tag}</span>)}</div> : null}
+              {selected.tags?.length ? <div className="mt-3 flex flex-wrap gap-1.5">{selected.tags.map((tag: string) => <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-white/50">#{tag}</span>)}</div> : null}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {selected.preview_url && <a href={selected.preview_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-[11px] font-semibold text-black"><Download className="h-3.5 w-3.5" /> Open / download</a>}

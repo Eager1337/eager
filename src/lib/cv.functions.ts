@@ -98,8 +98,9 @@ function publicClient() {
 
 /** Public: the CV shown on /cv and used by the PDF export. */
 export const getCvProfile = createServerFn({ method: "GET" }).handler(async () => {
-  const db = await publicClient();
-  const { data } = await db.from("cv_profile").select("*").eq("id", "global").maybeSingle();
+  // The table is server-only; only the single published CV row is returned here.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.from("cv_profile").select("*").eq("id", "global").maybeSingle();
   return { cv: { ...EMPTY_CV, ...(data ?? {}) } as CvProfile };
 });
 
