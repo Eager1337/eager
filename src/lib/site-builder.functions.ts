@@ -559,3 +559,93 @@ export const listShowcaseApps = createServerFn({ method: "GET" }).handler(async 
     })),
   };
 });
+
+
+/** Public Build Studio: two free AI generations per visitor token, with an IP safety cap. */
+const demoBuildSchema = z.object({
+  kind: z.enum(["site", "app"]),
+  prompt: z.string().trim().min(8).max(1600),
+  clientToken: z.string().trim().min(20).max(120),
+});
+
+async function generatePublicDemoHtml(kind: "site" | "app", prompt: string) {
+  const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
+  const provider = getAiProvider();
+  if (!provider) {
+    throw new Error("AI builder is not configured yet. Please contact Eager Beaver.");
+  }
+
+  const instructions = kind === "site" ? SYSTEM : APP_SYSTEM;
+  const requestText = kind === "site"
+    ? `Build this website as a public Eager Beaver demo:
+${prompt}`
+    : `Build this installable-style web app as a public Eager Beaver demo:
+${prompt}`;
+
+  const res = await fetch(provider.chat.url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...provider.chat.headers },
+    body: JSON.stringify({
+      model: provider.chat.model,
+      instructions,
+      input: [{ role: "user", content: [{ type: "input_text", text: requestText }] }],
+      stream: true,
+      ...(supportsReasoning(provider.chat.model)
+        ? { reasoning: { effort: "low", summary: "auto" } }
+        : {}),
+    }),
+  });
+
+  if (res.status === 429) throw new Error("AI is busy right now. Please try again shortly.");
+  if (res.status === 402) throw new Error("AI credits are currently exhausted. Please contact Eager Beaver.");
+  if (!res.ok || !res.body) throw new Error(`AI generation failed (${res.status}).`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let html = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const frames = buffer.split("\n\n");
+    buffer = frames.pop() ?? "";
+    for (const frame of frames) {
+      for (const line of frame.split("\n")) {
+        if (!line.startsWith("data:")) continue;
+        const payload = line.slice(5).trim();
+        if (!payload || payload === "[DONE]") continue;
+        try {
+          const evt = JSON.parse(payload) as { type?: string; delta?: string };
+          if (evt.type === "response.output_text.delta" && evt.delta) html += evt.delta;
+        } catch {
+          /* Ignore partial SSE frames. */
+        }
+      }
+    }
+  }
+
+  html = html.trim();
+  const fenced = /\`\`\`(?:html)?\s*([\s\S]*?)\`\`\`/i.exec(html);
+  if (fenced?.[1]) html = fenced[1].trim();
+  if (!/<html[\s>]/i.test(html)) throw new Error("The AI did not return a complete preview. Try a more specific prompt.");
+  return html.replace(/\u2014/g, "-").slice(0, 400000);
+}
+
+export const buildPublicDemo = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => demoBuildSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    const [visitor, ip] = await Promise.all([
+      enforceRateLimit("public-demo-builder", data.clientToken, 2, 86400, 86400),
+      enforceRateLimit("public-demo-builder-ip", data.kind, 10, 86400, 86400),
+    ]);
+    if (!visitor.allowed || !ip.allowed) {
+      const retryAfter = Math.max(visitor.retryAfterSeconds, ip.retryAfterSeconds);
+      throw new Error(`Your two free AI prompts are used. Please contact Eager Beaver or subscribe to continue.${retryAfter ? ` Try again after ${Math.ceil(retryAfter / 3600)}h.` : ""}`);
+    }
+
+    const html = await generatePublicDemoHtml(data.kind, data.prompt);
+    const title = /<title>([^<]{2,120})<\/title>/i.exec(html)?.[1]?.trim() ?? "Eager Beaver AI Preview";
+    return { html, title };
+  });

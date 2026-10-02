@@ -185,7 +185,7 @@ export function AcademicLibraryPanel() {
               </p>
             </div>
           </div>
-          <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black hover:bg-white/90">
+          <label className={`inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black hover:bg-white/90 ${library?.setupRequired ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
             {uploading ? "Analyzing..." : "Upload files"}
             <input
@@ -193,7 +193,7 @@ export function AcademicLibraryPanel() {
               multiple
               className="hidden"
               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp"
-              disabled={uploading}
+              disabled={uploading || library?.setupRequired}
               onChange={(e) => {
                 if (e.target.files) void handleFiles(e.target.files);
                 e.currentTarget.value = "";
@@ -212,9 +212,9 @@ export function AcademicLibraryPanel() {
         </div>
       </div>
 
-      {(uploadStatus || error) && (
-        <div className={`rounded-xl border px-4 py-3 text-xs ${error ? "border-rose-400/20 bg-rose-500/10 text-rose-200" : "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"}`}>
-          {error || uploadStatus}
+      {(library?.setupRequired || uploadStatus || error) && (
+        <div className={`rounded-xl border px-4 py-3 text-xs ${error ? "border-rose-400/20 bg-rose-500/10 text-rose-200" : library?.setupRequired ? "border-amber-300/15 bg-amber-400/[.06] text-amber-100/75" : "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"}`}>
+          {error || uploadStatus || library?.setupMessage}
         </div>
       )}
 

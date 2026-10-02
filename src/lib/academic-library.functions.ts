@@ -246,6 +246,13 @@ export const uploadAcademicDocument = createServerFn({ method: "POST" })
     const raw = Buffer.from(data.base64, "base64");
     if (raw.byteLength !== data.size) throw new Error("Uploaded file size could not be verified.");
     const storage = await storageAdmin();
+    const { data: buckets } = await storage.storage.listBuckets();
+    if (!buckets?.some((bucket: any) => bucket.name === "academic-library")) {
+      const { error: bucketError } = await storage.storage.createBucket("academic-library", { public: false });
+      if (bucketError && !/already exists/i.test(bucketError.message)) {
+        throw new Error(`Academic storage is not ready: ${bucketError.message}`);
+      }
+    }
     const docId = crypto.randomUUID();
     const safeName = data.fileName.replace(/[^a-zA-Z0-9._ -]+/g, "_").slice(0, 180);
     const path = `${context.userId}/${docId}-${safeName}`;
@@ -294,9 +301,41 @@ export const listAcademicLibrary = createServerFn({ method: "GET" })
       db.from("academic_documents").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false }).limit(500),
       db.from("academic_schedule_entries").select("*").eq("owner_id", context.userId).order("day_of_week").order("start_time"),
     ]);
+    const missingSchema = [subjectError, docError, scheduleError].find((error: any) =>
+      error?.code === "42P01" || error?.code === "PGRST205" || /does not exist|could not find the table/i.test(error?.message ?? ""),
+    );
+    if (missingSchema) {
+      return {
+        subjects: [],
+        documents: [],
+        schedule: [],
+        folders: [],
+        setupRequired: true,
+        storageReady: false,
+        setupMessage: "Academic Library storage is waiting for its Supabase migration. The dashboard remains available while it is being connected.",
+      };
+    }
     if (subjectError) throw new Error(subjectError.message);
     if (docError) throw new Error(docError.message);
     if (scheduleError) throw new Error(scheduleError.message);
+
+    const storage = await storageAdmin();
+    const { data: buckets } = await storage.storage.listBuckets();
+    const storageReady = Boolean(buckets?.some((bucket: any) => bucket.name === "academic-library"));
+    if (!storageReady) {
+      const { error: bucketError } = await storage.storage.createBucket("academic-library", { public: false });
+      if (bucketError && !/already exists/i.test(bucketError.message)) {
+        return {
+          subjects: subjects ?? [],
+          documents: [],
+          schedule: schedule ?? [],
+          folders: [],
+          setupRequired: true,
+          storageReady: false,
+          setupMessage: `Academic storage is not ready yet: ${bucketError.message}`,
+        };
+      }
+    }
 
     const subjectIds = new Set((subjects ?? []).map((s: any) => s.id));
     const bySubject = new Map<string, any[]>();
@@ -309,7 +348,7 @@ export const listAcademicLibrary = createServerFn({ method: "GET" })
 
     const signed = new Map<string, string>();
     for (const doc of docs ?? []) {
-      const { data: url } = await storageAdmin().then((s) => s.storage.from("academic-library").createSignedUrl(doc.storage_path, 3600));
+      const { data: url } = await storage.storage.from("academic-library").createSignedUrl(doc.storage_path, 3600);
       if (url?.signedUrl) signed.set(doc.id, url.signedUrl);
     }
 
@@ -318,6 +357,8 @@ export const listAcademicLibrary = createServerFn({ method: "GET" })
       documents: (docs ?? []).map((doc: any) => ({ ...doc, preview_url: signed.get(doc.id) ?? "" })),
       schedule: schedule ?? [],
       folders: Array.from(bySubject.entries()).map(([subjectId, documents]) => ({ subjectId, documents })),
+      setupRequired: false,
+      storageReady: true,
     };
   });
 
