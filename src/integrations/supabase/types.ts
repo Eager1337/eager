@@ -14,6 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_documents: {
+        Row: {
+          academic_year: string
+          ai_confidence: number | null
+          ai_status: string
+          created_at: string
+          document_type: string
+          due_date: string | null
+          file_name: string
+          file_size: number
+          id: string
+          lecturer: string
+          mime_type: string
+          owner_id: string
+          semester: string
+          storage_path: string
+          subject_id: string | null
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string
+          ai_confidence?: number | null
+          ai_status?: string
+          created_at?: string
+          document_type?: string
+          due_date?: string | null
+          file_name: string
+          file_size?: number
+          id?: string
+          lecturer?: string
+          mime_type?: string
+          owner_id: string
+          semester?: string
+          storage_path: string
+          subject_id?: string | null
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          ai_confidence?: number | null
+          ai_status?: string
+          created_at?: string
+          document_type?: string
+          due_date?: string | null
+          file_name?: string
+          file_size?: number
+          id?: string
+          lecturer?: string
+          mime_type?: string
+          owner_id?: string
+          semester?: string
+          storage_path?: string
+          subject_id?: string | null
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_documents_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "academic_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_schedule_entries: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          document_id: string | null
+          end_time: string
+          id: string
+          lecturer: string
+          note: string
+          owner_id: string
+          room: string
+          start_time: string
+          subject_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          document_id?: string | null
+          end_time: string
+          id?: string
+          lecturer?: string
+          note?: string
+          owner_id: string
+          room?: string
+          start_time: string
+          subject_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          document_id?: string | null
+          end_time?: string
+          id?: string
+          lecturer?: string
+          note?: string
+          owner_id?: string
+          room?: string
+          start_time?: string
+          subject_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_schedule_entries_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "academic_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_schedule_entries_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "academic_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_subjects: {
+        Row: {
+          academic_year: string
+          code: string
+          color: string
+          created_at: string
+          department: string
+          id: string
+          name: string
+          owner_id: string
+          semester: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string
+          code?: string
+          color?: string
+          created_at?: string
+          department?: string
+          id?: string
+          name: string
+          owner_id: string
+          semester?: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          code?: string
+          color?: string
+          created_at?: string
+          department?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          semester?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_alert_settings: {
         Row: {
           alert_on_failure: boolean
