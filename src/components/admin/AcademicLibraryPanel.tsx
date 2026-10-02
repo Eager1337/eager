@@ -24,7 +24,14 @@ import {
   uploadAcademicDocument,
 } from "../../lib/academic-library.functions";
 
-type LibraryData = Awaited<ReturnType<typeof listAcademicLibrary>>;
+// Rows come back untyped from the server, so describe the shape the panel uses.
+type AcademicRow = Record<string, any>;
+type LibraryData = {
+  subjects: AcademicRow[];
+  documents: AcademicRow[];
+  schedule: AcademicRow[];
+  folders: { subjectId: string; documents: AcademicRow[] }[];
+};
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
