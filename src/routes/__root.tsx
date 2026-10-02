@@ -163,6 +163,15 @@ function RootComponent() {
   useEffect(() => {
     bumpSession();
     registerPortfolioOsSw();
+    // Page rendered successfully: clear any auto-retry counters.
+    try {
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const k = sessionStorage.key(i);
+        if (k?.startsWith("eb-auto-retry:")) sessionStorage.removeItem(k);
+      }
+    } catch {
+      /* storage unavailable */
+    }
   }, []);
 
   return (
