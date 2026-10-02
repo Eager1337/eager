@@ -1,5 +1,5 @@
 import { createLazyFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
 import JSZip from "jszip";
@@ -748,6 +748,59 @@ const NAV_GROUPS: { label: string; keys: TabKey[] }[] = [
   { label: "SYSTEM", keys: ["notifications", "reports", "backups", "settings", "toonhub", "legends", "pricing", "explore", "landings", "assets", "cveditor", "proposals", "esign", "contracts", "bundles", "licenses"] },
 ];
 
+class AdminPanelErrorBoundary extends Component<
+  { tab: string; children: ReactNode },
+  { hasError: boolean; message: string }
+> {
+  state = { hasError: false, message: "" };
+
+  static getDerivedStateFromError(error: unknown) {
+    return {
+      hasError: true,
+      message: error instanceof Error ? error.message : "This admin screen could not be rendered.",
+    };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    console.error("[AdminPanelError]", error, info);
+  }
+
+  componentDidUpdate(prevProps: { tab: string }) {
+    if (prevProps.tab !== this.props.tab && this.state.hasError) {
+      this.setState({ hasError: false, message: "" });
+    }
+  }
+
+  render() {
+    if (!this.state.hasError) return this.props.children;
+
+    return (
+      <div className="min-h-[520px] rounded-2xl border border-amber-400/20 bg-amber-400/[0.04] p-6">
+        <div className="mx-auto flex max-w-2xl flex-col items-center justify-center py-16 text-center">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl border border-amber-400/20 bg-amber-400/10">
+            <AlertTriangle className="h-5 w-5 text-amber-300" />
+          </div>
+          <h2 className="mt-4 text-lg font-bold">This admin screen hit an error</h2>
+          <p className="mt-2 text-sm leading-6 text-white/50">
+            The rest of the Command Center is still available. The failed screen has been isolated
+            so one broken module cannot blank the entire dashboard.
+          </p>
+          <div className="mt-4 max-w-full overflow-auto rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-left text-xs text-amber-200/70">
+            {this.state.message || "Unknown rendering error"}
+          </div>
+          <button
+            type="button"
+            onClick={() => this.setState({ hasError: false, message: "" })}
+            className="mt-5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-black hover:bg-white/90"
+          >
+            Retry this screen
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
+
 function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState<TabKey>("overview");
   const store = useContent();
@@ -866,14 +919,8 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
         {/* Content */}
         <main className="min-w-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={tab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
+          <div className="min-h-[520px]">
+            <AdminPanelErrorBoundary key={tab} tab={tab}>
               {tab === "overview" && <OverviewPanel />}
               {tab === "toonhub" && <ToonHubPanel />}
               {tab === "legends" && <LegendsPanel />}
@@ -935,8 +982,8 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "appBuilder" && <AppBuilderPanel />}
               {tab === "apps" && <InstallableAppsPanel navigate={navigate} />}
               {tab === "academicAI" && <AcademicLibraryPanel />}
-            </motion.div>
-          </AnimatePresence>
+            </AdminPanelErrorBoundary>
+          </div>
         </main>
       </div>
     </div>
