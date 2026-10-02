@@ -50,6 +50,26 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
+  // Self-heal transient failures (network blips, server restarts): retry quietly
+  // up to 3 times per page before leaving the manual "Try again" card on screen.
+  useEffect(() => {
+    try {
+      const key = "eb-auto-retry:" + window.location.pathname;
+      const n = Number(sessionStorage.getItem(key) || "0");
+      if (n >= 3) {
+        const t = setTimeout(() => sessionStorage.removeItem(key), 30000);
+        return () => clearTimeout(t);
+      }
+      sessionStorage.setItem(key, String(n + 1));
+      const t = setTimeout(() => {
+        router.invalidate();
+        reset();
+      }, 1500 * (n + 1));
+      return () => clearTimeout(t);
+    } catch {
+      return undefined;
+    }
+  }, [router, reset]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

@@ -60,8 +60,13 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(rewriteTenantHost(request), env, ctx);
+      // The visitor closed or refreshed the tab mid-request: nothing to render.
+      if (request.signal?.aborted) return new Response(null, { status: 499 });
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
+      if (request.signal?.aborted) return new Response(null, { status: 499 });
+      // A failed module load must not poison every later request.
+      serverEntryPromise = undefined;
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,

@@ -25,6 +25,22 @@ export function renderErrorPage(): string {
         <a class="secondary" href="/">Go home</a>
       </div>
     </div>
+    <script>
+      // Self-heal: brief server restarts or dropped connections should not leave
+      // visitors stuck. Retry automatically a few times before showing the card.
+      (function () {
+        try {
+          var k = "eb-auto-retry:" + location.pathname;
+          var n = Number(sessionStorage.getItem(k) || "0");
+          if (n < 3) {
+            sessionStorage.setItem(k, String(n + 1));
+            setTimeout(function () { location.reload(); }, 1500 * (n + 1));
+          } else {
+            setTimeout(function () { sessionStorage.removeItem(k); }, 30000);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </body>
 </html>`;
 }

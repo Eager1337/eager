@@ -533,8 +533,7 @@ function LazyGif({ src }: { src: string }) {
       src={load ? src : undefined}
       loading="lazy"
       decoding="async"
-      // @ts-expect-error fetchpriority is valid HTML
-      fetchpriority="low"
+      fetchPriority="low"
       width={420}
       height={270}
       alt=""
