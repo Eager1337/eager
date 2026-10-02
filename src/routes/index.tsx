@@ -1,5 +1,6 @@
 import { SmartImage } from "../lib/assets";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Award, Code2, Crown, GitFork, Github, Sparkles, Star, X } from "lucide-react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
@@ -13,6 +14,7 @@ import LithosHero from "../components/LithosHero";
 import { NinjaTortoiseHero } from "../components/portfolio-os/NinjaTortoiseHero";
 import { useContent } from "../lib/content-store";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
+import { buildPublicDemo } from "../lib/site-builder.functions";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -984,12 +986,162 @@ function VanguardHero() {
 
 /* ------------------- PAGE ------------------- */
 
+
+function PublicBuildStudio() {
+  const build = useServerFn(buildPublicDemo);
+  const [kind, setKind] = useState<"site" | "app">("site");
+  const [prompt, setPrompt] = useState("");
+  const [preview, setPreview] = useState("");
+  const [title, setTitle] = useState("");
+  const [used, setUsed] = useState(() => {
+    try {
+      return Number(window.localStorage.getItem("eager-demo-prompts") || "0");
+    } catch {
+      return 0;
+    }
+  });
+  const [token] = useState(() => {
+    try {
+      const key = "eager-demo-token";
+      const existing = window.localStorage.getItem(key);
+      if (existing) return existing;
+      const next = `demo-${crypto.randomUUID()}-${crypto.randomUUID()}`;
+      window.localStorage.setItem(key, next);
+      return next;
+    } catch {
+      return `demo-${Date.now()}-${Math.random()}`;
+    }
+  });
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const remaining = Math.max(0, 2 - used);
+
+  const generate = async () => {
+    if (busy || !prompt.trim() || remaining <= 0) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await build({
+        data: { kind, prompt: prompt.trim(), clientToken: token },
+      });
+      setPreview(result.html);
+      setTitle(result.title);
+      const next = used + 1;
+      setUsed(next);
+      try { window.localStorage.setItem("eager-demo-prompts", String(next)); } catch {}
+      setPrompt("");
+      setMessage("Preview generated. You still own the design brief and can contact Eager Beaver for production work.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The AI builder could not generate this preview.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section id="build-studio" className="relative overflow-hidden bg-[#07070B] px-5 py-20 text-white sm:px-8 lg:px-10">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,rgba(168,85,247,.18),transparent_35%),radial-gradient(circle_at_85%_70%,rgba(14,165,233,.15),transparent_35%)]" />
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-10 lg:grid-cols-[.85fr_1.15fr] lg:items-start">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[.32em] text-fuchsia-300/70">Eager Build Studio</div>
+            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Turn an idea into a website or app.</h2>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base">
+              Visitors can test the same kind of AI workflow used inside Eager. Describe what you want, preview the result, then work with me to turn it into a production-ready product.
+            </p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              {[
+                ["AI Website Builder", "Generate a responsive website from a plain-language brief."],
+                ["AI App Builder", "Generate an app-like experience designed for phone and desktop."],
+                ["Portfolio & Showcase", "Publish projects, apps and case studies into a public portfolio."],
+                ["Business Workspace", "Projects, clients, leads, analytics, content and deployment tools."],
+                ["Academic AI", "Organize assignments, notebooks, slides and timetables into subjects."],
+                ["Eager Connect", "Voice, video, screen sharing and collaboration features."],
+              ].map(([name, description]) => (
+                <div key={name} className="rounded-2xl border border-white/10 bg-white/[.035] p-4">
+                  <div className="text-sm font-semibold">{name}</div>
+                  <p className="mt-1.5 text-xs leading-5 text-white/45">{description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[.04] p-4 shadow-2xl backdrop-blur sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold">Try the AI builder</div>
+                <div className="mt-1 text-xs text-white/40">{remaining} of 2 free prompts remaining</div>
+              </div>
+              <div className="flex rounded-xl border border-white/10 bg-black/30 p-1">
+                <button onClick={() => setKind("site")} className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${kind === "site" ? "bg-white text-black" : "text-white/55 hover:text-white"}`}>Website</button>
+                <button onClick={() => setKind("app")} className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${kind === "app" ? "bg-white text-black" : "text-white/55 hover:text-white"}`}>Application</button>
+              </div>
+            </div>
+
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={6}
+              disabled={remaining === 0 || busy}
+              placeholder={kind === "site" ? "Example: Build a premium website for a Freetown creative agency with services, portfolio, testimonials and contact form." : "Example: Build a mobile-first delivery app with home, orders, tracking, profile and a bottom navigation."}
+              className="mt-4 w-full resize-none rounded-2xl border border-white/10 bg-black/35 p-4 text-sm leading-6 text-white outline-none placeholder:text-white/25 focus:border-fuchsia-400/60 disabled:opacity-50"
+            />
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-[11px] text-white/35">Two free prompts. Production builds, extra edits and deployment are available through Eager Beaver.</span>
+              <button
+                onClick={() => void generate()}
+                disabled={busy || !prompt.trim() || remaining === 0}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-fuchsia-500 to-sky-500 px-5 text-xs font-bold shadow-lg shadow-fuchsia-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {busy ? "Generating..." : remaining === 0 ? "Prompts used" : "Generate preview"}
+              </button>
+            </div>
+
+            {message && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-xs leading-5 text-white/60">{message}</div>
+            )}
+
+            {remaining === 0 && (
+              <div className="mt-4 rounded-2xl border border-amber-300/15 bg-amber-400/[.06] p-4">
+                <div className="font-semibold text-amber-100">Want more than two prompts?</div>
+                <p className="mt-1 text-xs leading-5 text-white/50">Contact me or subscribe for additional generations, custom edits, publishing and deployment. Payment can be arranged through the available local/mobile-money or card options.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link to="/contact" className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black">Contact Eager Beaver</Link>
+                  <span className="rounded-lg border border-white/10 px-3 py-2 text-[10px] text-white/45">PayTuna · Orange Money · Afrimoney · Visa</span>
+                </div>
+              </div>
+            )}
+
+            {preview && (
+              <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-white">
+                <div className="flex items-center justify-between gap-3 border-b border-black/10 bg-black px-4 py-2.5 text-xs text-white">
+                  <span className="truncate">{title || "AI Preview"}</span>
+                  <span className="text-white/40">{kind === "site" ? "Website" : "Application"}</span>
+                </div>
+                <iframe
+                  title="AI generated preview"
+                  srcDoc={preview}
+                  sandbox="allow-scripts allow-forms"
+                  className="h-[520px] w-full bg-white"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomePage() {
   return (
     <main className="bg-[#0C0C0C]" style={{ overflowX: "clip" }}>
       <NinjaTortoiseHero />
       <ToonhubHero />
       <JackHero />
+      <PublicBuildStudio />
       <GitHubStatsSection />
       <MarqueeSection />
       <JackAbout />
