@@ -52,6 +52,7 @@ export function AppPreviewStudio({
   }, [device, orientation]);
 
   const isPhone = device === "iphone" || device === "android";
+  const previewHtml = html.trim() || `<!doctype html><html><body style="margin:0;font-family:system-ui;background:#0b0d12;color:white;display:grid;place-items:center;min-height:100vh"><div style="text-align:center;padding:24px"><strong>Your app preview is ready</strong><p style="opacity:.6">Generate or edit the app code to see it here.</p></div></body></html>`;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#090b10] shadow-2xl">
@@ -153,7 +154,7 @@ export function AppPreviewStudio({
               <iframe
                 key={refreshKey}
                 title="Live app simulator"
-                srcDoc={html}
+                srcDoc={previewHtml}
                 sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
                 className="h-full w-full rounded-[2.2rem] border-0 bg-white"
               />
