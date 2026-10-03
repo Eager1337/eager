@@ -193,7 +193,7 @@ function offlineClassify(
     academic_year: (base.match(/20\d{2}\s?[\/\-]\s?20?\d{2}/)?.[0] ?? ""),
     lecturer: "",
     due_date: "",
-    summary: "Saved without AI reading (credits or AI unavailable). Use Re-analyze later for a full summary.",
+    summary: "Saved with the always-on Academic organizer. Full AI re-analysis will run automatically when a configured provider is available.",
     tags: [type],
     extracted_text: "",
     confidence: 0.3,
