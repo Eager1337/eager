@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   AudioLines, Camera, CameraOff, Check, Copy, Heart, Maximize2, Mic, MicOff, MonitorUp, PhoneCall,
   SwitchCamera,
-  PhoneOff, Search, ShieldCheck, Smile, Users, Video,
+  PhoneOff, Search, ShieldCheck, Smile, Users, Video, Mail, Phone,
 } from "lucide-react";
 import { supabase } from "../integrations/supabase/client";
 
@@ -18,10 +18,17 @@ type Call = {
 };
 type Signal = { id: string; sender_id: string; kind: string; payload: any };
 
+const TURN_URL = (import.meta.env.VITE_TURN_URL || "").trim();
+const TURN_USERNAME = (import.meta.env.VITE_TURN_USERNAME || "").trim();
+const TURN_CREDENTIAL = (import.meta.env.VITE_TURN_CREDENTIAL || "").trim();
+
 const RTC_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    ...(TURN_URL && TURN_USERNAME && TURN_CREDENTIAL
+      ? [{ urls: TURN_URL, username: TURN_USERNAME, credential: TURN_CREDENTIAL }]
+      : []),
   ],
 };
 
@@ -58,14 +65,28 @@ function ConnectPage() {
   const [recentCalls, setRecentCalls] = useState<Array<Call & { other?: Profile; direction: "incoming" | "outgoing" }>>([]);
 
   const loadPeople = useCallback(async (uid: string, term = "") => {
+    const clean = term.trim().replace(/[%_,]/g, "");
     let q = db().from("profiles").select("id,username,display_name,avatar_url,bio,is_verified,last_seen_at")
       .neq("id", uid).order("last_seen_at", { ascending: false }).limit(60);
-    if (term.trim()) {
-      const clean = term.trim().replace(/[%_,]/g, "");
+    if (clean) {
       q = q.or(`username.ilike.%${clean}%,display_name.ilike.%${clean}%`);
     }
-    const { data } = await q;
-    setPeople(data ?? []);
+    const { data, error: peopleError } = await q;
+    if (peopleError) {
+      setError(peopleError.message);
+      return;
+    }
+
+    const byId = new Map<string, Profile>(((data || []) as Profile[]).map((p) => [p.id, p]));
+    if (term.trim()) {
+      const { data: target, error: targetError } = await db().rpc("find_eager_call_target", { identifier: term.trim() });
+      if (!targetError && Array.isArray(target)) {
+        for (const person of target as Profile[]) {
+          if (person.id !== uid) byId.set(person.id, person);
+        }
+      }
+    }
+    setPeople([...byId.values()]);
   }, []);
 
   const loadRecentCalls = useCallback(async (uid: string) => {
@@ -194,8 +215,11 @@ function ConnectPage() {
         </header>
         <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_330px]">
           <section>
-            <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-bold">Call anyone on Eager</h2><p className="mt-1 text-sm text-white/45">Voice, video, screen sharing and in-call chat.</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1.5 text-[11px] text-emerald-200">● Online</span></div>
-            <div className="mt-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3"><Search className="h-4 w-4 text-white/30" /><input value={search} onChange={(e) => { setSearch(e.target.value); void loadPeople(user.id, e.target.value); }} placeholder="Search name or username…" className="w-full bg-transparent text-sm outline-none" /></div>
+            <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-bold">Call anyone on Eager</h2><p className="mt-1 text-sm text-white/45">Call people by username, email, or phone. Voice, video, screen sharing, reactions and in-call chat.</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1.5 text-[11px] text-emerald-200">● Online</span></div>
+            <div className="mt-5 space-y-2">
+              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3"><Search className="h-4 w-4 text-white/30" /><input value={search} onChange={(e) => { setSearch(e.target.value); void loadPeople(user.id, e.target.value); }} placeholder="Search name, @username, email, or phone number…" aria-label="Find an Eager user by name, username, email, or phone number" className="w-full bg-transparent text-sm outline-none" /></div>
+              <p className="px-1 text-[11px] text-white/35"><Mail className="mr-1 inline h-3 w-3" /> Email and <Phone className="mx-1 inline h-3 w-3" /> phone lookup is private: the identifier is checked server-side and is never shown as a public profile field.</p>
+            </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {people.map((p) => <article key={p.id} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="flex gap-3"><Avatar profile={p} /><div className="min-w-0"><div className="flex items-center gap-1"><h3 className="truncate font-semibold">{p.display_name}</h3>{p.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-sky-300" />}</div><p className="text-xs text-white/35">@{p.username}</p><p className="mt-2 line-clamp-2 text-xs text-white/45">{p.bio || "Available for an Eager call."}</p></div></div><div className="mt-4 grid grid-cols-2 gap-2"><button onClick={() => void call(p,"voice")} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs"><AudioLines className="h-4 w-4" /> Voice</button><button onClick={() => void call(p,"video")} className="flex items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-xs font-semibold text-black"><Video className="h-4 w-4" /> Video</button></div></article>)}
             </div>
@@ -258,7 +282,18 @@ function CallRoom({ call, meId, remote, onEnd }: { call: Call; meId: string; rem
         connection.onicecandidate = (e) => { if (e.candidate) void send("ice", { candidate: e.candidate.toJSON() }); };
         connection.onconnectionstatechange = () => {
           setConnected(connection.connectionState === "connected");
-          if (connection.connectionState === "failed") setError("Connection failed. Try ending the call and calling again.");
+          if (connection.connectionState === "failed") {
+            setError("Connection failed. Retrying network negotiation…");
+            if (call.caller_id === meId) {
+              try {
+                connection.restartIce();
+                void connection.createOffer({ iceRestart: true }).then(async (offer) => {
+                  await connection.setLocalDescription(offer);
+                  await send("renegotiate-offer", offer);
+                });
+              } catch {}
+            }
+          }
         };
         connection.ontrack = (e) => {
           if (e.track.kind === "audio") {
