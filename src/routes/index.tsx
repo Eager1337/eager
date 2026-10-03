@@ -11,7 +11,6 @@ import toonPink from "../assets/toon-pink.png.asset.json";
 import onePieceCast from "../assets/one-piece-cast.png.asset.json";
 import saitama from "../assets/saitama.png.asset.json";
 import LithosHero from "../components/LithosHero";
-import { NinjaTortoiseHero } from "../components/portfolio-os/NinjaTortoiseHero";
 import { useContent } from "../lib/content-store";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { buildPublicDemo } from "../lib/site-builder.functions";
