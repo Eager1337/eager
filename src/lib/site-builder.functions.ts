@@ -520,6 +520,165 @@ export const buildAppFromPrompt = createServerFn({ method: "POST" })
     return { build: row };
   });
 
+
+const REAL_APP_SYSTEM = `You are Eager's senior full-stack app engineer. Generate a REAL runnable Vite + React application, not a static HTML mockup.
+
+Return ONLY valid JSON with this exact shape:
+{
+  "name": "string",
+  "summary": "string",
+  "framework": "vite-react",
+  "entryFile": "src/main.jsx",
+  "dependencies": {"react":"18.3.1","react-dom":"18.3.1"},
+  "files": {
+    "package.json": "string",
+    "index.html": "string",
+    "src/main.jsx": "string",
+    "src/App.jsx": "string",
+    "src/styles.css": "string"
+  }
+}
+
+Rules:
+- The files must form a runnable Vite React project.
+- package.json must contain scripts for dev, build and preview.
+- Use React components and real client-side state. Do not fake buttons or screens.
+- Include responsive mobile-first UI, navigation, forms, validation, empty/loading/error states where relevant.
+- Keep all application logic in src/ and styles in src/styles.css.
+- Do not require a backend unless the user explicitly asks for one. If backend functionality is requested, create a clearly isolated service adapter with safe mock fallback.
+- No secrets, API keys or service credentials.
+- Use accessible semantic HTML, keyboard support, 44px touch targets and reduced-motion support.
+- The first screen must render without a network request.
+- Never use em dashes.
+- Keep the project compact enough to preview in a browser.
+`;
+
+function extractJson(text: string) {
+  const cleaned = text.trim().replace(/^\`\`\`(?:json)?/i, "").replace(/\`\`\`$/i, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start < 0 || end <= start) throw new Error("The AI did not return a valid app project.");
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+async function callAppProjectAI(
+  prompt: string,
+  contextText = "",
+) {
+  const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
+  const provider = getAiProvider();
+  if (!provider) throw new Error("AI is not configured on this deployment. Add OPENAI_API_KEY and redeploy.");
+  const res = await fetch(provider.chat.url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...provider.chat.headers },
+    body: JSON.stringify({
+      model: provider.chat.model,
+      instructions: REAL_APP_SYSTEM,
+      input: [{
+        role: "user",
+        content: [{ type: "input_text", text: contextText ? `${prompt}\n\nCURRENT PROJECT:\n${contextText}` : prompt }],
+      }],
+      stream: false,
+      ...(supportsReasoning(provider.chat.model) ? { reasoning: { effort: "low", summary: "auto" } } : {}),
+    }),
+  });
+  if (res.status === 429) throw new Error("AI rate limit reached. Try again in a moment.");
+  if (res.status === 402) throw new Error("AI credits exhausted. Top up to continue.");
+  if (!res.ok) throw new Error(`AI generation failed (${res.status}).`);
+  const payload = await res.json();
+  const text =
+    payload.output_text ??
+    payload.output?.flatMap((item: any) => item.content ?? []).map((part: any) => part.text ?? "").join("") ??
+    "";
+  return extractJson(text);
+}
+
+export const buildRealAppFromPrompt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      prompt: z.string().trim().min(8).max(6000),
+      name: z.string().trim().max(120).default(""),
+      style: z.string().trim().max(300).default(""),
+      screens: z.string().trim().max(600).default(""),
+      themeColor: z.string().trim().max(20).default("#0A0A0A"),
+    }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context);
+    const project = await callAppProjectAI(
+      `Build this real application:\n\n${data.prompt}\n\nVisual direction: ${data.style || "premium, modern, native-feeling"}\nRequired screens: ${data.screens || "choose the screens required by the product"}\nTheme color: ${data.themeColor}`,
+    );
+    if (project.framework !== "vite-react" || !project.files || typeof project.files !== "object") {
+      throw new Error("The AI returned an incomplete project.");
+    }
+    const files = Object.fromEntries(
+      Object.entries(project.files).filter(([path, value]) => path.length < 180 && typeof value === "string"),
+    );
+    if (!files["package.json"] || !files["src/main.jsx"] || !files["src/App.jsx"]) {
+      throw new Error("The generated project is missing required Vite files.");
+    }
+    const rawName = data.name.trim() || String(project.name || "Eager App");
+    let slug = slugify(rawName);
+    const { data: clash } = await db.from("ai_site_builds").select("id").eq("slug", slug).maybeSingle();
+    if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+    const { data: row, error } = await db.from("ai_site_builds").insert({
+      slug,
+      name: rawName,
+      prompt: data.prompt,
+      html: String(files["index.html"] || ""),
+      model: "openai/gpt-5.6-sol",
+      build_type: "app",
+      framework: "vite-react",
+      project_files: files,
+      dependencies: project.dependencies || {},
+      entry_file: String(project.entryFile || "src/main.jsx"),
+      build_version: 1,
+      short_name: rawName.split(/\s+/).slice(0, 2).join(" ").slice(0, 12),
+      theme_color: data.themeColor || "#0A0A0A",
+      summary: String(project.summary || ""),
+      published: false,
+    }).select("*").single();
+    if (error) throw new Error(error.message);
+    return { build: row };
+  });
+
+export const editRealAppWithAI = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      instruction: z.string().trim().min(4).max(3000),
+    }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context);
+    const { data: current, error } = await db.from("ai_site_builds").select("project_files, dependencies, name, framework").eq("id", data.id).single();
+    if (error || !current) throw new Error("App project not found.");
+    if (current.framework !== "vite-react") throw new Error("This app is not a real project yet. Duplicate it with the real builder first.");
+    const files = (current.project_files && typeof current.project_files === "object" ? current.project_files : {}) as Record<string, string>;
+    const project = await callAppProjectAI(
+      `Modify the existing app according to this instruction:\n\n${data.instruction}\n\nReturn the complete updated project. Preserve existing functionality unless the instruction changes it.`,
+      JSON.stringify({ name: current.name, framework: current.framework, dependencies: current.dependencies || {}, files }),
+    );
+    const nextFiles = Object.fromEntries(
+      Object.entries(project.files || {}).filter(([path, value]) => path.length < 180 && typeof value === "string"),
+    );
+    if (!nextFiles["package.json"] || !nextFiles["src/main.jsx"] || !nextFiles["src/App.jsx"]) {
+      throw new Error("The AI returned an incomplete project.");
+    }
+    const { data: row, error: updateError } = await db.from("ai_site_builds").update({
+      project_files: nextFiles,
+      dependencies: project.dependencies || current.dependencies || {},
+      entry_file: String(project.entryFile || "src/main.jsx"),
+      html: String(nextFiles["index.html"] || ""),
+      summary: String(project.summary || ""),
+      build_version: Number(current.build_version || 1) + 1,
+    }).eq("id", data.id).select("*").single();
+    if (updateError) throw new Error(updateError.message);
+    return { build: row };
+  });
+
 /** Public: one published build of either kind, with its app metadata. */
 export const getPublishedBuild = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) =>
