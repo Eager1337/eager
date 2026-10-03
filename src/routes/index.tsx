@@ -1,4 +1,3 @@
-import { SmartImage } from "../lib/assets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -10,10 +9,7 @@ import toonRedFull from "../assets/toon-red-full.png.asset.json";
 import toonPink from "../assets/toon-pink.png.asset.json";
 import onePieceCast from "../assets/one-piece-cast.png.asset.json";
 import saitama from "../assets/saitama.png.asset.json";
-import LithosHero from "../components/LithosHero";
-import { NinjaTortoiseHero } from "../components/portfolio-os/NinjaTortoiseHero";
 import { useContent } from "../lib/content-store";
-import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { buildPublicDemo } from "../lib/site-builder.functions";
 
 export const Route = createFileRoute("/")({
