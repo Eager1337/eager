@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ImageUploadField } from "./ImageUploadField";
 import { AttachmentField, attachmentsPrompt, type Attachment } from "./AttachmentField";
+import { AppPreviewStudio } from "./AppPreviewStudio";
 import {
   buildAppFromPrompt,
   cloneSiteBuild,
@@ -386,15 +387,12 @@ export function AppBuilderPanel() {
             </div>
           </div>
 
-          <div className="mt-4 flex justify-center">
-            <div className="w-[380px] max-w-full overflow-hidden rounded-[2rem] border-4 border-white/15 bg-black p-1.5">
-              <iframe
-                title="Generated app preview"
-                srcDoc={String(active.html ?? "")}
-                className="h-[620px] w-full rounded-[1.6rem] bg-white"
-                sandbox="allow-scripts allow-popups"
-              />
-            </div>
+          <div className="mt-5">
+            <AppPreviewStudio
+              html={String(active.html ?? "")}
+              onChange={(html) => setActive({ ...active, html })}
+              onSave={() => void saveActive()}
+            />
           </div>
         </section>
       ) : null}
