@@ -352,6 +352,12 @@ function JackHero() {
           >
             <Sparkles className="h-3.5 w-3.5" /> Portfolio OS
           </Link>
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs sm:text-sm hover:bg-white/10 transition-all"
+          >
+            Admin Dashboard
+          </Link>
           <a href="#" className="hover:opacity-70 transition-opacity duration-200">Contact</a>
         </nav>
       </FadeIn>
@@ -1265,9 +1271,21 @@ function EagerLandingHero() {
 
 function HomePage() {
   return (
-    <main className="bg-[#050507]" style={{ overflowX: "clip" }}>
-      <EagerLandingHero />
+    <main className="bg-[#0C0C0C]" style={{ overflowX: "clip" }}>
+      <NinjaTortoiseHero />
+      <ToonhubHero />
+      <JackHero />
+      <PublicBuildStudio />
+      <GitHubStatsSection />
+      <MarqueeSection />
+      <JackAbout />
+      <TestimonialsSection />
+      <ServicesSection />
+      <ProjectsSection />
+      <VanguardHero />
+      <LithosHero />
       <PortfolioOsBanner />
+      <DiagnosticsPanel />
     </main>
   );
 }
