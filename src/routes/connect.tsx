@@ -104,6 +104,8 @@ function ConnectPage() {
     }, { onConflict: "id" });
     const { data } = await db().from("profiles").select("*").eq("id", u.id).maybeSingle();
     setMe(data);
+    const { data: contact } = await db().from("profile_contacts").select("phone").eq("user_id", u.id).maybeSingle();
+    setPhone(contact?.phone || u.user_metadata?.phone || "");
     await loadPeople(u.id);
     await loadRecentCalls(u.id);
   }, [loadPeople, loadRecentCalls]);
@@ -151,6 +153,17 @@ function ConnectPage() {
       }
     } catch (e) { setError(e instanceof Error ? e.message : "Authentication failed."); }
     finally { setBusy(false); }
+  };
+
+  const savePhone = async () => {
+    if (!user) return;
+    const normalized = phone.trim();
+    const { error: e } = await db().from("profile_contacts").upsert(
+      { user_id: user.id, phone: normalized || null, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    );
+    if (e) setError(e.message);
+    else setError(null);
   };
 
   const callContact = async (mode: "voice" | "video") => {
@@ -240,6 +253,15 @@ function ConnectPage() {
             </div>}
           </section>
           <aside className="space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
+              <div className="text-xs uppercase tracking-[.22em] text-white/35">Your calling identity</div>
+              <div className="mt-3 text-sm font-semibold">{user.email || "Eager account"}</div>
+              <div className="mt-3 flex gap-2">
+                <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+232 33 000 000" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none" />
+                <button onClick={() => void savePhone()} className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-black">Save</button>
+              </div>
+              <p className="mt-2 text-[10px] leading-4 text-white/35">Your phone number is stored privately and is used only to let other Eager users find you for calls.</p>
+            </div>
             <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><div className="flex items-center gap-2"><Users className="h-4 w-4" /><b>Calling toolkit</b></div><ul className="mt-4 space-y-3 text-xs text-white/55"><li>HD voice + video</li><li>Screen + face at the same time</li><li>Mic / camera controls</li><li>In-call messages + reactions</li><li>Authenticated signaling</li></ul></div>
             <button onClick={() => void navigator.clipboard?.writeText(window.location.href)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-4 text-xs"><Copy className="h-4 w-4" /> Copy Connect link</button>
           </aside>
