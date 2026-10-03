@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           document_type: string
           due_date: string | null
+          extracted_text: string
           file_name: string
           file_size: number
           id: string
@@ -43,6 +44,7 @@ export type Database = {
           created_at?: string
           document_type?: string
           due_date?: string | null
+          extracted_text?: string
           file_name: string
           file_size?: number
           id?: string
@@ -64,6 +66,7 @@ export type Database = {
           created_at?: string
           document_type?: string
           due_date?: string | null
+          extracted_text?: string
           file_name?: string
           file_size?: number
           id?: string

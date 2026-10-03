@@ -834,7 +834,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     <div className="min-h-screen bg-gradient-to-br from-[#08090f] via-[#0b0620] to-[#050510] text-white">
       {/* Top bar */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-5 py-3 sm:px-8">
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-fuchsia-500 to-sky-500">
               <ShieldCheck className="h-4 w-4" />
@@ -846,14 +846,14 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               <div className="text-sm font-semibold">Admin Dashboard</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={exportJson}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
             >
               <Download className="h-3.5 w-3.5" /> Export
             </button>
-            <label className="hidden sm:inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10">
               <Upload className="h-3.5 w-3.5" /> Import
               <input
                 type="file"
@@ -866,7 +866,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               onClick={() => {
                 if (confirm("Reset all content to defaults?")) store.reset();
               }}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs text-amber-200 hover:bg-amber-400/20"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs text-amber-200 hover:bg-amber-400/20"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>

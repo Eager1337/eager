@@ -31,6 +31,8 @@ type LibraryData = {
   documents: AcademicRow[];
   schedule: AcademicRow[];
   folders: { subjectId: string; documents: AcademicRow[] }[];
+  setupRequired?: boolean;
+  setupMessage?: string;
 };
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

@@ -196,6 +196,48 @@ Return the complete classification and extraction. Use empty strings or [] only 
   }
 }
 
+/** Free, credit-less classification from the file name and known modules. */
+function offlineClassify(
+  fileName: string,
+  known: Array<{ code?: string; name?: string; department?: string; semester?: string }>,
+) {
+  const base = fileName.replace(/\.[a-z0-9]+$/i, "");
+  const lower = base.toLowerCase();
+  const words = lower.replace(/[_\-.]+/g, " ");
+  const type =
+    /time ?table|schedule/.test(words) ? "timetable"
+    : /assign|homework|\bhw\b|coursework/.test(words) ? "assignment"
+    : /project/.test(words) ? "project"
+    : /slide|lecture|\bppt\b/.test(words) ? (/note/.test(words) ? "lecture_notes" : "slides")
+    : /note/.test(words) ? "lecture_notes"
+    : /exam|quiz|test|midterm|final/.test(words) ? "exam"
+    : /syllabus|outline/.test(words) ? "syllabus"
+    : /reading|chapter|paper|article/.test(words) ? "reading"
+    : "other";
+  const match = known.find((s) => {
+    const code = (s.code ?? "").toLowerCase().replace(/\s+/g, "");
+    const name = (s.name ?? "").toLowerCase();
+    return (code && lower.replace(/[\s_\-]+/g, "").includes(code)) || (name.length > 3 && words.includes(name));
+  });
+  const codeMatch = base.match(/\b([A-Za-z]{2,5})[\s_\-]?(\d{3,4})\b/);
+  return {
+    title: base.replace(/[_\-]+/g, " ").trim() || fileName,
+    document_type: type,
+    subject_code: match?.code ?? (codeMatch ? `${codeMatch[1].toUpperCase()}${codeMatch[2]}` : ""),
+    subject_name: match?.name ?? (codeMatch ? `${codeMatch[1].toUpperCase()} ${codeMatch[2]}` : ""),
+    department: match?.department ?? "",
+    semester: match?.semester ?? "",
+    academic_year: (base.match(/20\d{2}\s?[\/\-]\s?20?\d{2}/)?.[0] ?? ""),
+    lecturer: "",
+    due_date: "",
+    summary: "Saved without AI reading (credits or AI unavailable). Use Re-analyze later for a full summary.",
+    tags: [type],
+    extracted_text: "",
+    confidence: 0.3,
+    schedule: [] as Array<{ day_of_week: number; start_time: string; end_time: string; room: string; lecturer: string; note: string; subject_code: string; subject_name: string }>,
+  };
+}
+
 async function findOrCreateSubject(
   db: any,
   ownerId: string,
@@ -247,9 +289,12 @@ async function processAcademicDocument(
     .limit(100);
   if (subjectError) throw new Error(subjectError.message);
 
-  const ai = await analyzeFile({
-    ...input,
-    knownSubjects: subjectRows ?? [],
+  // Never block an upload on AI: if credits run out, the key is missing or the
+  // model fails, sort the file from its name and mark it for a later re-analyze.
+  let aiOk = true;
+  const ai = await analyzeFile({ ...input, knownSubjects: subjectRows ?? [] }).catch(() => {
+    aiOk = false;
+    return offlineClassify(input.fileName, subjectRows ?? []);
   });
   const subject = await findOrCreateSubject(db, ownerId, {
     code: ai.subject_code,
@@ -272,7 +317,7 @@ async function processAcademicDocument(
     semester: ai.semester,
     academic_year: ai.academic_year,
     ai_confidence: ai.confidence,
-    ai_status: "processed",
+    ai_status: aiOk ? "processed" : "needs_ai",
     updated_at: new Date().toISOString(),
   }).eq("id", docId).eq("owner_id", ownerId);
   if (updateError) throw new Error(updateError.message);
