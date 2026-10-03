@@ -197,6 +197,11 @@ export const updateSiteBuild = createServerFn({ method: "POST" })
         apk_url: z.string().trim().max(600).optional(),
         published: z.boolean().optional(),
         featured: z.boolean().optional(),
+        framework: z.string().trim().max(40).optional(),
+        project_files: z.record(z.string(), z.string()).optional(),
+        dependencies: z.record(z.string(), z.string()).optional(),
+        entry_file: z.string().trim().max(180).optional(),
+        build_version: z.number().int().positive().optional(),
       })
 
       .parse(d),
