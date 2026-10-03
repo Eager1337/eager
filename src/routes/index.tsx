@@ -17,6 +17,15 @@ import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { buildPublicDemo } from "../lib/site-builder.functions";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Eager Beaver — Build, Connect, Create" },
+      { name: "description", content: "Eager Beaver is a Sierra Leone-built digital platform for AI websites, apps, portfolios, business tools, Academic AI, and direct voice/video calling." },
+      { property: "og:title", content: "Eager Beaver — Build, Connect, Create" },
+      { property: "og:description", content: "Build websites and apps, showcase projects, organize academic work, and call people directly by Eager username, email, or phone." },
+      { property: "og:type", content: "website" },
+    ],
+  }),
   component: HomePage,
 });
 
@@ -1135,10 +1144,103 @@ function PublicBuildStudio() {
   );
 }
 
+function EagerLandingHero() {
+  const cards = [
+    ["01", "Build", "AI websites and app experiences from a simple brief."],
+    ["02", "Connect", "Voice and video calls by username, email or phone."],
+    ["03", "Organize", "Academic AI turns timetables, assignments and notes into a searchable workspace."],
+    ["04", "Showcase", "Portfolio, projects, GitHub work and business tools in one place."],
+  ];
+
+  return (
+    <section className="relative min-h-[100svh] overflow-hidden bg-[#050507] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(168,85,247,.24),transparent_30%),radial-gradient(circle_at_80%_28%,rgba(14,165,233,.2),transparent_30%),radial-gradient(circle_at_50%_100%,rgba(236,72,153,.12),transparent_35%)]" />
+      <div className="absolute inset-0 opacity-[.07]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
+
+      <nav className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
+        <a href="/" className="text-lg font-black tracking-tight sm:text-xl">EAGER<span className="text-fuchsia-400">.</span></a>
+        <div className="hidden items-center gap-7 text-xs font-semibold uppercase tracking-[.18em] text-white/55 md:flex">
+          <a href="#features" className="transition hover:text-white">Features</a>
+          <a href="#build-studio" className="transition hover:text-white">AI Builder</a>
+          <a href="/portfolio-os" className="transition hover:text-white">Portfolio</a>
+          <a href="/connect" className="transition hover:text-white">Connect</a>
+        </div>
+        <Link to="/connect" className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur transition hover:bg-white hover:text-black">
+          Open Eager Connect
+        </Link>
+      </nav>
+
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-76px)] max-w-7xl items-center gap-10 px-5 pb-12 pt-4 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:px-10">
+        <div className="max-w-3xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-[.22em] text-white/65 backdrop-blur">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,.9)]" />
+            Built from Sierra Leone · Made for the world
+          </div>
+          <h1 className="text-[clamp(3.4rem,10vw,8.7rem)] font-black uppercase leading-[.84] tracking-[-.055em]">
+            Build.<br />
+            Connect.<br />
+            <span className="bg-gradient-to-r from-fuchsia-300 via-white to-sky-300 bg-clip-text text-transparent">Move.</span>
+          </h1>
+          <p className="mt-7 max-w-xl text-base leading-7 text-white/60 sm:text-lg">
+            Eager Beaver is a digital workspace for creators, students, businesses and builders — combining AI creation, project showcase, Academic AI and real-time communication in one experience.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/portfolio-os" className="rounded-full bg-white px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.03]">Explore Eager</Link>
+            <Link to="/connect" className="rounded-full border border-white/15 bg-white/[.06] px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10">Call someone</Link>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[10px] uppercase tracking-[.18em] text-white/35">
+            <span>AI Website Builder</span><span>Academic AI</span><span>Voice + Video</span><span>GitHub + Projects</span>
+          </div>
+        </div>
+
+        <div className="relative mx-auto w-full max-w-[440px]">
+          <div className="absolute -inset-10 rounded-[48px] bg-gradient-to-br from-fuchsia-500/20 via-transparent to-sky-500/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[38px] border border-white/15 bg-white/[.055] p-3 shadow-2xl backdrop-blur-2xl">
+            <div className="relative min-h-[560px] overflow-hidden rounded-[30px] bg-gradient-to-b from-[#16151d] via-[#0b0b10] to-[#050507] p-5">
+              <div className="flex items-center justify-between text-[10px] uppercase tracking-[.2em] text-white/40">
+                <span>Eager / Live</span><span>01:24</span>
+              </div>
+              <div className="mt-10 rounded-[28px] border border-white/10 bg-gradient-to-br from-fuchsia-500/15 via-white/[.03] to-sky-500/10 p-5">
+                <div className="flex items-center justify-between">
+                  <div><div className="text-xs text-white/40">Now building</div><div className="mt-1 text-xl font-black">Your next idea</div></div>
+                  <Sparkles className="h-5 w-5 text-fuchsia-300" />
+                </div>
+                <div className="mt-5 h-52 rounded-2xl border border-white/10 bg-black/40 p-4">
+                  <div className="h-2 w-20 rounded-full bg-white/20" />
+                  <div className="mt-5 h-4 w-4/5 rounded-full bg-white/10" />
+                  <div className="mt-2 h-4 w-3/5 rounded-full bg-white/10" />
+                  <div className="mt-7 grid grid-cols-2 gap-3"><div className="h-24 rounded-2xl bg-fuchsia-400/10" /><div className="h-24 rounded-2xl bg-sky-400/10" /></div>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[.045] p-4"><div className="text-[10px] text-white/35">Connect</div><div className="mt-2 font-bold">Video call</div><div className="mt-1 text-[10px] text-emerald-300">Ready</div></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.045] p-4"><div className="text-[10px] text-white/35">Academic AI</div><div className="mt-2 font-bold">Organized</div><div className="mt-1 text-[10px] text-sky-300">Always on</div></div>
+              </div>
+              <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-black/60 p-3 text-center text-[10px] text-white/45 backdrop-blur">
+                Swipe-inspired, full-screen storytelling — Eager branding, Eager features.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="features" className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-2 px-5 pb-8 sm:grid-cols-2 sm:px-8 lg:grid-cols-4 lg:px-10">
+        {cards.map(([n, title, body]) => (
+          <a key={n} href={title === "Connect" ? "/connect" : "#build-studio"} className="group rounded-2xl border border-white/10 bg-white/[.035] p-4 backdrop-blur transition hover:-translate-y-1 hover:bg-white/[.07]">
+            <div className="text-[9px] font-bold tracking-[.2em] text-white/30">{n}</div>
+            <div className="mt-2 font-bold">{title}</div>
+            <p className="mt-1 text-xs leading-5 text-white/45">{body}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function HomePage() {
   return (
     <main className="bg-[#0C0C0C]" style={{ overflowX: "clip" }}>
-      <NinjaTortoiseHero />
+      <EagerLandingHero />
       <ToonhubHero />
       <JackHero />
       <PublicBuildStudio />
