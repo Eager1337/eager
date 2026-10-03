@@ -39,7 +39,7 @@ export function AppPreviewStudio({
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
   const [zoom, setZoom] = useState(0.78);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [tab, setTab] = useState<"code" | "preview">("code");
+  const [tab, setTab] = useState<"code" | "preview">("preview");
 
   const frameWidth = useMemo(() => {
     const base = DEVICE_WIDTHS[device];
@@ -154,7 +154,7 @@ export function AppPreviewStudio({
                 key={refreshKey}
                 title="Live app simulator"
                 srcDoc={html}
-                sandbox="allow-scripts allow-forms allow-modals allow-popups"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
                 className="h-full w-full rounded-[2.2rem] border-0 bg-white"
               />
             </div>
