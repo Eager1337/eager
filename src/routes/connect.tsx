@@ -54,7 +54,7 @@ function ConnectPage() {
   const [contactBusy, setContactBusy] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState(""); const [password, setPassword] = useState("");
-  const [name, setName] = useState(""); const [username, setUsername] = useState("");
+  const [name, setName] = useState(""); const [username, setUsername] = useState(""); const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(false);
   const [recentCalls, setRecentCalls] = useState<Array<Call & { other?: Profile; direction: "incoming" | "outgoing" }>>([]);
 
@@ -134,7 +134,7 @@ function ConnectPage() {
         if (!name.trim() || !username.trim()) throw new Error("Enter your name and username.");
         const { data, error: e } = await supabase.auth.signUp({
           email: email.trim(), password,
-          options: { data: { display_name: name.trim(), username: username.trim(), phone: String((window as any).__eagerPhone || "").trim() } },
+          options: { data: { display_name: name.trim(), username: username.trim(), phone: phone.trim() } },
         });
         if (e) throw e;
         if (!data.session) setError("Account created. Confirm your email, then sign in.");
@@ -188,7 +188,7 @@ function ConnectPage() {
         <div className="mb-8 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-fuchsia-500 to-sky-500"><PhoneCall /></div><div><p className="text-[10px] uppercase tracking-[.3em] text-white/40">Eager</p><h1 className="text-3xl font-black">Connect</h1></div></div>
         <section className="rounded-3xl border border-white/10 bg-white/[.04] p-6 backdrop-blur-xl">
           <div className="mb-4 flex rounded-xl bg-black/30 p-1">{(["login","signup"] as const).map((m) => <button key={m} onClick={() => setAuthMode(m)} className={`flex-1 rounded-lg py-2 text-sm font-semibold ${authMode === m ? "bg-white text-black" : "text-white/50"}`}>{m === "login" ? "Sign in" : "Create account"}</button>)}</div>
-          {authMode === "signup" && <><input className="field" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /><input className="field" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /><input className="field" placeholder="Phone number (e.g. +232...)" defaultValue="" onChange={(e) => { (window as any).__eagerPhone = e.target.value; }} /></>}
+          {authMode === "signup" && <><input className="field" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /><input className="field" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /><input className="field" placeholder="Phone number (e.g. +232...)" value={phone} onChange={(e) => setPhone(e.target.value)} /></>}
           <input className="field" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           {error && <p className="mt-3 rounded-xl bg-amber-500/10 p-3 text-xs text-amber-200">{error}</p>}
