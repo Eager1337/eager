@@ -117,7 +117,7 @@ FILENAME: ${input.fileName}
 
 Return the complete classification and extraction. Use empty strings or [] only when a value genuinely cannot be determined.`;
 
-  const isImage = /^image\\/(png|jpe?g|webp|gif)$/i.test(input.mimeType);
+  const isImage = /^image\/(png|jpe?g|webp|gif)$/i.test(input.mimeType);
   const content = isImage
     ? [
         { type: "input_image", image_url: dataUrl(input.mimeType, input.base64), detail: "high" },
@@ -157,14 +157,6 @@ Return the complete classification and extraction. Use empty strings or [] only 
   }
   throw new Error(`Academic AI provider unavailable (status ${lastStatus || "unknown"}); use the always-on local organizer.`);
 
-  const payload = await res.json();
-  let text = responseText(payload).trim();
-  text = text.replaceAll(String.fromCharCode(96), "").trim();
-  try {
-    return aiResultSchema.parse(JSON.parse(text));
-  } catch {
-    throw new Error("The AI could read the file but returned an unreadable classification. Use Re-analyze to try again.");
-  }
 }
 
 /** Free, credit-less classification from the file name and known modules. */
