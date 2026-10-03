@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Download,
+  ExternalLink,
   FileArchive,
   FileText,
   FolderOpen,
@@ -17,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { useNavigate } from "@tanstack/react-router";
 import {
   deleteAcademicDocument,
   listAcademicLibrary,
@@ -69,6 +71,7 @@ export function AcademicLibraryPanel() {
   const upload = useServerFn(uploadAcademicDocument);
   const remove = useServerFn(deleteAcademicDocument);
   const reprocess = useServerFn(reprocessAcademicDocument);
+  const navigate = useNavigate();
 
   const [library, setLibrary] = useState<LibraryData | null>(null);
   const [folder, setFolder] = useState("all");
@@ -124,7 +127,7 @@ export function AcademicLibraryPanel() {
       for (let i = 0; i < selectedFiles.length; i += 1) {
         const file = selectedFiles[i]!;
         if (file.size > 15 * 1024 * 1024) throw new Error(`${file.name} is larger than the 15 MB limit.`);
-        setUploadStatus(`AI is reading ${file.name} (${i + 1}/${selectedFiles.length})...`);
+        setUploadStatus(`Academic AI is organizing ${file.name} (${i + 1}/${selectedFiles.length})...`);
         const base64 = await readAsBase64(file);
         const result = await upload({
           data: {
@@ -159,7 +162,7 @@ export function AcademicLibraryPanel() {
   const handleReprocess = async (id: string) => {
     try {
       setError("");
-      setUploadStatus("AI is re-reading the document and updating its subject folder...");
+      setUploadStatus("Academic AI is re-reading the document and updating its subject folder...");
       const result = await reprocess({ data: { id } });
       setSelected(result.document as LibraryData["documents"][number]);
       await refresh();
@@ -170,6 +173,27 @@ export function AcademicLibraryPanel() {
   };
 
   const selectedSubject = selected?.subject_id ? subjectMap.get(selected.subject_id) : null;
+  const exportLibrary = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      subjects,
+      documents: documents.map(({ preview_url, ...doc }) => doc),
+      schedule: library?.schedule ?? [],
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `academic-library-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFiles = (files: FileList | File[]) => {
+    void handleFiles(files);
+  };
+
 
   return (
     <div className="space-y-5">
@@ -183,25 +207,22 @@ export function AcademicLibraryPanel() {
               <div className="text-[10px] uppercase tracking-[0.25em] text-fuchsia-200/60">Academic AI</div>
               <h2 className="mt-1 text-xl font-bold">Assignment & Study Library</h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-white/55">
-                Upload your timetable, modules, assignments, projects, notebooks, slides, exams and course documents. AI reads each file, identifies the subject/module, creates folders and extracts timetable entries.
+                Upload your timetable, modules, assignments, projects, notebooks, slides, exams and course documents. Academic AI reads each file, identifies the subject/module, creates folders and extracts timetable entries. It automatically fails over to another configured AI provider and then to the built-in organizer, so uploads do not stop when an AI provider has no credits.
               </p>
             </div>
           </div>
-          <label className={`inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black hover:bg-white/90 ${library?.setupRequired ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
-            {uploading ? "Analyzing..." : "Upload files"}
-            <input
-              type="file"
-              multiple
-              className="hidden"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp"
-              disabled={uploading || library?.setupRequired}
-              onChange={(e) => {
-                if (e.target.files) void handleFiles(e.target.files);
-                e.currentTarget.value = "";
-              }}
-            />
-          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl bg-white px-3.5 text-xs font-semibold text-black hover:bg-white/90 ${library?.setupRequired ? "pointer-events-none opacity-50" : ""}`}>
+              <UploadCloud className="h-4 w-4" /> Import files
+              <input type="file" multiple className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" disabled={uploading || library?.setupRequired} onChange={(e) => { if (e.target.files) importFiles(e.target.files); e.currentTarget.value = ""; }} />
+            </label>
+            <button type="button" onClick={exportLibrary} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 text-xs text-white/75 hover:bg-white/10">
+              <Download className="h-4 w-4" /> Export library
+            </button>
+            <button type="button" onClick={() => navigate({ to: "/" })} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 text-xs text-white/75 hover:bg-white/10">
+              <ExternalLink className="h-4 w-4" /> View site
+            </button>
+          </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-white/45">
           <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5">PDF</span>
@@ -271,7 +292,7 @@ export function AcademicLibraryPanel() {
                       <span>{formatBytes(doc.file_size)}</span>
                     </div>
                   </div>
-                  {doc.ai_status === "processed" ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> : <span className="text-[10px] text-amber-200">{doc.ai_status}</span>}
+                  {doc.ai_status === "processed" || doc.ai_status === "needs_ai" ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> : <span className="text-[10px] text-amber-200">{doc.ai_status}</span>}
                 </button>
               );
             })}
@@ -356,7 +377,7 @@ export function AcademicLibraryPanel() {
               <p className="text-xs text-white/40">Every readable class from an uploaded timetable is placed into the correct day, time and module folder.</p>
             </div>
           </div>
-          <span className="rounded-full border border-emerald-300/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] text-emerald-200/70">AI organized</span>
+          <span className="rounded-full border border-emerald-300/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] text-emerald-200/70">Always-on organization</span>
         </div>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs">

@@ -47,6 +47,7 @@ import {
   Activity,
   PhoneCall,
   Smartphone,
+  Globe2,
 } from "lucide-react";
 import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
@@ -902,6 +903,8 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                     <button
                       key={t.key}
                       onClick={() => setTab(t.key)}
+                      aria-current={active ? "page" : undefined}
+                      title={t.label}
                       className={`group inline-flex items-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2.5 text-sm transition-all ${
                         active
                           ? "border-fuchsia-400/50 bg-gradient-to-r from-fuchsia-500/20 to-sky-500/20 text-white shadow-lg shadow-fuchsia-500/10"
@@ -916,6 +919,15 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             </section>
           ))}
         </nav>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-2 lg:sticky lg:bottom-4">
+          <button type="button" onClick={() => navigate({ to: "/" })} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-white/65 hover:bg-white/10 hover:text-white">
+            <Globe2 className="h-4 w-4" /> View site
+          </button>
+          <button type="button" onClick={onSignOut} className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-rose-200/80 hover:bg-rose-500/10 hover:text-rose-100">
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
+        </div>
 
         {/* Content */}
         <main className="min-w-0">
