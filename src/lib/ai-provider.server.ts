@@ -76,3 +76,22 @@ export function getAiProvider(): AiProvider | null {
 
   return null;
 }
+
+
+/** All configured text/image providers, used by always-on features that can fail over. */
+export function getAiProviders(): AiProvider[] {
+  const providers: AiProvider[] = [];
+  const lovable = process.env.LOVABLE_API_KEY;
+  if (lovable) providers.push({
+    provider: "lovable",
+    chat: { url: "https://ai.gateway.lovable.dev/v1/responses", headers: { "Lovable-API-Key": lovable, "X-Lovable-AIG-SDK": "fetch" }, model: process.env.AI_TEXT_MODEL?.trim() || DEFAULT_LOVABLE_TEXT_MODEL },
+    image: { url: "https://ai.gateway.lovable.dev/v1/images/generations", headers: { Authorization: `Bearer ${lovable}` }, model: process.env.AI_IMAGE_MODEL?.trim() || DEFAULT_LOVABLE_IMAGE_MODEL },
+  });
+  const openai = process.env.OPENAI_API_KEY;
+  if (openai) providers.push({
+    provider: "openai",
+    chat: { url: "https://api.openai.com/v1/responses", headers: { Authorization: `Bearer ${openai}` }, model: process.env.AI_TEXT_MODEL?.trim() || DEFAULT_OPENAI_TEXT_MODEL },
+    image: { url: "https://api.openai.com/v1/images/generations", headers: { Authorization: `Bearer ${openai}` }, model: process.env.AI_IMAGE_MODEL?.trim() || DEFAULT_OPENAI_IMAGE_MODEL },
+  });
+  return providers;
+}
