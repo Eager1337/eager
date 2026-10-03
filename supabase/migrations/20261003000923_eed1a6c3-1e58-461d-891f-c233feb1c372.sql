@@ -1,0 +1,1 @@
+ALTER TABLE public.academic_documents ADD COLUMN IF NOT EXISTS extracted_text text NOT NULL DEFAULT '';
