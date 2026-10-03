@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { Component, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
 import { MotionConfig } from "framer-motion";
 
 import appCss from "../styles.css?url";
@@ -144,6 +144,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+class NonCriticalErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    console.error("Eager non-critical shell feature failed:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback ?? null;
+    return this.props.children;
+  }
+}
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -160,9 +180,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [shellReady, setShellReady] = useState(false);
+
   useEffect(() => {
+    // Keep the actual route/landing page independent from optional browser-only
+    // shell features. This is especially important in hosted previews where
+    // auth/storage/extension APIs can be unavailable or interrupted.
+    setShellReady(true);
     bumpSession();
     registerPortfolioOsSw();
+
     // Page rendered successfully: clear any auto-retry counters.
     try {
       for (let i = sessionStorage.length - 1; i >= 0; i--) {
@@ -182,10 +209,30 @@ function RootComponent() {
             <MotionConfig reducedMotion="user">
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
               <Outlet />
-              <CommandPalette />
-              <GlobalSiteTools />
-              <VisitTracker />
-              <WelcomeCapture />
+
+              {shellReady ? (
+                <NonCriticalErrorBoundary>
+                  <CommandPalette />
+                </NonCriticalErrorBoundary>
+              ) : null}
+
+              {shellReady ? (
+                <NonCriticalErrorBoundary>
+                  <GlobalSiteTools />
+                </NonCriticalErrorBoundary>
+              ) : null}
+
+              {shellReady ? (
+                <NonCriticalErrorBoundary>
+                  <VisitTracker />
+                </NonCriticalErrorBoundary>
+              ) : null}
+
+              {shellReady ? (
+                <NonCriticalErrorBoundary>
+                  <WelcomeCapture />
+                </NonCriticalErrorBoundary>
+              ) : null}
             </MotionConfig>
           </InvestorModeProvider>
         </ContentStoreProvider>
