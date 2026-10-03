@@ -11,23 +11,41 @@ export function NinjaTortoiseHero() {
     <section className="relative w-full overflow-hidden bg-black text-white min-h-[100dvh] pb-40 sm:pb-24">
       <div className="absolute inset-0 bg-black" />
 
-      {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-10">
-        <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.3em]">
+      {/* Top bar: keep the original identity/status controls, but make the main entry points visible. */}
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-5 py-5 sm:px-10">
+        <Link to="/" className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.3em]">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-black">EB</span>
           Portfolio OS
+        </Link>
+
+        <div className="order-3 flex w-full flex-wrap items-center justify-center gap-2 sm:order-2 sm:w-auto">
+          <Link to="/explore" className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-white/10">
+            Explore
+          </Link>
+          <Link to="/portfolio-os" className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-white/10">
+            Portfolio OS
+          </Link>
+          <Link to="/connect" className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-white/10">
+            Connect
+          </Link>
+          <Link to="/admin" className="rounded-full border border-fuchsia-300/30 bg-fuchsia-400/10 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-fuchsia-400/20">
+            Admin Dashboard
+          </Link>
         </div>
-        <div className="hidden md:flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 backdrop-blur">
-          <span className={`h-2 w-2 rounded-full ${available === "online" ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
-          <span className="text-xs">{available === "online" ? "Available for new projects" : "Limited availability · Q3"}</span>
+
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 backdrop-blur">
+            <span className={`h-2 w-2 rounded-full ${available === "online" ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
+            <span className="text-xs">{available === "online" ? "Available for new projects" : "Limited availability · Q3"}</span>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+            className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10"
+          >
+            <CommandIcon className="h-3.5 w-3.5" />
+            K · Jump anywhere
+          </button>
         </div>
-        <button
-          onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-          className="hidden md:flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs backdrop-blur hover:bg-white/10"
-        >
-          <CommandIcon className="h-3.5 w-3.5" />
-          K · Jump anywhere
-        </button>
       </div>
 
       {/* Center */}
@@ -77,6 +95,21 @@ export function NinjaTortoiseHero() {
           <Link to="/portfolio-os" className="w-full sm:w-auto">
             <MagneticButton className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-white/10">
               Inspect the OS
+            </MagneticButton>
+          </Link>
+          <a href="#build-studio" className="w-full sm:w-auto">
+            <MagneticButton className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-fuchsia-300/30 bg-fuchsia-400/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-fuchsia-400/20">
+              Build with AI
+            </MagneticButton>
+          </a>
+          <Link to="/connect" className="w-full sm:w-auto">
+            <MagneticButton className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-sky-300/30 bg-sky-400/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-sky-400/20">
+              Eager Connect
+            </MagneticButton>
+          </Link>
+          <Link to="/admin" className="w-full sm:w-auto">
+            <MagneticButton className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur hover:bg-white/10">
+              Admin Dashboard
             </MagneticButton>
           </Link>
         </motion.div>
