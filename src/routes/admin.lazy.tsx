@@ -72,7 +72,7 @@ import { CvPanel } from "../components/admin/CvPanel";
 import { CredentialsPanel } from "../components/admin/CredentialsPanel";
 import { SecurityMfaPanel } from "../components/admin/SecurityMfaPanel";
 import { AdminOperationsPanel } from "../components/admin/AdminOperationsPanel";
-import { AppBuilderPanel } from "../components/admin/AppBuilderPanel";
+import { RealAppBuilderPanel } from "../components/admin/RealAppBuilderPanel";
 import { AcademicLibraryPanel } from "../components/admin/AcademicLibraryPanel";
 import {
   ProductsPanel,
@@ -991,7 +991,7 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               {tab === "developer" && <AdminOperationsPanel module="developer" />}
               {tab === "aiControl" && <AdminOperationsPanel module="ai" />}
               {tab === "calls" && <AdminOperationsPanel module="calls" />}
-              {tab === "appBuilder" && <AppBuilderPanel />}
+              {tab === "appBuilder" && <RealAppBuilderPanel />}
               {tab === "apps" && <InstallableAppsPanel navigate={navigate} />}
               {tab === "academicAI" && <AcademicLibraryPanel />}
             </AdminPanelErrorBoundary>
