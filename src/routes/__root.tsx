@@ -107,16 +107,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EAGER-HUB" },
-      { name: "description", content: "MY PORTFOLIO" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "EAGER-HUB" },
-      { property: "og:description", content: "MY PORTFOLIO" },
+      { title: "Eager Beaver · Digital Products & Eager Connect" },
+      { name: "description", content: "Eager Beaver — AI-powered websites, apps, business tools, Academic AI and Eager Connect voice and video calls." },
+      { name: "author", content: "Eager Beaver" },
+      { property: "og:title", content: "Eager Beaver · Digital Products & Eager Connect" },
+      { property: "og:description", content: "AI products, websites, apps, Academic AI and Eager Connect voice and video calling." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "EAGER-HUB" },
-      { name: "twitter:description", content: "MY PORTFOLIO" },
+      
+      { name: "twitter:title", content: "Eager Beaver · Digital Products & Eager Connect" },
+      { name: "twitter:description", content: "AI products, websites, apps, Academic AI and Eager Connect voice and video calling." },
       {
         property: "og:image",
         content:

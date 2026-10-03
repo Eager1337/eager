@@ -1135,23 +1135,139 @@ function PublicBuildStudio() {
   );
 }
 
+function EagerLandingHero() {
+  const features = [
+    ["AI Website Builder", "Describe a site or upload a brief and turn it into a polished responsive experience."],
+    ["Eager Connect", "Call people by Eager username, email or phone with voice, video, screen sharing and chat."],
+    ["Academic AI", "Organize timetables, assignments, projects, notebooks and slides into one searchable library."],
+    ["Business Workspace", "Manage clients, leads, products, content, analytics and operations from one command center."],
+    ["Portfolio & Showcase", "Publish projects and app previews so visitors can explore what you build."],
+    ["Built for Sierra Leone", "A local-first product direction designed for real businesses, students and creators."],
+  ];
+
+  return (
+    <section className="relative overflow-hidden bg-[#050507] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(217,70,239,.22),transparent_34%),radial-gradient(circle_at_85%_25%,rgba(14,165,233,.18),transparent_32%),linear-gradient(180deg,#050507_0%,#090912_58%,#050507_100%)]" />
+      <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-6 sm:px-8 lg:px-10">
+        <nav className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+          <Link to="/" className="text-sm font-black uppercase tracking-[.28em]">Eager Beaver</Link>
+          <div className="hidden items-center gap-5 text-xs text-white/55 sm:flex">
+            <Link to="/explore" className="hover:text-white">Explore</Link>
+            <Link to="/portfolio-os" className="hover:text-white">Portfolio OS</Link>
+            <Link to="/connect" className="hover:text-white">Connect</Link>
+            <Link to="/contact" className="hover:text-white">Contact</Link>
+          </div>
+          <Link to="/connect" className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold hover:bg-white/15">Open Eager Connect</Link>
+        </nav>
+
+        <div className="grid min-h-[calc(100dvh-100px)] items-center gap-12 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-300/20 bg-fuchsia-400/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[.25em] text-fuchsia-200">
+              Sierra Leone · AI · Digital Products
+            </div>
+            <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[.92] tracking-[-.04em] sm:text-7xl lg:text-8xl">
+              Your idea.
+              <span className="block bg-gradient-to-r from-fuchsia-300 via-violet-300 to-sky-300 bg-clip-text text-transparent">Your product.</span>
+              <span className="block">Built to ship.</span>
+            </h1>
+            <p className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg">
+              Eager Beaver is a growing digital platform for websites, apps, AI tools, business operations, academic organization and real-time communication — built with a Sierra Leone-first vision.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link to="/explore" className="rounded-2xl bg-white px-6 py-3.5 text-center text-sm font-bold text-black transition hover:scale-[1.02]">Explore the work</Link>
+              <Link to="/connect" className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3.5 text-center text-sm font-semibold backdrop-blur hover:bg-white/10">Call someone on Eager</Link>
+            </div>
+            <div className="mt-9 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                ["AI", "Build tools"],
+                ["WEB", "Web apps"],
+                ["CALL", "Voice + video"],
+                ["SL", "Local-first"],
+              ].map(([value, label]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/[.035] p-4">
+                  <div className="text-lg font-black">{value}</div>
+                  <div className="mt-1 text-[10px] uppercase tracking-widest text-white/40">{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-xl">
+            <div className="absolute -inset-10 rounded-full bg-fuchsia-500/10 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[.045] p-3 shadow-2xl backdrop-blur-xl">
+              <div className="rounded-[25px] border border-white/10 bg-[#0b0b12] p-4">
+                <div className="flex items-center gap-2 border-b border-white/10 pb-4">
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                  <span className="ml-2 text-[10px] text-white/35">eager.sl · live product preview</span>
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_.72fr]">
+                  <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-fuchsia-500/20 to-sky-500/10 p-5">
+                    <div className="text-[10px] uppercase tracking-[.25em] text-white/40">Eager Connect</div>
+                    <div className="mt-3 text-2xl font-black">People. Calls. Collaboration.</div>
+                    <div className="mt-3 text-xs leading-5 text-white/50">Search by username, email or phone and start a secure voice or video call.</div>
+                    <div className="mt-5 flex gap-2">
+                      <div className="rounded-xl bg-white px-3 py-2 text-[10px] font-bold text-black">Video call</div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px]">Screen share</div>
+                    </div>
+                  </div>
+                  <div className="grid gap-3">
+                    {["Academic AI", "AI Builder", "Business OS"].map((label) => (
+                      <div key={label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="h-8 w-8 rounded-xl bg-white/10" />
+                        <div className="mt-3 text-xs font-semibold">{label}</div>
+                        <div className="mt-1 h-1.5 w-2/3 rounded-full bg-white/10" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  {["Create", "Connect", "Grow"].map((x) => <div key={x} className="rounded-2xl border border-white/10 bg-white/[.025] py-4 text-center text-[10px] uppercase tracking-widest text-white/45">{x}</div>)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-white/10 pt-16">
+          <div className="max-w-2xl">
+            <div className="text-[10px] font-semibold uppercase tracking-[.3em] text-sky-300/70">What is inside Eager</div>
+            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">One platform, many workflows.</h2>
+            <p className="mt-4 text-sm leading-6 text-white/50">The landing page is now self-contained and does not depend on a remote image preview to render its first screen.</p>
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(([title, description]) => (
+              <article key={title} className="rounded-3xl border border-white/10 bg-white/[.035] p-5 transition hover:-translate-y-1 hover:bg-white/[.055]">
+                <div className="mb-6 h-2 w-12 rounded-full bg-gradient-to-r from-fuchsia-400 to-sky-400" />
+                <h3 className="text-base font-bold">{title}</h3>
+                <p className="mt-2 text-xs leading-6 text-white/45">{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-16 grid gap-4 rounded-[32px] border border-white/10 bg-white/[.035] p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <div className="text-[10px] uppercase tracking-[.3em] text-white/35">Start here</div>
+            <h2 className="mt-2 text-2xl font-black sm:text-4xl">See the app, call someone, or explore the work.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">Everything important has a direct entry point from the first screen instead of being hidden behind a long scroll.</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+            <Link to="/connect" className="rounded-xl bg-white px-5 py-3 text-center text-xs font-bold text-black">Eager Connect</Link>
+            <Link to="/explore" className="rounded-xl border border-white/10 px-5 py-3 text-center text-xs font-semibold">Explore</Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomePage() {
   return (
-    <main className="bg-[#0C0C0C]" style={{ overflowX: "clip" }}>
-      <NinjaTortoiseHero />
-      <ToonhubHero />
-      <JackHero />
-      <PublicBuildStudio />
-      <GitHubStatsSection />
-      <MarqueeSection />
-      <JackAbout />
-      <TestimonialsSection />
-      <ServicesSection />
-      <ProjectsSection />
-      <VanguardHero />
-      <LithosHero />
+    <main className="bg-[#050507]" style={{ overflowX: "clip" }}>
+      <EagerLandingHero />
       <PortfolioOsBanner />
-      <DiagnosticsPanel />
     </main>
   );
 }

@@ -22,6 +22,13 @@ const RTC_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    ...(import.meta.env.VITE_TURN_URL
+      ? [{
+          urls: String(import.meta.env.VITE_TURN_URL),
+          username: import.meta.env.VITE_TURN_USERNAME ? String(import.meta.env.VITE_TURN_USERNAME) : undefined,
+          credential: import.meta.env.VITE_TURN_CREDENTIAL ? String(import.meta.env.VITE_TURN_CREDENTIAL) : undefined,
+        }]
+      : []),
   ],
 };
 
@@ -51,9 +58,10 @@ function ConnectPage() {
   const [active, setActive] = useState<Call | null>(null);
   const [remote, setRemote] = useState<Profile | null>(null);
   const [search, setSearch] = useState("");
+  const [contactBusy, setContactBusy] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState(""); const [password, setPassword] = useState("");
-  const [name, setName] = useState(""); const [username, setUsername] = useState("");
+  const [name, setName] = useState(""); const [username, setUsername] = useState(""); const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(false);
   const [recentCalls, setRecentCalls] = useState<Array<Call & { other?: Profile; direction: "incoming" | "outgoing" }>>([]);
 
@@ -133,7 +141,7 @@ function ConnectPage() {
         if (!name.trim() || !username.trim()) throw new Error("Enter your name and username.");
         const { data, error: e } = await supabase.auth.signUp({
           email: email.trim(), password,
-          options: { data: { display_name: name.trim(), username: username.trim() } },
+          options: { data: { display_name: name.trim(), username: username.trim(), phone: phone.trim() } },
         });
         if (e) throw e;
         if (!data.session) setError("Account created. Confirm your email, then sign in.");
@@ -143,6 +151,20 @@ function ConnectPage() {
       }
     } catch (e) { setError(e instanceof Error ? e.message : "Authentication failed."); }
     finally { setBusy(false); }
+  };
+
+  const callContact = async (mode: "voice" | "video") => {
+    if (!user || !search.trim()) return;
+    setContactBusy(true); setError(null);
+    try {
+      const { data, error: lookupError } = await db().rpc("find_eager_contact", { p_contact: search.trim() });
+      if (lookupError) throw lookupError;
+      const person = (Array.isArray(data) ? data[0] : data) as Profile | undefined;
+      if (!person) throw new Error("No Eager account matches that email address or phone number.");
+      await call(person, mode);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not find that contact.");
+    } finally { setContactBusy(false); }
   };
 
   const call = async (person: Profile, mode: "voice" | "video") => {
@@ -173,7 +195,7 @@ function ConnectPage() {
         <div className="mb-8 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-fuchsia-500 to-sky-500"><PhoneCall /></div><div><p className="text-[10px] uppercase tracking-[.3em] text-white/40">Eager</p><h1 className="text-3xl font-black">Connect</h1></div></div>
         <section className="rounded-3xl border border-white/10 bg-white/[.04] p-6 backdrop-blur-xl">
           <div className="mb-4 flex rounded-xl bg-black/30 p-1">{(["login","signup"] as const).map((m) => <button key={m} onClick={() => setAuthMode(m)} className={`flex-1 rounded-lg py-2 text-sm font-semibold ${authMode === m ? "bg-white text-black" : "text-white/50"}`}>{m === "login" ? "Sign in" : "Create account"}</button>)}</div>
-          {authMode === "signup" && <><input className="field" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /><input className="field" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /></>}
+          {authMode === "signup" && <><input className="field" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /><input className="field" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /><input className="field" placeholder="Phone number (e.g. +232...)" value={phone} onChange={(e) => setPhone(e.target.value)} /></>}
           <input className="field" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input className="field" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           {error && <p className="mt-3 rounded-xl bg-amber-500/10 p-3 text-xs text-amber-200">{error}</p>}
@@ -194,8 +216,14 @@ function ConnectPage() {
         </header>
         <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_330px]">
           <section>
-            <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-bold">Call anyone on Eager</h2><p className="mt-1 text-sm text-white/45">Voice, video, screen sharing and in-call chat.</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1.5 text-[11px] text-emerald-200">● Online</span></div>
-            <div className="mt-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3"><Search className="h-4 w-4 text-white/30" /><input value={search} onChange={(e) => { setSearch(e.target.value); void loadPeople(user.id, e.target.value); }} placeholder="Search name or username…" className="w-full bg-transparent text-sm outline-none" /></div>
+            <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-bold">Call anyone on Eager</h2><p className="mt-1 text-sm text-white/45">Call by Eager username, email address or phone number. Voice, video, screen sharing and in-call chat are built in.</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1.5 text-[11px] text-emerald-200">● Online</span></div>
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.03] p-3">
+              <div className="flex items-center gap-2 px-1"><Search className="h-4 w-4 text-white/30" /><input value={search} onChange={(e) => { setSearch(e.target.value); void loadPeople(user.id, e.target.value); }} placeholder="Search name, username, email or phone…" className="w-full bg-transparent text-sm outline-none" /></div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button disabled={contactBusy || !search.trim()} onClick={() => void callContact("voice")} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs disabled:opacity-40"><AudioLines className="mr-1 inline h-3.5 w-3.5" /> Call by email/phone</button>
+                <button disabled={contactBusy || !search.trim()} onClick={() => void callContact("video")} className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-black disabled:opacity-40"><Video className="mr-1 inline h-3.5 w-3.5" /> Video call by email/phone</button>
+              </div>
+            </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {people.map((p) => <article key={p.id} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="flex gap-3"><Avatar profile={p} /><div className="min-w-0"><div className="flex items-center gap-1"><h3 className="truncate font-semibold">{p.display_name}</h3>{p.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-sky-300" />}</div><p className="text-xs text-white/35">@{p.username}</p><p className="mt-2 line-clamp-2 text-xs text-white/45">{p.bio || "Available for an Eager call."}</p></div></div><div className="mt-4 grid grid-cols-2 gap-2"><button onClick={() => void call(p,"voice")} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs"><AudioLines className="h-4 w-4" /> Voice</button><button onClick={() => void call(p,"video")} className="flex items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-xs font-semibold text-black"><Video className="h-4 w-4" /> Video</button></div></article>)}
             </div>
