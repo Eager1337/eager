@@ -206,7 +206,7 @@ export function AcademicLibraryPanel() {
               <div className="text-[10px] uppercase tracking-[0.25em] text-fuchsia-200/60">Academic AI</div>
               <h2 className="mt-1 text-xl font-bold">Assignment & Study Library</h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-white/55">
-                Upload your timetable, modules, assignments, projects, notebooks, slides, exams and course documents. AI reads each file, identifies the subject/module, creates folders and extracts timetable entries.
+                Upload your timetable, modules, assignments, projects, notebooks, slides, exams and course documents. Academic AI reads each file, identifies the subject/module, creates folders and extracts timetable entries. It automatically fails over to another configured AI provider and then to the built-in organizer, so uploads do not stop when an AI provider has no credits.
               </p>
             </div>
           </div>
@@ -291,7 +291,7 @@ export function AcademicLibraryPanel() {
                       <span>{formatBytes(doc.file_size)}</span>
                     </div>
                   </div>
-                  {doc.ai_status === "processed" ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> : <span className="text-[10px] text-amber-200">{doc.ai_status}</span>}
+                  {doc.ai_status === "processed" || doc.ai_status === "needs_ai" ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> : <span className="text-[10px] text-amber-200">{doc.ai_status}</span>}
                 </button>
               );
             })}
