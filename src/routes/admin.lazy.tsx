@@ -47,6 +47,7 @@ import {
   Activity,
   PhoneCall,
   Smartphone,
+  Globe2,
 } from "lucide-react";
 import { ProposalsPanel, ContractSigningPanel } from "../components/admin/ProposalPanels";
 import {
