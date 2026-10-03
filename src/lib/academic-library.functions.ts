@@ -73,9 +73,9 @@ async function analyzeFile(input: {
   base64: string;
   knownSubjects: Array<{ code: string; name: string; department?: string; semester?: string }>;
 }) {
-  const { getAiProvider, supportsReasoning } = await import("./ai-provider.server");
-  const provider = getAiProvider();
-  if (!provider) throw new Error("AI is not configured. Add OPENAI_API_KEY or the Lovable AI key and redeploy.");
+  const { getAiProviders, supportsReasoning } = await import("./ai-provider.server");
+  const providers = getAiProviders();
+  if (!providers.length) throw new Error("Academic AI is not configured. The library will continue using its always-on local organizer.");
 
   const knownSubjects = input.knownSubjects
     .filter((subject) => subject.name || subject.code)
@@ -117,7 +117,7 @@ FILENAME: ${input.fileName}
 
 Return the complete classification and extraction. Use empty strings or [] only when a value genuinely cannot be determined.`;
 
-  const isImage = /^image\/(png|jpe?g|webp|gif)$/i.test(input.mimeType);
+  const isImage = /^image\\/(png|jpe?g|webp|gif)$/i.test(input.mimeType);
   const content = isImage
     ? [
         { type: "input_image", image_url: dataUrl(input.mimeType, input.base64), detail: "high" },
@@ -129,62 +129,33 @@ Return the complete classification and extraction. Use empty strings or [] only 
       ];
 
   const jsonSchema = {
-    type: "object",
-    additionalProperties: false,
+    type: "object", additionalProperties: false,
     properties: {
-      title: { type: "string" },
-      document_type: { type: "string", enum: ["assignment","project","notebook","slides","lecture_notes","timetable","exam","syllabus","reading","other"] },
-      subject_code: { type: "string" },
-      subject_name: { type: "string" },
-      department: { type: "string" },
-      semester: { type: "string" },
-      academic_year: { type: "string" },
-      lecturer: { type: "string" },
-      due_date: { type: "string" },
-      summary: { type: "string" },
-      tags: { type: "array", items: { type: "string" }, maxItems: 20 },
-      extracted_text: { type: "string" },
-      confidence: { type: "number", minimum: 0, maximum: 1 },
-      schedule: {
-        type: "array",
-        maxItems: 500,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            day_of_week: { type: "integer", minimum: 0, maximum: 6 },
-            start_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" },
-            end_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" },
-            room: { type: "string" },
-            lecturer: { type: "string" },
-            note: { type: "string" },
-            subject_code: { type: "string" },
-            subject_name: { type: "string" },
-          },
-          required: ["day_of_week","start_time","end_time","room","lecturer","note","subject_code","subject_name"],
-        },
-      },
+      title: { type: "string" }, document_type: { type: "string", enum: ["assignment","project","notebook","slides","lecture_notes","timetable","exam","syllabus","reading","other"] },
+      subject_code: { type: "string" }, subject_name: { type: "string" }, department: { type: "string" }, semester: { type: "string" }, academic_year: { type: "string" }, lecturer: { type: "string" }, due_date: { type: "string" }, summary: { type: "string" },
+      tags: { type: "array", items: { type: "string" }, maxItems: 20 }, extracted_text: { type: "string" }, confidence: { type: "number", minimum: 0, maximum: 1 },
+      schedule: { type: "array", maxItems: 500, items: { type: "object", additionalProperties: false, properties: { day_of_week: { type: "integer", minimum: 0, maximum: 6 }, start_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" }, end_time: { type: "string", pattern: "^\\d{2}:\\d{2}$" }, room: { type: "string" }, lecturer: { type: "string" }, note: { type: "string" }, subject_code: { type: "string" }, subject_name: { type: "string" } }, required: ["day_of_week","start_time","end_time","room","lecturer","note","subject_code","subject_name"] } },
     },
     required: ["title","document_type","subject_code","subject_name","department","semester","academic_year","lecturer","due_date","summary","tags","extracted_text","confidence","schedule"],
   };
 
-  const request = async (withSchema: boolean) => fetch(provider.chat.url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...provider.chat.headers },
-    body: JSON.stringify({
-      model: provider.chat.model,
-      input: [{ role: "user", content }],
-      ...(supportsReasoning(provider.chat.model) ? { reasoning: { effort: "medium", summary: "auto" } } : {}),
-      ...(withSchema ? { text: { format: { type: "json_schema", name: "academic_document_analysis", strict: true, schema: jsonSchema } } } : {}),
-    }),
-  });
-
-  let res = await request(true);
-  // Compatible gateways that do not support structured output can still use the same vision prompt.
-  if (res.status === 400) res = await request(false);
-  if (res.status === 429) throw new Error("AI rate limit reached. Try again shortly.");
-  if (res.status === 402) throw new Error("AI credits exhausted. Top up to continue.");
-  if (!res.ok) throw new Error(`Academic AI failed (${res.status}).`);
+  let lastStatus = 0;
+  for (const provider of providers) {
+    const request = async (withSchema: boolean) => fetch(provider.chat.url, {
+      method: "POST", headers: { "Content-Type": "application/json", ...provider.chat.headers },
+      body: JSON.stringify({ model: provider.chat.model, input: [{ role: "user", content }], ...(supportsReasoning(provider.chat.model) ? { reasoning: { effort: "medium", summary: "auto" } } : {}), ...(withSchema ? { text: { format: { type: "json_schema", name: "academic_document_analysis", strict: true, schema: jsonSchema } } } : {}) }),
+    });
+    let res = await request(true);
+    if (res.status === 400) res = await request(false);
+    lastStatus = res.status;
+    if (res.ok) {
+      const payload = await res.json();
+      let text = responseText(payload).trim().replaceAll(String.fromCharCode(96), "").trim();
+      try { return aiResultSchema.parse(JSON.parse(text)); } catch { /* try the next configured provider */ }
+    }
+    if (![402, 429, 500, 502, 503, 504].includes(res.status)) break;
+  }
+  throw new Error(`Academic AI provider unavailable (status ${lastStatus || "unknown"}); use the always-on local organizer.`);
 
   const payload = await res.json();
   let text = responseText(payload).trim();
